@@ -1,0 +1,6 @@
+[submodule "thirdparty/godot-cpp"]
+	path = thirdparty/godot-cpp
+	url = https://github.com/godotengine/godot-cpp.git
+[submodule "thirdparty/iree"]
+	path = thirdparty/iree
+	url = https://github.com/openxla/iree.git
