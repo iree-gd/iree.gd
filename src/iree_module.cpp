@@ -9,74 +9,20 @@
 #include <iree/modules/hal/module.h>
 #include <iree/vm/bytecode/module.h>
 
+#include "iree_instance.h"
+
 using namespace godot;
-
-bool IREEModule::Runtime::is_init() {
-    return instance && driver && device && hal_module;
-}
-
-Error IREEModule::Runtime::init() {
-	// Create instance.
-	ERR_FAIL_COND_V_MSG(
-		iree_vm_instance_create(iree_allocator_system(), &instance),
-		ERR_CANT_CREATE, "IREERuntime couldn't create a VM instance."
-	);
-	ERR_FAIL_COND_V_MSG(
-		iree_hal_module_register_all_types(instance),
-		ERR_CANT_CREATE, "IREERuntime couldn't register HAL modules."
-	);
-
-	// Create a driver for device.
-	ERR_FAIL_COND_V_MSG(
-		iree_hal_driver_registry_try_create(
-			iree_hal_driver_registry_default(),
-			iree_string_view_literal("local-task"),
-			iree_allocator_system(), &driver),
-		ERR_CANT_CREATE, "IREERuntime couldn't create a driver."
-	);
-
-	// Create a device.
-	ERR_FAIL_COND_V_MSG(
-		iree_hal_driver_create_default_device(driver, iree_allocator_system(), &device),
-		ERR_CANT_CREATE, "IREERuntime couldn't create a device."
-	);
-
-	// Create a hal module.
-	ERR_FAIL_COND_V_MSG(
-		iree_hal_module_create(instance, device, IREE_HAL_MODULE_FLAG_NONE,
-                           iree_allocator_system(), &hal_module),
-		ERR_CANT_CREATE, "IREERuntime couldn't create a HAL module."
-	);
-
-    return OK;
-}
-
-void IREEModule::Runtime::deinit() {
-	if(hal_module != nullptr) {iree_vm_module_release(hal_module); hal_module = nullptr;}
-	if(device != nullptr) {iree_hal_device_release(device); device = nullptr;}
-	if(driver != nullptr) {iree_hal_driver_release(driver); driver = nullptr;}
-	if(instance != nullptr) {iree_vm_instance_release(instance); instance = nullptr;}
-}
-
-IREEModule::Runtime::Runtime() 
-: 
-    instance(nullptr),
-    driver(nullptr),
-    device(nullptr),
-    hal_module(nullptr)
-{ }
-
-IREEModule::Runtime::~Runtime() { deinit(); }
 
 void IREEModule::unload() {
 	if(bytecode != nullptr) {iree_vm_module_release(bytecode);  bytecode = nullptr;}
 	if(context != nullptr) {iree_vm_context_release(context); context = nullptr;}
     load_path = "";
-    entry = {0};
+    entry.fn = {0};
+    entry.symbol = "";
 }
 
 bool IREEModule::is_loaded() {
-    return runtime.is_init() && bytecode && context;
+    return device.device != nullptr && device.hal_module != nullptr && bytecode && context;
 }
 
 bool IREEModule::is_init() {
@@ -85,8 +31,8 @@ bool IREEModule::is_init() {
 
 Error IREEModule::load(const String& p_path) {
     // Initialize runtime.
-    if(!runtime.is_init()) {
-        Error err = runtime.init();
+    if(device.device == nullptr || device.hal_module == nullptr) {
+        Error err = device.catch_device(IREEInstance::get_vm_instance());
         if(err) return err;
     }
 
@@ -101,7 +47,7 @@ Error IREEModule::load(const String& p_path) {
     iree_vm_module_t* new_bytecode = nullptr;
     PackedByteArray bytecode_data = file->get_buffer(file->get_length()); 
     ERR_FAIL_COND_V_MSG(iree_vm_bytecode_module_create(
-        runtime.instance, iree_const_byte_span_t{
+        IREEInstance::get_vm_instance(), iree_const_byte_span_t{
             bytecode_data.ptr(), 
             (iree_host_size_t)bytecode_data.size()
         },
@@ -111,9 +57,9 @@ Error IREEModule::load(const String& p_path) {
 
     // Create a context.
     iree_vm_context_t* new_context = nullptr;
-    iree_vm_module_t* modules[2] = {runtime.hal_module, bytecode};
+    iree_vm_module_t* modules[2] = {device.hal_module, bytecode};
     ERR_FAIL_COND_V_MSG(iree_vm_context_create_with_modules(
-        runtime.instance, IREE_VM_CONTEXT_FLAG_NONE,
+        IREEInstance::get_vm_instance(), IREE_VM_CONTEXT_FLAG_NONE,
         IREE_ARRAYSIZE(modules), modules,
         iree_allocator_system(), &new_context
     ) , ERR_CANT_CREATE, "Unable to create IREE context.");
@@ -234,15 +180,17 @@ void IREEModule::_bind_methods() {
 
     ClassDB::bind_method(D_METHOD("call", "inputs"), &IREEModule::call);
 
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "entry_point", PROPERTY_HINT_NONE, "Entry function name"), "set_entry_point", "get_entry_point");
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "load_path", PROPERTY_HINT_FILE, "*.mlir"), "load", "get_load_path");
 }
 
 IREEModule::IREEModule()
 :
-    runtime(),
+    device(),
     bytecode(nullptr),
     context(nullptr),
     load_path(""),
-    entry({0})
+    entry()
 { }
 
-IREEModule::~IREEModule() { unload(); runtime.deinit(); }
+IREEModule::~IREEModule() { unload(); device.release_device(); }
