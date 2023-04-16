@@ -35,11 +35,7 @@ option(IREE_ENABLE_THREADING "Enables threading for IREE." ON)
 set(IREE_HOST_BIN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools/bin)
 
 # Change the default output directory
-<<<<<<< HEAD
-set(OUTPUT_DIR ${CMAKE_BINARY_DIR}/dist/${TARGET_PATH})
-=======
 set(OUTPUT_DIR ${CMAKE_BINARY_DIR}/dist)
->>>>>>> b3a8df9 (Setup project.)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_DIR}/misc/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR}/misc/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}/misc/bin)
@@ -150,14 +146,6 @@ add_subdirectory(${3RD_PARTY_DIR}/godot-cpp)
 # Top-level components
 #-------------------------------------------------------------------------------
 
-<<<<<<< HEAD
-file(GLOB_RECURSE SRCS ${SRC_DIR}/*.c**)
-file(GLOB_RECURSE HEADERS ${SRC_DIR}/*.h**)
-
-add_library(${PROJECT_NAME} SHARED ${SRCS} ${HEADERS})
-target_include_directories(
-	${PROJECT_NAME} 
-=======
 set(BIN_NAME ${PROJECT_NAME}.${SYSTEM_NAME}.${BUILD_TYPE})
 file(GLOB_RECURSE SRCS ${SRC_DIR}/*.c**)
 file(GLOB_RECURSE HEADERS ${SRC_DIR}/*.h**)
@@ -165,17 +153,12 @@ file(GLOB_RECURSE HEADERS ${SRC_DIR}/*.h**)
 add_library(${BIN_NAME} SHARED ${SRCS} ${HEADERS})
 target_include_directories(
 	${BIN_NAME} 
->>>>>>> b3a8df9 (Setup project.)
 	PRIVATE 
 	${3RD_PARTY_DIR}/godot-cpp ${3RD_PARTY_DIR}/godot-cpp/gdextension 
 	${3RD_PARTY_DIR}/iree/runtime/src
 )
 target_link_libraries(
-<<<<<<< HEAD
-	${PROJECT_NAME}
-=======
 	${BIN_NAME}
->>>>>>> b3a8df9 (Setup project.)
 	iree_base_base
 	iree_hal_hal
 	iree_hal_drivers_local_task_registration_registration
@@ -187,31 +170,19 @@ target_link_libraries(
 )
 set_property(
 	TARGET 
-<<<<<<< HEAD
-	${PROJECT_NAME} 
-=======
 	${BIN_NAME} 
->>>>>>> b3a8df9 (Setup project.)
 	APPEND_STRING PROPERTY COMPILE_FLAGS 
 	${GODOT_COMPILE_FLAGS}
 )
 set_property(
 	TARGET 
-<<<<<<< HEAD
-	${PROJECT_NAME} 
-=======
 	${BIN_NAME} 
->>>>>>> b3a8df9 (Setup project.)
 	APPEND_STRING PROPERTY LINK_FLAGS 
 	${GODOT_LINKER_FLAGS}
 )
 set_target_properties(
-<<<<<<< HEAD
-	${PROJECT_NAME} PROPERTIES
-=======
 	${BIN_NAME} PROPERTIES
->>>>>>> b3a8df9 (Setup project.)
-    ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_DIR}/iree-gd/lib
-    LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR}/iree-gd/lib
-    RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}/iree-gd/bin
+	ARCHIVE_OUTPUT_DIRECTORY ${OUTPUT_DIR}/iree-gd/lib
+	LIBRARY_OUTPUT_DIRECTORY ${OUTPUT_DIR}/iree-gd/lib
+	RUNTIME_OUTPUT_DIRECTORY ${OUTPUT_DIR}/iree-gd/bin
 )
