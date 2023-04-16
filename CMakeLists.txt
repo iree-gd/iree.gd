@@ -24,8 +24,15 @@ endif(CCACHE_FOUND)
 # Update default value for options
 option(IREE_BUILD_COMPILER "Builds the IREE compiler." OFF)
 option(IREE_BUILD_TESTS "Builds IREE unit tests." OFF)
-option(IREE_BUILD_SAMPLES "Builds IREE sample projects." OFF)
+option(IREE_BUILD_SAMPLES "Builds IREE sample projects." ON)
 option(IREE_BUILD_BUNDLED_LLVM "Builds the bundled llvm-project (vs using installed)" OFF)
+
+option(IREE_HAL_DRIVER_LOCAL_SYNC "Enables the 'local-sync' runtime HAL driver" ON)
+option(IREE_HAL_DRIVER_LOCAL_TASK "Enables the 'local-task' runtime HAL driver" ON)
+option(IREE_HAL_EXECUTABLE_LOADER_VMVX_MODULE "Enables the VMVX module loader for local HAL drivers" ON)
+option(IREE_ENABLE_THREADING "Enables threading for IREE." ON)
+
+set(IREE_HOST_BIN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools/bin)
 
 # Change the default output directory
 <<<<<<< HEAD
