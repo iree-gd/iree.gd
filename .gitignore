@@ -1,4 +1,5 @@
 /build/
 /tools/
-/example/
+/sample/
+/.vscode/
 /compile_commands.json
