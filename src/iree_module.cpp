@@ -100,7 +100,7 @@ String IREEModule::get_entry_point() const {
 
 PackedFloat32Array IREEModule::call(const PackedFloat32Array& p_inputs) const {
     iree_vm_list_t* inputs = nullptr;
-    iree_vm_type_def_t value_type = iree_vm_type_def_make_value_type(IREE_VM_VALUE_TYPE_F32);
+    iree_vm_type_def_t value_type = iree_vm_make_value_type_def(IREE_VM_VALUE_TYPE_F32);
     iree_vm_list_t* outputs = nullptr;
     iree_host_size_t outputs_size = 0;
     PackedFloat32Array result;
@@ -109,7 +109,7 @@ PackedFloat32Array IREEModule::call(const PackedFloat32Array& p_inputs) const {
     
     // Create a new iree list for inputs.
     ERR_FAIL_COND_V_MSG(iree_vm_list_create(
-        &value_type, p_inputs.size(), 
+        value_type, p_inputs.size(), 
         iree_allocator_system(), &inputs
     ), result, "Unable to allocate memory for IREE input list.");
 
@@ -129,7 +129,7 @@ PackedFloat32Array IREEModule::call(const PackedFloat32Array& p_inputs) const {
 
     // Create a new iree list for outputs.
     if(iree_vm_list_create(
-        &value_type, p_inputs.size(), 
+        value_type, p_inputs.size(), 
         iree_allocator_system(), &inputs
     )) {
         ERR_PRINT("Unable to allocate memory for IREE output list.");

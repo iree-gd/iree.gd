@@ -21,7 +21,7 @@ IREEInstance::IREEInstance()
     instance(nullptr)
 {
 	ERR_FAIL_COND_MSG(
-		iree_vm_instance_create(iree_allocator_system(), &instance),
+		iree_vm_instance_create(IREE_VM_TYPE_CAPACITY_DEFAULT, iree_allocator_system(), &instance),
 		"Unable create a VM instance."
 	);
 	ERR_FAIL_COND_MSG(
