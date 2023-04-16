@@ -180,3 +180,17 @@ set_target_properties(
 	LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
 	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
 )
+
+# Copy the libraries into `sample/` folder
+# as assuming it contain a godot project to test things out.
+set(SAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sample)
+if(EXISTS ${SAMPLE_DIR})
+	if(TARGET ${BIN_NAME})
+		add_custom_command(
+			TARGET ${BIN_NAME} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy 
+					$<TARGET_FILE:${BIN_NAME}> 
+					${SAMPLE_DIR}/extension/iree-gd/$<TARGET_FILE_NAME:${BIN_NAME}>
+		)
+	endif()
+endif()
