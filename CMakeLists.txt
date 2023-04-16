@@ -4,6 +4,19 @@
 
 cmake_minimum_required(VERSION 3.23)
 
+# Fetch iree tools
+message(STATUS "Downloading IREE tools.")
+include(FetchContent)
+set(FETCHCONTENT_QUIET FALSE)
+FetchContent_Declare(
+	iree-dist
+	URL https://github.com/openxla/iree/releases/download/candidate-20230415.490/iree-dist-20230415.490-linux-x86_64.tar.xz
+	DOWNLOAD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/.tmp
+	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools
+	DOWNLOAD_EXTRACT_TIMESTAMP NEW
+)
+FetchContent_MakeAvailable(iree-dist)
+
 #-------------------------------------------------------------------------------
 # Project configuration
 #-------------------------------------------------------------------------------
