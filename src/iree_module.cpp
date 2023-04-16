@@ -14,8 +14,8 @@
 using namespace godot;
 
 void IREEModule::unload() {
-	if(bytecode != nullptr) {iree_vm_module_release(bytecode);  bytecode = nullptr;}
 	if(context != nullptr) {iree_vm_context_release(context); context = nullptr;}
+	if(bytecode != nullptr) {iree_vm_module_release(bytecode);  bytecode = nullptr;}
     load_path = "";
     entry.fn = {0};
     entry.symbol = "";
@@ -36,16 +36,14 @@ Error IREEModule::load(const String& p_path) {
         if(err) return err;
     }
 
-    // Open the file.
-    Ref<FileAccess> file = FileAccess::open(p_path, FileAccess::READ);
-    ERR_FAIL_COND_V_MSG(file.is_null(), ERR_FILE_CANT_OPEN, vformat("Unable to open file: %s", p_path));
-
     // Unload old data.
     unload();
 
+    // Read file content.
+    PackedByteArray bytecode_data = FileAccess::get_file_as_bytes(p_path);
+
     // Create a module.
     iree_vm_module_t* new_bytecode = nullptr;
-    PackedByteArray bytecode_data = file->get_buffer(file->get_length()); 
     ERR_FAIL_COND_V_MSG(iree_vm_bytecode_module_create(
         IREEInstance::get_vm_instance(), iree_const_byte_span_t{
             bytecode_data.ptr(), 
@@ -63,7 +61,7 @@ Error IREEModule::load(const String& p_path) {
         IREE_ARRAYSIZE(modules), modules,
         iree_allocator_system(), &new_context
     ) , ERR_CANT_CREATE, "Unable to create IREE context.");
-    context = new_context;    
+    context = new_context;
 
     load_path = p_path;
 
@@ -181,7 +179,7 @@ void IREEModule::_bind_methods() {
     ClassDB::bind_method(D_METHOD("call", "inputs"), &IREEModule::call);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "entry_point", PROPERTY_HINT_NONE, "Entry function name"), "set_entry_point", "get_entry_point");
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "load_path", PROPERTY_HINT_FILE, "*.mlir"), "load", "get_load_path");
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "load_path", PROPERTY_HINT_FILE, "*.vmfb"), "load", "get_load_path");
 }
 
 IREEModule::IREEModule()
