@@ -22,7 +22,7 @@ void IREEModule::unload() {
 }
 
 bool IREEModule::is_loaded() {
-    return device.device != nullptr && device.hal_module != nullptr && bytecode && context;
+    return bytecode && context;
 }
 
 bool IREEModule::is_init() {
@@ -30,11 +30,13 @@ bool IREEModule::is_init() {
 }
 
 Error IREEModule::load(const String& p_path) {
-    // Initialize runtime.
-    if(device.device == nullptr || device.hal_module == nullptr) {
-        Error err = device.catch_device(IREEInstance::get_vm_instance());
-        if(err) return err;
-    }
+    // Get hal module.
+    iree_vm_module_t* const hal_module = IREEInstance::get_hal_module();
+    ERR_FAIL_NULL_V(hal_module, ERR_CANT_CREATE);
+
+    // Get instance.
+    iree_vm_instance_t* const instance = IREEInstance::get_vm_instance();
+    ERR_FAIL_NULL_V(instance, ERR_CANT_CREATE);
 
     // Unload old data.
     unload();
@@ -45,7 +47,7 @@ Error IREEModule::load(const String& p_path) {
     // Create a module.
     iree_vm_module_t* new_bytecode = nullptr;
     ERR_FAIL_COND_V_MSG(iree_vm_bytecode_module_create(
-        IREEInstance::get_vm_instance(), iree_const_byte_span_t{
+        instance, iree_const_byte_span_t{
             bytecode_data.ptr(), 
             (iree_host_size_t)bytecode_data.size()
         },
@@ -55,9 +57,9 @@ Error IREEModule::load(const String& p_path) {
 
     // Create a context.
     iree_vm_context_t* new_context = nullptr;
-    iree_vm_module_t* modules[2] = {device.hal_module, bytecode};
+    iree_vm_module_t* modules[2] = {hal_module, bytecode};
     ERR_FAIL_COND_V_MSG(iree_vm_context_create_with_modules(
-        IREEInstance::get_vm_instance(), IREE_VM_CONTEXT_FLAG_NONE,
+        instance, IREE_VM_CONTEXT_FLAG_NONE,
         IREE_ARRAYSIZE(modules), modules,
         iree_allocator_system(), &new_context
     ) , ERR_CANT_CREATE, "Unable to create IREE context.");
@@ -184,11 +186,10 @@ void IREEModule::_bind_methods() {
 
 IREEModule::IREEModule()
 :
-    device(),
     bytecode(nullptr),
     context(nullptr),
     load_path(""),
     entry()
 { }
 
-IREEModule::~IREEModule() { unload(); device.release_device(); }
+IREEModule::~IREEModule() { unload(); }

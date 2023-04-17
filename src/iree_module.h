@@ -18,15 +18,12 @@
 #include <iree/hal/api.h>
 #include <iree/vm/api.h>
 
-#include "iree_device.h"
-
 using namespace godot;
 
 class IREEModule : public Resource {
     GDCLASS(IREEModule, Resource)
 
 private:
-    IREEDevice device;
     iree_vm_module_t* bytecode;
 	iree_vm_context_t* context;
     String load_path;
