@@ -134,6 +134,12 @@ endif()
 #       to pass `-fno-rtti` as a global compile option by adding the line
 add_compile_options("-fno-rtti")
 
+# Sanitize for debugging
+if("${CMAKE_BUILD_TYPE}" MATCHES Debug)
+	add_compile_options(-fsanitize=address)
+	add_link_options(-fsanitize=address)
+endif()
+
 set(3RD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty CACHE STRING "Path to all the thirdparty libraries.")
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src CACHE STRING "Path to sources files (and header files).")
 
