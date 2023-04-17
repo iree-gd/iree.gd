@@ -12,7 +12,7 @@
 
 using namespace godot;
 
-Error IREEDevice::catch_device(iree_vm_instance_t* p_instance) {
+Error IREEDevice::capture(iree_vm_instance_t* p_instance) {
     Error e = OK;
     iree_string_view_t id = iree_make_cstring_view("local-task");
     iree_hal_executable_loader_t* loader = nullptr;
@@ -90,7 +90,7 @@ create_hal_module:
     return OK;
 }
 
-void IREEDevice::release_device() {
+void IREEDevice::release() {
     if(hal_module != nullptr) {iree_vm_module_release(hal_module); hal_module = nullptr;}
     if(device != nullptr) {iree_hal_device_release(device); device = nullptr;}
 }
@@ -101,4 +101,4 @@ IREEDevice::IREEDevice()
     hal_module(nullptr)
 {}
 
-IREEDevice::~IREEDevice() { release_device(); }
+IREEDevice::~IREEDevice() { release(); }

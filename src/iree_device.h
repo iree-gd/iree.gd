@@ -20,8 +20,8 @@ public:
     IREEDevice();
     ~IREEDevice();
 
-    Error catch_device(iree_vm_instance_t* p_instance);
-    void release_device();
+    Error capture(iree_vm_instance_t* p_instance);
+    void release();
 };
 
 #endif // IREE_DEVICE_H

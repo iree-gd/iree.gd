@@ -9,7 +9,7 @@
 #include <iree/modules/hal/module.h>
 #include <iree/vm/bytecode/module.h>
 
-#include "iree_instance.h"
+#include "iree.h"
 
 using namespace godot;
 
@@ -31,11 +31,11 @@ bool IREEModule::is_init() {
 
 Error IREEModule::load(const String& p_path) {
     // Get hal module.
-    iree_vm_module_t* const hal_module = IREEInstance::get_hal_module();
+    iree_vm_module_t* const hal_module = IREE::get_hal_module();
     ERR_FAIL_NULL_V(hal_module, ERR_CANT_CREATE);
 
     // Get instance.
-    iree_vm_instance_t* const instance = IREEInstance::get_vm_instance();
+    iree_vm_instance_t* const instance = IREE::get_vm_instance();
     ERR_FAIL_NULL_V(instance, ERR_CANT_CREATE);
 
     // Unload old data.

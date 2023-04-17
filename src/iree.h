@@ -1,5 +1,5 @@
-#ifndef IREE_INSTANCE_H
-#define IREE_INSTANCE_H
+#ifndef IREE_H
+#define IREE_H
 
 #include <iree/base/api.h>
 #include <iree/hal/api.h>
@@ -7,19 +7,19 @@
 
 #include "iree_device.h"
 
-class IREEInstance {
+class IREE {
 private:
-    static IREEInstance* singleton;
+    static IREE* singleton;
 
     iree_vm_instance_t* instance;
     IREEDevice device;
 
-    IREEInstance();
-    ~IREEInstance();
+    IREE();
+    ~IREE();
 public:
     static iree_vm_instance_t* get_vm_instance();
-    static iree_hal_device_t* get_device();
+    static iree_hal_device_t* get_hal_device();
     static iree_vm_module_t* get_hal_module();
 };
 
-#endif //IREE_INSTANCE_H
+#endif //IREE_H
