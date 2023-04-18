@@ -42,7 +42,7 @@ Error IREEModule::load(const String& p_path) {
     unload();
 
     // Read file content.
-    PackedByteArray bytecode_data = FileAccess::get_file_as_bytes(p_path);
+    bytecode_data = FileAccess::get_file_as_bytes(p_path);
 
     // Create a module.
     iree_vm_module_t* new_bytecode = nullptr;
@@ -186,6 +186,7 @@ void IREEModule::_bind_methods() {
 
 IREEModule::IREEModule()
 :
+    bytecode_data(),
     bytecode(nullptr),
     context(nullptr),
     load_path(""),
