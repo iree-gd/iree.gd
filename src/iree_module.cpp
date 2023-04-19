@@ -12,6 +12,10 @@
 
 #include "iree.h"
 
+#define INIT_CALL_VMFB_OUTPUT_CAPACITY 10
+#define ADD_CALL_VMFB(mp_suffix, mp_output_type) \
+    ClassDB::bind_method(D_METHOD("call_vmfb_" mp_suffix, "func_name", "func_args"), &IREEModule::call_vmfb<mp_output_type>)
+
 using namespace godot;
 
 void IREEModule::unload() {
@@ -20,7 +24,7 @@ void IREEModule::unload() {
     load_path = "";
 }
 
-bool IREEModule::is_loaded() {
+bool IREEModule::is_loaded() const {
     return bytecode && context;
 }
 
@@ -71,54 +75,32 @@ String IREEModule::get_load_path() const {
     return load_path;
 }
 
-IREEData IREEModule::call_vmfb(const Variant** p_argv, GDExtensionInt p_argc, GDExtensionCallError& r_error) const {
-    if(p_argc < 1) {
-        r_error.error = GDExtensionCallErrorType::GDEXTENSION_CALL_ERROR_TOO_FEW_ARGUMENTS;
-        r_error.argument = 0;
-        return IREEData();
-    }
+IREEData IREEModule::call_vmfb(const String& p_func_name, const Variant& p_args) const {
+    ERR_FAIL_COND_V_MSG(!is_loaded(), IREEData(), "IREEModule is not loaded.");
 
-    if(p_argv[0]->get_type() != Variant::Type::STRING || p_argv[0]->get_type() != Variant::Type::STRING_NAME) {
-        r_error.error = GDExtensionCallErrorType::GDEXTENSION_CALL_ERROR_INVALID_ARGUMENT;
-        r_error.argument = 0;
-        r_error.expected = Variant::Type::STRING_NAME;
-        return IREEData();
-    }
-
-    const String func_name = *p_argv[0];
     iree_vm_function_t func = {0};
 
+    PackedByteArray func_name = p_func_name.to_utf8_buffer();
+
     // Query function.
-    if(iree_vm_context_resolve_function(
+    ERR_FAIL_COND_V_MSG(iree_vm_context_resolve_function(
         context, iree_string_view_t{
             .data = (const char*)func_name.ptr(), 
-            .size = (unsigned long)func_name.length()
+            .size = (unsigned long)func_name.size()
         }, 
         &func
-    )) {
-        r_error.error = GDExtensionCallErrorType::GDEXTENSION_CALL_ERROR_INVALID_METHOD;
-        r_error.argument = 0;
-        return IREEData();
-    }
-     
+    ), IREEData(), vformat("Unable to find function '%s' in VMFB bytecode.", p_func_name));
+
     // Convert inputs.
-    Array func_args;
-    for(GDExtensionInt i = 1; i < p_argc; i++)
-        func_args.append(*p_argv[i]);
-    iree_vm_list_t* inputs = IREEData::value_to_raw_list(func_args, IREE_VM_VALUE_TYPE_F32); // TODO: Figure out the type of input.
-    
-    if(inputs == nullptr) {
-        r_error.error = GDExtensionCallErrorType::GDEXTENSION_CALL_ERROR_INVALID_ARGUMENT;
-        r_error.argument = 1;
-        return IREEData();
-    }
+    iree_vm_list_t* inputs = IREEData::value_to_raw_list(p_args, IREE_VM_VALUE_TYPE_F32); // TODO: Figure out the type of input.
+    ERR_FAIL_NULL_V(inputs, IREEData());
 
     // Create a new iree list for outputs.
     IREEData results;
     iree_vm_list_t* outputs = nullptr;
     if(iree_vm_list_create(
-        iree_vm_make_ref_type_def(IREE_VM_REF_TYPE_NULL), func_args.size(), 
-        iree_allocator_system(), &inputs
+        iree_vm_make_ref_type_def(IREE_VM_REF_TYPE_NULL), INIT_CALL_VMFB_OUTPUT_CAPACITY,
+        iree_allocator_system(), &outputs
     )) {
         ERR_PRINT("Unable to allocate memory for IREE output list.");
         goto clean_up_inputs;
@@ -129,7 +111,7 @@ IREEData IREEModule::call_vmfb(const Variant** p_argv, GDExtensionInt p_argc, GD
         context, func, IREE_VM_INVOCATION_FLAG_NONE,
         /*policy=*/ NULL, inputs, outputs, iree_allocator_system()
     )) {
-        ERR_PRINT(vformat("Unable to call IREE function '%s'.", func_name));
+        ERR_PRINT(vformat("Unable to call IREE function '%s'.", p_func_name));
         goto clean_up_outputs;
     }
 
@@ -145,16 +127,15 @@ clean_up_inputs:
 
 }
 
-void IREEModule::_bind_methods() {
-    {
-        MethodInfo mi;
-        mi.name = "call_vmfb";
-        mi.arguments.push_back(PropertyInfo(Variant::Type::STRING, "func_name"));
-        ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "call_vmfb", &IREEModule::call_vmfb, mi);
-    }
+template<class T>
+T IREEModule::call_vmfb(const String& p_func_name, const Variant& p_args) const {
+    return T(call_vmfb(p_func_name, p_args));
+}
 
+void IREEModule::_bind_methods() {
     ClassDB::bind_method(D_METHOD("load", "path"), &IREEModule::load);
     ClassDB::bind_method(D_METHOD("get_load_path"), &IREEModule::get_load_path);
+    ADD_CALL_VMFB("array", Array);
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "load_path", PROPERTY_HINT_FILE, "*.vmfb"), "load", "get_load_path");
 }

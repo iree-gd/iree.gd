@@ -34,18 +34,18 @@ private:
 
     void unload(); // unload the bytecode.
 
-    // A vararg method for calling function in bytecode.
-    // call_vmfb(func_name: String, ...)
-    IREEData call_vmfb(const Variant** p_argv, GDExtensionInt p_argc, GDExtensionCallError& r_error) const;
-
 protected:
     static void _bind_methods();
 
 public:
-    bool is_loaded(); // check whether the bytecode is loaded.
+    bool is_loaded() const; // check whether the bytecode is loaded.
 
     Error load(const String& p_path);
     String get_load_path() const;
+
+    template<class T>
+    T call_vmfb(const String& p_func_name, const Variant& p_args) const;
+    IREEData call_vmfb(const String& p_func_name, const Variant& p_args) const;
 
     IREEModule();
     ~IREEModule();
