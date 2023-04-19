@@ -953,6 +953,10 @@ Array IREEData::raw_list_to_array(const iree_vm_list_t* p_list) {
     return result;
 }
 
+IREEData::operator Array() {
+    return to_array();
+}
+
 Array IREEData::to_array() const {
     if(data == nullptr) return Array();
     return raw_list_to_array(data);

@@ -52,6 +52,9 @@ public:
     // Convert IREE list to Godot array.
     static Array raw_list_to_array(const iree_vm_list_t* p_list);
 
+    operator Array();
+
+
     IREEData();
     ~IREEData();
 

@@ -19,6 +19,8 @@
 #include <iree/hal/api.h>
 #include <iree/vm/api.h>
 
+#include "iree_data.h"
+
 using namespace godot;
 
 class IREEModule : public Resource {
@@ -29,10 +31,6 @@ private:
     iree_vm_module_t* bytecode;
 	iree_vm_context_t* context;
     String load_path;
-    struct {
-        iree_vm_function_t fn;
-        String symbol; // entry point symbol (or name)
-    } entry;
 
     void unload(); // unload the bytecode.
 
@@ -40,16 +38,14 @@ protected:
     static void _bind_methods();
 
 public:
-    bool is_init(); // check whether everything is properly set up and ready to be called.
-    bool is_loaded(); // check whether the bytecode is loaded.
+    bool is_loaded() const; // check whether the bytecode is loaded.
 
     Error load(const String& p_path);
     String get_load_path() const;
 
-    Error set_entry_point(const String& p_entry);
-    String get_entry_point() const;
-
-    PackedFloat32Array call(const PackedFloat32Array& p_inputs) const;
+    template<class T>
+    T call_vmfb(const String& p_func_name, const Variant& p_args) const;
+    IREEData call_vmfb(const String& p_func_name, const Variant& p_args) const;
 
     IREEModule();
     ~IREEModule();

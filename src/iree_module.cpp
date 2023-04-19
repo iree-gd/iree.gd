@@ -2,6 +2,7 @@
 
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/error_macros.hpp>
+#include <godot_cpp/core/object.hpp>
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/file_access.hpp>
 
@@ -11,22 +12,20 @@
 
 #include "iree.h"
 
+#define INIT_CALL_VMFB_OUTPUT_CAPACITY 10
+#define ADD_CALL_VMFB(mp_suffix, mp_output_type) \
+    ClassDB::bind_method(D_METHOD("call_vmfb_" mp_suffix, "func_name", "func_args"), &IREEModule::call_vmfb<mp_output_type>)
+
 using namespace godot;
 
 void IREEModule::unload() {
 	if(context != nullptr) {iree_vm_context_release(context); context = nullptr;}
 	if(bytecode != nullptr) {iree_vm_module_release(bytecode);  bytecode = nullptr;}
     load_path = "";
-    entry.fn = {0};
-    entry.symbol = "";
 }
 
-bool IREEModule::is_loaded() {
+bool IREEModule::is_loaded() const {
     return bytecode && context;
-}
-
-bool IREEModule::is_init() {
-    return is_loaded() && entry.symbol.length() != 0;
 }
 
 Error IREEModule::load(const String& p_path) {
@@ -76,111 +75,68 @@ String IREEModule::get_load_path() const {
     return load_path;
 }
 
-Error IREEModule::set_entry_point(const String& p_entry) {
-    ERR_FAIL_COND_V_MSG(!is_loaded(), ERR_CANT_OPEN, "IREE bytecode is not loaded.");
+IREEData IREEModule::call_vmfb(const String& p_func_name, const Variant& p_args) const {
+    ERR_FAIL_COND_V_MSG(!is_loaded(), IREEData(), "IREEModule is not loaded.");
 
-    iree_vm_function_t fn = {0};
+    iree_vm_function_t func = {0};
+
+    PackedByteArray func_name = p_func_name.to_utf8_buffer();
+
+    // Query function.
     ERR_FAIL_COND_V_MSG(iree_vm_context_resolve_function(
         context, iree_string_view_t{
-            .data = (const char*)p_entry.ptr(), 
-            .size = (unsigned long)p_entry.length()
+            .data = (const char*)func_name.ptr(), 
+            .size = (unsigned long)func_name.size()
         }, 
-        &fn
-    ), ERR_CANT_RESOLVE, vformat("Unable to find function '%s' in bytecode.", p_entry));
+        &func
+    ), IREEData(), vformat("Unable to find function '%s' in VMFB bytecode.", p_func_name));
 
-    entry.fn = fn;
-    entry.symbol = p_entry;
-
-    notify_property_list_changed();
-    emit_changed();
-    return OK;
-}
-
-String IREEModule::get_entry_point() const {
-    return entry.symbol;
-}
-
-PackedFloat32Array IREEModule::call(const PackedFloat32Array& p_inputs) const {
-    iree_vm_list_t* inputs = nullptr;
-    iree_vm_type_def_t value_type = iree_vm_make_value_type_def(IREE_VM_VALUE_TYPE_F32);
-    iree_vm_list_t* outputs = nullptr;
-    iree_host_size_t outputs_size = 0;
-    PackedFloat32Array result;
-
-    /// Convert input array to iree list.
-    
-    // Create a new iree list for inputs.
-    ERR_FAIL_COND_V_MSG(iree_vm_list_create(
-        value_type, p_inputs.size(), 
-        iree_allocator_system(), &inputs
-    ), result, "Unable to allocate memory for IREE input list.");
-
-    // Insert values to list.
-    for(int i = 0; i < p_inputs.size(); i++) {
-        const iree_vm_value_t value = {
-            .type = IREE_VM_VALUE_TYPE_F64,
-            .f32 = p_inputs[i]
-        };
-        if(iree_vm_list_push_value(inputs, &value)) {
-            ERR_PRINT("Unable to convert Godot array to IREE list.");
-            goto clean_up_inputs;
-        }
-    }
-
-    /// Prepare for output.
+    // Convert inputs.
+    iree_vm_list_t* inputs = IREEData::value_to_raw_list(p_args, IREE_VM_VALUE_TYPE_F32); // TODO: Figure out the type of input.
+    ERR_FAIL_NULL_V(inputs, IREEData());
 
     // Create a new iree list for outputs.
+    IREEData results;
+    iree_vm_list_t* outputs = nullptr;
     if(iree_vm_list_create(
-        value_type, p_inputs.size(), 
-        iree_allocator_system(), &inputs
+        iree_vm_make_ref_type_def(IREE_VM_REF_TYPE_NULL), INIT_CALL_VMFB_OUTPUT_CAPACITY,
+        iree_allocator_system(), &outputs
     )) {
         ERR_PRINT("Unable to allocate memory for IREE output list.");
         goto clean_up_inputs;
     }
 
-    /// Invoke.
+    // Call.
     if(iree_vm_invoke(
-        context, entry.fn, IREE_VM_INVOCATION_FLAG_NONE,
+        context, func, IREE_VM_INVOCATION_FLAG_NONE,
         /*policy=*/ NULL, inputs, outputs, iree_allocator_system()
     )) {
-        ERR_PRINT(vformat("Unable to call IREE function '%s'.", entry.symbol));
+        ERR_PRINT(vformat("Unable to call IREE function '%s'.", p_func_name));
         goto clean_up_outputs;
     }
 
-    /// Convert output list to array.
-    outputs_size = iree_vm_list_size(outputs);
-    result.resize(outputs_size);
-    for (int i = 0; i < outputs_size; i++) {
-        iree_vm_value_t value;
-        if(iree_vm_list_get_value(outputs, i, &value)) {
-            ERR_PRINT("Unable to convert IREE list to Godot array.");
-            result.clear();
-            goto clean_up_outputs;
-        }
-        result[i] = value.f32;
-    }
+    // Setup result.
+    results.data = outputs;
 
 clean_up_outputs:
     iree_vm_list_release(outputs);
 
 clean_up_inputs:
     iree_vm_list_release(inputs);
+    return results;
 
-    return result;
+}
+
+template<class T>
+T IREEModule::call_vmfb(const String& p_func_name, const Variant& p_args) const {
+    return T(call_vmfb(p_func_name, p_args));
 }
 
 void IREEModule::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("is_init"), &IREEModule::is_init);
-
     ClassDB::bind_method(D_METHOD("load", "path"), &IREEModule::load);
     ClassDB::bind_method(D_METHOD("get_load_path"), &IREEModule::get_load_path);
+    ADD_CALL_VMFB("array", Array);
 
-    ClassDB::bind_method(D_METHOD("set_entry_point", "symbol"), &IREEModule::set_entry_point);
-    ClassDB::bind_method(D_METHOD("get_entry_point"), &IREEModule::get_entry_point);
-
-    ClassDB::bind_method(D_METHOD("call", "inputs"), &IREEModule::call);
-
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "entry_point", PROPERTY_HINT_NONE, "Entry function name"), "set_entry_point", "get_entry_point");
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "load_path", PROPERTY_HINT_FILE, "*.vmfb"), "load", "get_load_path");
 }
 
@@ -189,8 +145,7 @@ IREEModule::IREEModule()
     bytecode_data(),
     bytecode(nullptr),
     context(nullptr),
-    load_path(""),
-    entry()
+    load_path("")
 { }
 
 IREEModule::~IREEModule() { unload(); }
