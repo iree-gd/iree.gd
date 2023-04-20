@@ -43,7 +43,7 @@ IREE::IREE()
 		iree_hal_module_register_all_types(instance),
 		"Unable register HAL modules."
 	);
-	device.capture(instance);
+	device.capture_vmvx(instance);
 }
 
 IREE::~IREE() {

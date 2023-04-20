@@ -172,13 +172,17 @@ target_include_directories(
 )
 target_link_libraries(
 	${BIN_NAME}
-	iree_base_base
-	iree_hal_hal
-	iree_hal_drivers_local_task_registration_registration
-	iree_hal_local_loaders_vmvx_module_loader
-	iree_modules_hal_hal
-	iree_vm_vm
-	iree_vm_bytecode_module
+	iree::base
+	iree::hal
+	iree::hal::drivers::local_sync::sync_driver
+	iree::hal::local
+	iree::hal::local::loaders::embedded_elf_loader
+	iree::hal::local::loaders::vmvx_module_loader
+	iree::modules::hal
+	iree::vm
+	iree::vm::bytecode::module
+	iree::hal::drivers::local_task::task_driver
+	iree::task::api
 	godot-cpp
 )
 set_property(

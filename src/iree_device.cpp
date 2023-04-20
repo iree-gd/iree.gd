@@ -3,6 +3,8 @@
 #include <iree/hal/drivers/local_task/task_device.h>
 #include <iree/hal/local/executable_loader.h>
 #include <iree/hal/local/loaders/embedded_elf_loader.h>
+#include <iree/hal/drivers/local_sync/sync_device.h>
+#include <iree/hal/local/loaders/vmvx_module_loader.h>
 #include <iree/task/api.h>
 #include <iree/modules/hal/module.h>
 
@@ -12,7 +14,71 @@
 
 using namespace godot;
 
-Error IREEDevice::capture(iree_vm_instance_t* p_instance) {
+Error IREEDevice::capture_vmvx(iree_vm_instance_t* p_instance) {
+    Error e = OK;
+    iree_string_view_t id = iree_make_cstring_view("vmvx");
+    iree_hal_sync_device_params_t params;
+    iree_hal_executable_loader_t* loader = nullptr;
+    iree_hal_allocator_t* device_allocator = nullptr;
+    iree_hal_device_t* new_device = nullptr;
+    iree_vm_module_t* new_hal_module = nullptr;
+    iree_hal_sync_device_params_initialize(&params);
+    
+    // Create loader.
+    ERR_FAIL_COND_V_MSG(iree_hal_vmvx_module_loader_create(
+        p_instance, /*user_module_count=*/0, /*user_module=*/NULL,
+        iree_allocator_system(), &loader
+    ), ERR_CANT_CREATE, "Unable to create loader for CPU task.");
+
+    // Create device allocator.
+    if(iree_hal_allocator_create_heap(
+        id, iree_allocator_system(),
+        iree_allocator_system(), &device_allocator
+    )) {
+        e = ERR_CANT_CREATE;
+        ERR_PRINT("Unable to create VMVX device allocator.");
+        goto clean_up_loader;
+    }
+
+    // Create the device.
+    if(iree_hal_sync_device_create(
+        id, &params, /*loader_count=*/1, &loader, device_allocator,
+        iree_allocator_system(), &new_device
+    )) {
+        e = ERR_CANT_CREATE;
+        ERR_PRINT("Unable to create VMVX device.");
+        goto clean_up_device_allocator;
+    }
+
+    // Create hal module.
+    if(iree_hal_module_create(
+        p_instance, new_device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
+        iree_allocator_system(), &new_hal_module
+    )) {
+        e = ERR_CANT_CREATE;
+        ERR_PRINT("Unable to create HAL module of the device.");
+        goto clean_up_device;
+    }
+
+    // Setup value.
+    device = new_device;
+    hal_module = new_hal_module;
+
+    goto clean_up_device_allocator;
+
+clean_up_device:
+    iree_hal_device_release(new_device);
+
+clean_up_device_allocator:
+    iree_hal_allocator_release(device_allocator);
+
+clean_up_loader:
+    iree_hal_executable_loader_release(loader);
+    
+    return e;
+}
+
+Error IREEDevice::capture_cpu_async(iree_vm_instance_t* p_instance) {
     Error e = OK;
     iree_string_view_t id = iree_make_cstring_view("local-task");
     iree_hal_executable_loader_t* loader = nullptr;

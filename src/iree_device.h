@@ -20,7 +20,8 @@ public:
     IREEDevice();
     ~IREEDevice();
 
-    Error capture(iree_vm_instance_t* p_instance);
+    Error capture_vmvx(iree_vm_instance_t* p_instance);
+    Error capture_cpu_async(iree_vm_instance_t* p_instance);
     void release();
 };
 
