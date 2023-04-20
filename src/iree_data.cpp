@@ -103,7 +103,8 @@ iree_vm_list_t* IREEData::value_to_raw_list(const Array& p_value, iree_vm_value_
             iree_vm_list_t* nested_list = value_to_raw_list(element, p_value_type);
             if(nested_list == nullptr) goto clean_up_list;
             iree_vm_variant_t retained = iree_vm_make_variant_ref_assign(iree_vm_list_retain_ref(nested_list));
-            iree_vm_list_push_variant_move(list, &retained); // RechieKho: I am unsure about releasing the `nested_list`.
+            iree_vm_list_push_variant_move(list, &retained);
+            iree_vm_list_release(nested_list);
         }
         else {
             iree_vm_variant_t variant;
@@ -472,7 +473,8 @@ iree_vm_list_t* IREEData::value_to_raw_list(const PackedVector2Array& p_value, i
         iree_vm_list_t* nested_list = value_to_raw_list(number, p_value_type);
         if(nested_list == nullptr) goto clean_up_list;
         iree_vm_ref_t retained = iree_vm_list_retain_ref(nested_list);
-        iree_vm_list_push_ref_move(list, &retained); // RechieKho: I am unsure about releasing the `nested_list`.
+        iree_vm_list_push_ref_move(list, &retained);
+        iree_vm_list_release(nested_list);
     }
 
     return list;
@@ -499,7 +501,8 @@ iree_vm_list_t* IREEData::value_to_raw_list(const PackedVector3Array& p_value, i
         iree_vm_list_t* nested_list = value_to_raw_list(number, p_value_type);
         if(nested_list == nullptr) goto clean_up_list;
         iree_vm_ref_t retained = iree_vm_list_retain_ref(nested_list);
-        iree_vm_list_push_ref_move(list, &retained); // RechieKho: I am unsure about releasing the `nested_list`.
+        iree_vm_list_push_ref_move(list, &retained);
+        iree_vm_list_release(nested_list);
     }
 
     return list;
@@ -526,7 +529,8 @@ iree_vm_list_t* IREEData::value_to_raw_list(const PackedColorArray& p_value, ire
         iree_vm_list_t* nested_list = value_to_raw_list(number, p_value_type);
         if(nested_list == nullptr) goto clean_up_list;
         iree_vm_ref_t retained = iree_vm_list_retain_ref(nested_list);
-        iree_vm_list_push_ref_move(list, &retained); // RechieKho: I am unsure about releasing the `nested_list`.
+        iree_vm_list_push_ref_move(list, &retained);
+        iree_vm_list_release(nested_list);
     }
 
     return list;
