@@ -99,7 +99,7 @@ IREEData IREEModule::call_vmfb(const String& p_func_name, const Variant& p_args)
     IREEData results;
     iree_vm_list_t* outputs = nullptr;
     if(iree_vm_list_create(
-        iree_vm_make_ref_type_def(IREE_VM_REF_TYPE_NULL), INIT_CALL_VMFB_OUTPUT_CAPACITY,
+        iree_vm_make_undefined_type_def(), INIT_CALL_VMFB_OUTPUT_CAPACITY,
         iree_allocator_system(), &outputs
     )) {
         ERR_PRINT("Unable to allocate memory for IREE output list.");
@@ -117,6 +117,7 @@ IREEData IREEModule::call_vmfb(const String& p_func_name, const Variant& p_args)
 
     // Setup result.
     results.data = outputs;
+    iree_vm_list_retain(outputs);
 
 clean_up_outputs:
     iree_vm_list_release(outputs);
