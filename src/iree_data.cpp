@@ -34,6 +34,180 @@ void IREEData::_bind_methods() {
     ClassDB::bind_method(D_METHOD("to_array"), &IREEData::to_array);
 }
 
+Array IREEData::estimate_dimension(const Variant& p_value) {
+    switch(p_value.get_type()) {
+        case Variant::Type::ARRAY: return estimate_dimension(Array(p_value));
+        case Variant::Type::PACKED_BYTE_ARRAY: return estimate_dimension(PackedByteArray(p_value));
+        case Variant::Type::PACKED_INT32_ARRAY: return estimate_dimension(PackedInt32Array(p_value));
+        case Variant::Type::PACKED_INT64_ARRAY: return estimate_dimension(PackedInt64Array(p_value));
+        case Variant::Type::PACKED_FLOAT32_ARRAY: return estimate_dimension(PackedFloat32Array(p_value));
+        case Variant::Type::PACKED_FLOAT64_ARRAY: return estimate_dimension(PackedFloat64Array(p_value));
+        case Variant::Type::PACKED_VECTOR2_ARRAY: return estimate_dimension(PackedVector2Array(p_value));
+        case Variant::Type::PACKED_VECTOR3_ARRAY: return estimate_dimension(PackedVector3Array(p_value));
+        case Variant::Type::PACKED_COLOR_ARRAY: return estimate_dimension(PackedColorArray(p_value));
+        case Variant::Type::VECTOR2: return estimate_dimension(Vector2(p_value));
+        case Variant::Type::VECTOR2I: return estimate_dimension(Vector2i(p_value));
+        case Variant::Type::VECTOR3: return estimate_dimension(Vector3(p_value));
+        case Variant::Type::VECTOR3I: return estimate_dimension(Vector3i(p_value));
+        case Variant::Type::COLOR: return estimate_dimension(Color(p_value));
+        case Variant::Type::VECTOR4: return estimate_dimension(Vector4(p_value));
+        case Variant::Type::VECTOR4I: return estimate_dimension(Vector4i(p_value));
+        case Variant::Type::BOOL:
+        case Variant::Type::INT:
+        case Variant::Type::FLOAT:
+        case Variant::Type::STRING:
+        case Variant::Type::RECT2:
+        case Variant::Type::RECT2I:
+        case Variant::Type::TRANSFORM2D:
+        case Variant::Type::PLANE:
+        case Variant::Type::QUATERNION:
+        case Variant::Type::AABB:
+        case Variant::Type::BASIS:
+        case Variant::Type::TRANSFORM3D:
+        case Variant::Type::PROJECTION:
+        case Variant::Type::STRING_NAME:
+        case Variant::Type::NODE_PATH:
+        case Variant::Type::RID:
+        case Variant::Type::OBJECT:
+        case Variant::Type::CALLABLE:
+        case Variant::Type::SIGNAL:
+        case Variant::Type::DICTIONARY:
+        case Variant::Type::PACKED_STRING_ARRAY:
+        case Variant::Type::VARIANT_MAX:
+        case Variant::Type::NIL:
+        default:
+            return Array();
+    }
+
+}
+
+Array IREEData::estimate_dimension(const Array& p_value) {
+    Array result;
+
+    bool expecting_atomic = true;
+    Array expecting_dimension; // 0 -> not expecting dimensional variant; else -> enforce the dimensional element has the same dimension.
+    int64_t size = p_value.size();
+    for(int64_t i = 0; i < size; i++) {
+        const Variant& element = p_value[i];
+        const Variant::Type element_type = element.get_type();
+        bool is_numeric_array_like = IS_NUMERIC_ARRAY_LIKE(element_type);
+
+        if(i == 0) 
+            if(is_numeric_array_like) {
+                expecting_atomic = false;
+                expecting_dimension = estimate_dimension(element);
+                if(expecting_dimension.size() == 0) return Array();
+                continue;
+            }
+
+        // Expecting atomic.
+        if(expecting_atomic) {
+            if(element_type != Variant::Type::INT && element_type != Variant::Type::FLOAT) 
+                return Array();
+        }
+
+        // Expecting array.
+        else if(estimate_dimension(element) != expecting_dimension) return Array();
+    }       
+
+    result.append(size);
+    result.append_array(expecting_dimension);
+
+    return result;
+}
+
+Array IREEData::estimate_dimension(const PackedByteArray& p_value) {
+    Array result;
+    result.append(p_value.size());
+    return result;
+}
+
+Array IREEData::estimate_dimension(const PackedInt32Array& p_value) {
+    Array result;
+    result.append(p_value.size());
+    return result;
+}
+Array IREEData::estimate_dimension(const PackedInt64Array& p_value) {
+    Array result;
+    result.append(p_value.size());
+    return result;
+}
+
+Array IREEData::estimate_dimension(const PackedFloat32Array& p_value) {
+    Array result;
+    result.append(p_value.size());
+    return result;
+}
+
+Array IREEData::estimate_dimension(const PackedFloat64Array& p_value) {
+    Array result;
+    result.append(p_value.size());
+    return result;
+}
+
+Array IREEData::estimate_dimension(const PackedVector2Array& p_value) {
+    Array result;
+    result.append(p_value.size());
+    result.append(2);
+    return result;
+}
+
+Array IREEData::estimate_dimension(const PackedVector3Array& p_value) {
+    Array result;
+    result.append(p_value.size());
+    result.append(3);
+    return result;
+}
+
+Array IREEData::estimate_dimension(const PackedColorArray& p_value) {
+    Array result;
+    result.append(p_value.size());
+    result.append(4);
+    return result;
+}
+
+Array IREEData::estimate_dimension(const Vector2& p_value) {
+    Array result;
+    result.append(2);
+    return result;
+}
+
+Array IREEData::estimate_dimension(const Vector2i& p_value) {
+    Array result;
+    result.append(2);
+    return result;
+}
+
+Array IREEData::estimate_dimension(const Vector3& p_value) {
+    Array result;
+    result.append(3);
+    return result;
+}
+
+Array IREEData::estimate_dimension(const Vector3i& p_value) {
+    Array result;
+    result.append(3);
+    return result;
+}
+
+Array IREEData::estimate_dimension(const Vector4& p_value) {
+    Array result;
+    result.append(4);
+    return result;
+}
+
+Array IREEData::estimate_dimension(const Vector4i& p_value) {
+    Array result;
+    result.append(4);
+    return result;
+}
+
+Array IREEData::estimate_dimension(const Color& p_value) {
+    Array result;
+    result.append(4);
+    return result;
+}
+
 iree_vm_list_t* IREEData::value_to_raw_list(const Variant& p_value, iree_vm_value_type_t p_value_type) {
     switch(p_value.get_type()) {
         case Variant::Type::ARRAY: return value_to_raw_list(Array(p_value), p_value_type);

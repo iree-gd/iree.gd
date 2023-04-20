@@ -28,6 +28,25 @@ protected:
     static void _bind_methods();
 
 public:
+    // Estimate the dimension of the variant as if it is converted to buffer_view.
+    static Array estimate_dimension(const Variant& p_value);
+    static Array estimate_dimension(const Array& p_value);
+    static Array estimate_dimension(const PackedByteArray& p_value);
+    static Array estimate_dimension(const PackedInt32Array& p_value);
+    static Array estimate_dimension(const PackedInt64Array& p_value);
+    static Array estimate_dimension(const PackedFloat32Array& p_value);
+    static Array estimate_dimension(const PackedFloat64Array& p_value);
+    static Array estimate_dimension(const PackedVector2Array& p_value);
+    static Array estimate_dimension(const PackedVector3Array& p_value);
+    static Array estimate_dimension(const PackedColorArray& p_value);
+    static Array estimate_dimension(const Vector2& p_value);
+    static Array estimate_dimension(const Vector2i& p_value);
+    static Array estimate_dimension(const Vector3& p_value);
+    static Array estimate_dimension(const Vector3i& p_value);
+    static Array estimate_dimension(const Vector4& p_value);
+    static Array estimate_dimension(const Vector4i& p_value);
+    static Array estimate_dimension(const Color& p_value);
+
     // Convert Godot variant to IREE list.
     // Returned list is handled by the caller.
     // Return `nullptr` on fail.
