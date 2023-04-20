@@ -155,23 +155,31 @@ iree_vm_list_t* IREEData::value_to_raw_list(const Array& p_value, iree_vm_value_
                     break;
                 }
                 case IREE_VM_VALUE_TYPE_F32: {
-                    variant = iree_vm_make_variant_value(
+                    if(element_type == Variant::Type::FLOAT) {
+                        variant = iree_vm_make_variant_value(
 #ifdef REAL_T_IS_DOUBLE
-                        ERR_PRINT("Unable to convert double to float.")
-                        goto clean_up_list;
+                            ERR_PRINT("Unable to convert double to float.")
+                            goto clean_up_list;
 #else
-                        iree_vm_value_make_f32(float(element))
+                            iree_vm_value_make_f32(float(element))
 #endif
+                        );
+                    } else variant = iree_vm_make_variant_value (
+                        iree_vm_value_make_f32(int32_t(element))
                     );
                     break;
                 }
                 case IREE_VM_VALUE_TYPE_F64 : {
-                    variant = iree_vm_make_variant_value(
+                    if(element_type == Variant::Type::FLOAT) {
+                        variant = iree_vm_make_variant_value(
 #ifdef REAL_T_IS_DOUBLE
-                        iree_vm_value_make_f64(double(element))
+                            iree_vm_value_make_f64(double(element))
 #else 
-                        iree_vm_value_make_f64(float(element))
+                            iree_vm_value_make_f64(float(element))
 #endif
+                        );
+                    } else variant = iree_vm_make_variant_value (
+                        iree_vm_value_make_f64(int64_t(element))
                     );
                     break;
                 }
