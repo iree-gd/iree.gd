@@ -7,21 +7,21 @@
 using namespace godot;
 
 #define IS_NUMERIC_ARRAY_LIKE(mp_value_type) ( \
-    ((mp_value_type) == Variant::Type::ARRAY) && \
-    ((mp_value_type) == Variant::Type::PACKED_BYTE_ARRAY) && \
-    ((mp_value_type) == Variant::Type::PACKED_INT32_ARRAY) && \
-    ((mp_value_type) == Variant::Type::PACKED_INT64_ARRAY) && \
-    ((mp_value_type) == Variant::Type::PACKED_FLOAT32_ARRAY) && \
-    ((mp_value_type) == Variant::Type::PACKED_FLOAT64_ARRAY) && \
-    ((mp_value_type) == Variant::Type::PACKED_VECTOR2_ARRAY) && \
-    ((mp_value_type) == Variant::Type::PACKED_VECTOR3_ARRAY) && \
-    ((mp_value_type) == Variant::Type::PACKED_COLOR_ARRAY) && \
-    ((mp_value_type) == Variant::Type::VECTOR2) && \
-    ((mp_value_type) == Variant::Type::VECTOR2I) && \
-    ((mp_value_type) == Variant::Type::VECTOR3) && \
-    ((mp_value_type) == Variant::Type::VECTOR3I) && \
-    ((mp_value_type) == Variant::Type::VECTOR4) && \
-    ((mp_value_type) == Variant::Type::VECTOR4I) && \
+    ((mp_value_type) == Variant::Type::ARRAY) || \
+    ((mp_value_type) == Variant::Type::PACKED_BYTE_ARRAY) || \
+    ((mp_value_type) == Variant::Type::PACKED_INT32_ARRAY) || \
+    ((mp_value_type) == Variant::Type::PACKED_INT64_ARRAY) || \
+    ((mp_value_type) == Variant::Type::PACKED_FLOAT32_ARRAY) || \
+    ((mp_value_type) == Variant::Type::PACKED_FLOAT64_ARRAY) || \
+    ((mp_value_type) == Variant::Type::PACKED_VECTOR2_ARRAY) || \
+    ((mp_value_type) == Variant::Type::PACKED_VECTOR3_ARRAY) || \
+    ((mp_value_type) == Variant::Type::PACKED_COLOR_ARRAY) || \
+    ((mp_value_type) == Variant::Type::VECTOR2) || \
+    ((mp_value_type) == Variant::Type::VECTOR2I) || \
+    ((mp_value_type) == Variant::Type::VECTOR3) || \
+    ((mp_value_type) == Variant::Type::VECTOR3I) || \
+    ((mp_value_type) == Variant::Type::VECTOR4) || \
+    ((mp_value_type) == Variant::Type::VECTOR4I) || \
     ((mp_value_type) == Variant::Type::COLOR) \
 )
 
@@ -108,8 +108,9 @@ iree_vm_list_t* IREEData::value_to_raw_list(const Array& p_value, iree_vm_value_
         }
         else {
             iree_vm_variant_t variant;
-            if(element_type != Variant::Type::INT || element_type != Variant::Type::FLOAT) {
-                ERR_PRINT("Non-numerical value in the array.");
+
+            if(element_type != Variant::Type::INT && element_type != Variant::Type::FLOAT) {
+                ERR_PRINT(vformat("Non-numerical value (type '%s') in the array.", Variant::get_type_name(element_type)));
                 goto clean_up_list;
             }
 
