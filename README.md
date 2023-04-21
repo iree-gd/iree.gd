@@ -2,7 +2,7 @@
 
 > Warning: This project is still under development!
 
-IREE runtime in godot througth GDExtension.
+IREE runtime in Godot througth GDExtension.
 
 ## Build from source
 ```sh
