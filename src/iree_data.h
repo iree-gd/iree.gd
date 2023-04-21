@@ -12,6 +12,9 @@
 #include <godot_cpp/variant/color.hpp>
 
 #include <iree/vm/api.h>
+#include <iree/hal/api.h>
+
+#include "raw_byte_array.h"
 
 using namespace godot;
 
@@ -19,11 +22,27 @@ using namespace godot;
 class IREEData : public RefCounted {
     GDCLASS(IREEData, RefCounted)
 
-    friend class IREEModule;
 private:
-    iree_vm_list_t* data;
 
-    IREEData(iree_vm_list_t* p_data);
+    // Convert Godot variant and append to byte array.
+    static Error push_value_into_byte_array(const Variant& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const PackedByteArray& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const PackedInt32Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const PackedInt64Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const PackedFloat32Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const PackedFloat64Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const PackedVector2Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const PackedVector3Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const PackedColorArray& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const Vector2& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const Vector2i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const Vector3& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const Vector3i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const Vector4& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const Vector4i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    static Error push_value_into_byte_array(const Color& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+
 protected:
     static void _bind_methods();
 
@@ -47,37 +66,16 @@ public:
     static Array estimate_dimension(const Vector4i& p_value);
     static Array estimate_dimension(const Color& p_value);
 
-    // Convert Godot variant to IREE list.
-    // Returned list is handled by the caller.
-    // Return `nullptr` on fail.
-    static iree_vm_list_t* value_to_raw_list(const Variant& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const Array& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const PackedByteArray& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const PackedInt32Array& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const PackedInt64Array& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const PackedFloat32Array& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const PackedFloat64Array& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const PackedVector2Array& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const PackedVector3Array& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const PackedColorArray& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const Vector2& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const Vector2i& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const Vector3& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const Vector3i& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const Vector4& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const Vector4i& p_value, iree_vm_value_type_t p_value_type);
-    static iree_vm_list_t* value_to_raw_list(const Color& p_value, iree_vm_value_type_t p_value_type);
+    static iree_hal_buffer_view_t* create_raw_buffer_view_from_value(const Variant& p_value, iree_hal_element_type_t p_value_type);
 
-    // Convert IREE list to Godot array.
-    static Array raw_list_to_array(const iree_vm_list_t* p_list);
+    // Convert IREE buffer view to Godot array.
+    static Array create_array_from_raw_buffer_view(const iree_hal_buffer_view_t* p_buffer_view);
 
-    operator Array();
-
+    static PackedByteArray create_bytes_from_raw_buffer_view(const iree_hal_buffer_view_t* p_buffer_view);
+    static Array group_elements(const Array& p_array, uint64_t p_element_per_group);
 
     IREEData();
     ~IREEData();
-
-    Array to_array() const;
 };
 
 #endif //IREE_DATA_H

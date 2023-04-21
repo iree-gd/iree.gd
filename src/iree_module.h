@@ -20,6 +20,7 @@
 #include <iree/vm/api.h>
 
 #include "iree_data.h"
+#include "iree_io_list.h"
 
 using namespace godot;
 
@@ -43,9 +44,8 @@ public:
     Error load(const String& p_path);
     String get_load_path() const;
 
-    template<class T>
-    T call_vmfb(const String& p_func_name, const Variant& p_args) const;
-    IREEData call_vmfb(const String& p_func_name, const Variant& p_args) const;
+    IREEIOList call_vmfb(const String& p_func_name, const Array& p_args) const;
+    Array call_vmfb_array(const String& p_func_name, const Array& p_args) const;
 
     IREEModule();
     ~IREEModule();

@@ -16,7 +16,7 @@ void initialize_iree_gd_module(ModuleInitializationLevel p_level) {
 	}
 
 	ClassDB::register_class<IREEModule>();
-	ClassDB::register_class<IREEData>();
+	//ClassDB::register_class<IREEData>();
 }
 
 void uninitialize_iree_gd_module(ModuleInitializationLevel p_level) {
