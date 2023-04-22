@@ -15,7 +15,9 @@ Array IREEIOList::to_array(const iree_vm_list_t* p_list) {
     iree_host_size_t size = iree_vm_list_size(p_list);
     for(iree_host_size_t i = 0; i < size; i++) {
         iree_hal_buffer_view_t* buffer_view = iree_vm_list_get_buffer_view_assign(p_list, i);
-        result.append_array(IREEBufferView::to_array(buffer_view));
+        iree_hal_buffer_view_retain(buffer_view);
+        Ref<IREEBufferView> buffer_view_ref(buffer_view);
+        result.append(buffer_view_ref);
     }
     return result;
 }
