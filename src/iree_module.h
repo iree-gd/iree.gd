@@ -35,6 +35,8 @@ private:
 
     void unload(); // unload the bytecode.
 
+    Array _bind_call_vmfb(const Variant** p_args, GDExtensionInt p_argc, GDExtensionCallError &m_error);
+
 protected:
     static void _bind_methods();
 
@@ -45,7 +47,6 @@ public:
     String get_load_path() const;
 
     IREEIOList call_vmfb(const String& p_func_name, const Array& p_args) const;
-    Array call_vmfb_array(const String& p_func_name, const Array& p_args) const;
 
     IREEModule();
     ~IREEModule();

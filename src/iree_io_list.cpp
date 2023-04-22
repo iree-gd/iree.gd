@@ -16,7 +16,9 @@ Array IREEIOList::to_array(const iree_vm_list_t* p_list) {
     for(iree_host_size_t i = 0; i < size; i++) {
         iree_hal_buffer_view_t* buffer_view = iree_vm_list_get_buffer_view_assign(p_list, i);
         iree_hal_buffer_view_retain(buffer_view);
-        Ref<IREEBufferView> buffer_view_ref(buffer_view);
+        Ref<IREEBufferView> buffer_view_ref;
+        buffer_view_ref.instantiate();
+        buffer_view_ref->set_raw_buffer_view(buffer_view);
         result.append(buffer_view_ref);
     }
     return result;
@@ -57,6 +59,12 @@ Array IREEIOList::to_array() const {
 
 Error IREEIOList::append(iree_hal_buffer_view_t* p_buffer_view) {
     iree_vm_ref_t buffer_view_ref = iree_hal_buffer_view_move_ref(p_buffer_view);
+    ERR_FAIL_COND_V_MSG(iree_vm_list_push_ref_move(list, &buffer_view_ref), FAILED, "Unable to append IREE buffer view to IREE list.");
+    return OK;
+}
+
+Error IREEIOList::append(const iree_hal_buffer_view_t* p_buffer_view) {
+    iree_vm_ref_t buffer_view_ref = iree_hal_buffer_view_retain_ref((iree_hal_buffer_view_t*)p_buffer_view);
     ERR_FAIL_COND_V_MSG(iree_vm_list_push_ref_move(list, &buffer_view_ref), FAILED, "Unable to append IREE buffer view to IREE list.");
     return OK;
 }

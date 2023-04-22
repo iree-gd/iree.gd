@@ -28,7 +28,8 @@ public:
 
     Array to_array() const;
     
-    Error append(iree_hal_buffer_view_t* p_buffer_view);
+    Error append(iree_hal_buffer_view_t* p_buffer_view); // move
+    Error append(const iree_hal_buffer_view_t* p_buffer_view); // retain
 };
 
 } // namespace godot

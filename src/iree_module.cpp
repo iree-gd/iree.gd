@@ -22,6 +22,28 @@ void IREEModule::unload() {
     load_path = "";
 }
 
+Array IREEModule::_bind_call_vmfb(const Variant** p_argv, GDExtensionInt p_argc, GDExtensionCallError &m_error) {
+    if(p_argc < 1) {
+        m_error.argument = 0;
+        m_error.error = GDExtensionCallErrorType::GDEXTENSION_CALL_ERROR_TOO_FEW_ARGUMENTS;
+        return Array();
+    }
+
+    if(p_argv[0]->get_type() != Variant::Type::STRING && p_argv[0]->get_type() != Variant::Type::STRING_NAME) {
+        m_error.argument = 0;
+        m_error.error = GDExtensionCallErrorType::GDEXTENSION_CALL_ERROR_INVALID_ARGUMENT;
+        m_error.expected = Variant::Type::STRING;
+        return Array();
+    }
+
+    String func_name = String(*p_argv[0]);
+    Array args;
+    for(int i = 1; i < p_argc; i++) 
+        args.append(*p_argv[i]);
+
+    return call_vmfb(func_name, args).to_array();
+}
+
 bool IREEModule::is_loaded() const {
     return bytecode && context;
 }
@@ -114,14 +136,16 @@ IREEIOList IREEModule::call_vmfb(const String& p_func_name, const Array& p_args)
     return outputs;
 }
 
-Array IREEModule::call_vmfb_array(const String& p_func_name, const Array& p_args) const {
-    return call_vmfb(p_func_name, p_args).to_array();
-}
-
 void IREEModule::_bind_methods() {
     ClassDB::bind_method(D_METHOD("load", "path"), &IREEModule::load);
     ClassDB::bind_method(D_METHOD("get_load_path"), &IREEModule::get_load_path);
-    ClassDB::bind_method(D_METHOD("call_vmfb_array", "func_name", "func_args"), &IREEModule::call_vmfb_array);
+
+    {
+        MethodInfo mi;
+        mi.arguments.push_back(PropertyInfo(Variant::Type::STRING, "func_name"));
+        mi.name = "call_vmfb";
+        ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "call_vmfb", &IREEModule::_bind_call_vmfb, mi, {}, true);
+    }
 
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "load_path", PROPERTY_HINT_FILE, "*.vmfb"), "load", "get_load_path");
 }

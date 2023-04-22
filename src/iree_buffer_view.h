@@ -22,7 +22,6 @@ using namespace godot;
 class IREEBufferView : public RefCounted {
     GDCLASS(IREEBufferView, RefCounted)
 
-    friend class IREEIOList;
 private:
     iree_hal_buffer_view_t* buffer_view;
 
@@ -81,6 +80,7 @@ public:
     bool is_null() const;
     Array to_array() const;
     PackedByteArray extract_bytes() const;
+    void set_raw_buffer_view(iree_hal_buffer_view_t* p_buffer_view);
 
     IREEBufferView();
     ~IREEBufferView();

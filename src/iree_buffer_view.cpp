@@ -1431,10 +1431,15 @@ Array IREEBufferView::to_array(const iree_hal_buffer_view_t* p_buffer_view) {
 
     const iree_hal_dim_t* dimension = iree_hal_buffer_view_shape_dims(p_buffer_view);
     iree_host_size_t shape_rank = iree_hal_buffer_view_shape_rank(p_buffer_view);
-    for(int64_t i = shape_rank - 1; i >= 0; i--) {
+    for(int64_t i = shape_rank - 1; i > 0; i--) {
         const iree_hal_dim_t element_count = dimension[i];
         result = group_elements(result, element_count);
     }
+
+    ERR_FAIL_COND_V_MSG(
+        result.size() != dimension[0], 
+        Array(), "Unable to group elements by shape of buffer view, data corrupted(?)."
+    );
 
     return result;
 }
@@ -1484,10 +1489,10 @@ PackedByteArray IREEBufferView::extract_bytes() const {
     return extract_bytes(buffer_view);
 }
 
-IREEBufferView::IREEBufferView(iree_hal_buffer_view_t* p_buffer_view)
-:
-    buffer_view(p_buffer_view)
-{ }
+void IREEBufferView::set_raw_buffer_view(iree_hal_buffer_view_t* p_buffer_view) {
+    if(buffer_view != nullptr) iree_hal_buffer_view_release(buffer_view);
+    buffer_view = p_buffer_view;
+}
 
 IREEBufferView::IREEBufferView()
 :
