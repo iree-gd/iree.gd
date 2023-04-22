@@ -12,8 +12,6 @@
 
 #include "iree.h"
 
-#define ADD_CALL_VMFB(mp_suffix, mp_output_type) \
-
 using namespace godot;
 
 void IREEModule::unload() {
