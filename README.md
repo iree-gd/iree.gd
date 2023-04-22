@@ -6,23 +6,23 @@
 
 ## Progress
 What I have done:
-- [*] vmvx backend (synchronous call).
-- [*] Resource for loading `.vmfb` bytecodes.
-- [*] Data conversion from numeric array (e.g. `PackedByteArray`), `Vector*` and `Color` to IREE's tensor data type (`iree_hal_buffer_view_t`).
-- [*] Data conversion from IREE's tensor data type to array.
-- [*] Calling functions in bytecode and retrieving the output `call_vmfb`.
+- [x] vmvx backend (synchronous call).
+- [x] Resource for loading `.vmfb` bytecodes.
+- [x] Data conversion from numeric array (e.g. `PackedByteArray`), `Vector*` and `Color` to IREE's tensor data type (`iree_hal_buffer_view_t`).
+- [x] Data conversion from IREE's tensor data type to array.
+- [x] Calling functions in bytecode and retrieving the output `call_vmfb`.
 
 Yet to be implemented:
-- [] Data conversion from Godot's Image to `iree_hal_buffer_view_t`.
-- [] Data conversion from `iree_hal_buffer_view_t` to Godot's Image.
-- [] Nested list of `IREEBufferView`.
-- [] Resource loader to auto import `.vmfb` bytecodes.
+- [ ] Data conversion from Godot's Image to `iree_hal_buffer_view_t`.
+- [ ] Data conversion from `iree_hal_buffer_view_t` to Godot's Image.
+- [ ] Nested list of `IREEBufferView`.
+- [ ] Resource loader to auto import `.vmfb` bytecodes.
 
 Things not going to be included in this version:
-- [] Expose `.vmfb` bytecodes as classes instead of resource for better method hinting.
-- [] Asynchronous call
-- [] CUDA backend
-- [] Vulkan backend
+- [ ] Expose `.vmfb` bytecodes as classes instead of resource for better method hinting.
+- [ ] Asynchronous call
+- [ ] CUDA backend
+- [ ] Vulkan backend
 
 ## Build from source
 ```sh
