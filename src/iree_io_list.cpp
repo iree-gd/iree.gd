@@ -37,14 +37,7 @@ Error IREEIOList::init() {
 }
 
 void IREEIOList::deinit() {
-
     if(list != nullptr) {
-        // iree_host_size_t size = iree_vm_list_size(list);
-        // for(iree_host_size_t i = 0; i < size; i++) {
-        //     iree_hal_buffer_view_t* buffer_view = iree_vm_list_get_buffer_view_assign(list, i);
-        //     iree_hal_buffer_view_release(buffer_view);
-        // }
-
         iree_vm_list_release(list);
         list = nullptr;
     }
