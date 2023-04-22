@@ -812,37 +812,561 @@ Error IREEData::push_value_into_byte_array(const PackedColorArray& p_value, iree
 }
 
 Error IREEData::push_value_into_byte_array(const Vector2& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
-    ERR_PRINT("Yet to be implemented");
+    ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
+
+    for(int i = 0; i < p_value.AXIS_COUNT; i++)
+        switch(p_value_type) {
+            case IREE_HAL_ELEMENT_TYPE_NONE:
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_8:
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_16:
+            case IREE_HAL_ELEMENT_TYPE_BOOL_8:
+            case IREE_HAL_ELEMENT_TYPE_INT_4:            
+            case IREE_HAL_ELEMENT_TYPE_SINT_4:           
+            case IREE_HAL_ELEMENT_TYPE_UINT_4:           
+            case IREE_HAL_ELEMENT_TYPE_INT_8:
+            case IREE_HAL_ELEMENT_TYPE_SINT_8:           
+            case IREE_HAL_ELEMENT_TYPE_UINT_8:           
+            case IREE_HAL_ELEMENT_TYPE_INT_16:
+            case IREE_HAL_ELEMENT_TYPE_SINT_16:
+            case IREE_HAL_ELEMENT_TYPE_UINT_16:
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_16:
+            case IREE_HAL_ELEMENT_TYPE_BFLOAT_16:
+            case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
+            case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
+            default:
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
+            case IREE_HAL_ELEMENT_TYPE_INT_32:
+            case IREE_HAL_ELEMENT_TYPE_SINT_32: {
+#ifdef REAL_T_IS_DOUBLE
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+#else
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<int32_t>(p_value.coord[i]);
+                break;
+#endif
+            }
+
+
+            case IREE_HAL_ELEMENT_TYPE_UINT_32: {
+#ifdef REAL_T_IS_DOUBLE
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+#else
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<uint32_t>(p_value.coord[i]);
+                break;
+#endif
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_64:
+            case IREE_HAL_ELEMENT_TYPE_INT_64:
+            case IREE_HAL_ELEMENT_TYPE_SINT_64: {
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<int64_t>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_UINT_64: {
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<uint64_t>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_32: {
+#ifdef REAL_T_IS_DOUBLE
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+#else
+                m_bytes.append_bytes<float>(p_value.coord[i]);
+                break;
+#endif
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_64: {
+                m_bytes.append_bytes<double>(p_value.coord[i]);
+                break;
+            }
+        }
+
+    return OK;
+
+on_fail:
+    m_bytes.clear();
     return FAILED;
 }
 
 Error IREEData::push_value_into_byte_array(const Vector2i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
-    ERR_PRINT("Yet to be implemented");
+    ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
+
+    for(int i = 0; i < p_value.AXIS_COUNT; i++)
+        switch(p_value_type) {
+            case IREE_HAL_ELEMENT_TYPE_NONE:
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_8:
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_16:
+            case IREE_HAL_ELEMENT_TYPE_BOOL_8:
+            case IREE_HAL_ELEMENT_TYPE_INT_4:            
+            case IREE_HAL_ELEMENT_TYPE_SINT_4:           
+            case IREE_HAL_ELEMENT_TYPE_UINT_4:           
+            case IREE_HAL_ELEMENT_TYPE_INT_8:
+            case IREE_HAL_ELEMENT_TYPE_SINT_8:           
+            case IREE_HAL_ELEMENT_TYPE_UINT_8:           
+            case IREE_HAL_ELEMENT_TYPE_INT_16:
+            case IREE_HAL_ELEMENT_TYPE_SINT_16:
+            case IREE_HAL_ELEMENT_TYPE_UINT_16:
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_16:
+            case IREE_HAL_ELEMENT_TYPE_BFLOAT_16:
+            case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
+            case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
+            default:
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
+            case IREE_HAL_ELEMENT_TYPE_INT_32:
+            case IREE_HAL_ELEMENT_TYPE_SINT_32: {
+                m_bytes.append_bytes<int32_t>(p_value.coord[i]);
+                break;
+            }
+
+
+            case IREE_HAL_ELEMENT_TYPE_UINT_32: {
+                m_bytes.append_bytes<uint32_t>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_64:
+            case IREE_HAL_ELEMENT_TYPE_INT_64:
+            case IREE_HAL_ELEMENT_TYPE_SINT_64: {
+                m_bytes.append_bytes<int64_t>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_UINT_64: {
+                m_bytes.append_bytes<uint64_t>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_32: {
+                m_bytes.append_bytes<float>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_64: {
+                m_bytes.append_bytes<double>(p_value.coord[i]);
+                break;
+            }
+        }
+
+    return OK;
+
+on_fail:
+    m_bytes.clear();
     return FAILED;
 }
 
 Error IREEData::push_value_into_byte_array(const Vector3& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
-    ERR_PRINT("Yet to be implemented");
+    ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
+
+    for(int i = 0; i < p_value.AXIS_COUNT; i++)
+        switch(p_value_type) {
+            case IREE_HAL_ELEMENT_TYPE_NONE:
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_8:
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_16:
+            case IREE_HAL_ELEMENT_TYPE_BOOL_8:
+            case IREE_HAL_ELEMENT_TYPE_INT_4:            
+            case IREE_HAL_ELEMENT_TYPE_SINT_4:           
+            case IREE_HAL_ELEMENT_TYPE_UINT_4:           
+            case IREE_HAL_ELEMENT_TYPE_INT_8:
+            case IREE_HAL_ELEMENT_TYPE_SINT_8:           
+            case IREE_HAL_ELEMENT_TYPE_UINT_8:           
+            case IREE_HAL_ELEMENT_TYPE_INT_16:
+            case IREE_HAL_ELEMENT_TYPE_SINT_16:
+            case IREE_HAL_ELEMENT_TYPE_UINT_16:
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_16:
+            case IREE_HAL_ELEMENT_TYPE_BFLOAT_16:
+            case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
+            case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
+            default:
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
+            case IREE_HAL_ELEMENT_TYPE_INT_32:
+            case IREE_HAL_ELEMENT_TYPE_SINT_32: {
+#ifdef REAL_T_IS_DOUBLE
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+#else
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<int32_t>(p_value.coord[i]);
+                break;
+#endif
+            }
+
+
+            case IREE_HAL_ELEMENT_TYPE_UINT_32: {
+#ifdef REAL_T_IS_DOUBLE
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+#else
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<uint32_t>(p_value.coord[i]);
+                break;
+#endif
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_64:
+            case IREE_HAL_ELEMENT_TYPE_INT_64:
+            case IREE_HAL_ELEMENT_TYPE_SINT_64: {
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<int64_t>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_UINT_64: {
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<uint64_t>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_32: {
+#ifdef REAL_T_IS_DOUBLE
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+#else
+                m_bytes.append_bytes<float>(p_value.coord[i]);
+                break;
+#endif
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_64: {
+                m_bytes.append_bytes<double>(p_value.coord[i]);
+                break;
+            }
+        }
+
+    return OK;
+
+on_fail:
+    m_bytes.clear();
     return FAILED;
 }
 
 Error IREEData::push_value_into_byte_array(const Vector3i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
-    ERR_PRINT("Yet to be implemented");
+    ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
+
+    for(int i = 0; i < p_value.AXIS_COUNT; i++)
+        switch(p_value_type) {
+            case IREE_HAL_ELEMENT_TYPE_NONE:
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_8:
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_16:
+            case IREE_HAL_ELEMENT_TYPE_BOOL_8:
+            case IREE_HAL_ELEMENT_TYPE_INT_4:            
+            case IREE_HAL_ELEMENT_TYPE_SINT_4:           
+            case IREE_HAL_ELEMENT_TYPE_UINT_4:           
+            case IREE_HAL_ELEMENT_TYPE_INT_8:
+            case IREE_HAL_ELEMENT_TYPE_SINT_8:           
+            case IREE_HAL_ELEMENT_TYPE_UINT_8:           
+            case IREE_HAL_ELEMENT_TYPE_INT_16:
+            case IREE_HAL_ELEMENT_TYPE_SINT_16:
+            case IREE_HAL_ELEMENT_TYPE_UINT_16:
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_16:
+            case IREE_HAL_ELEMENT_TYPE_BFLOAT_16:
+            case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
+            case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
+            default:
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
+            case IREE_HAL_ELEMENT_TYPE_INT_32:
+            case IREE_HAL_ELEMENT_TYPE_SINT_32: {
+                m_bytes.append_bytes<int32_t>(p_value.coord[i]);
+                break;
+            }
+
+
+            case IREE_HAL_ELEMENT_TYPE_UINT_32: {
+                m_bytes.append_bytes<uint32_t>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_64:
+            case IREE_HAL_ELEMENT_TYPE_INT_64:
+            case IREE_HAL_ELEMENT_TYPE_SINT_64: {
+                m_bytes.append_bytes<int64_t>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_UINT_64: {
+                m_bytes.append_bytes<uint64_t>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_32: {
+                m_bytes.append_bytes<float>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_64: {
+                m_bytes.append_bytes<double>(p_value.coord[i]);
+                break;
+            }
+        }
+
+    return OK;
+
+on_fail:
+    m_bytes.clear();
     return FAILED;
 }
 
 Error IREEData::push_value_into_byte_array(const Vector4& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
-    ERR_PRINT("Yet to be implemented");
+    ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
+
+    for(int i = 0; i < p_value.AXIS_COUNT; i++)
+        switch(p_value_type) {
+            case IREE_HAL_ELEMENT_TYPE_NONE:
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_8:
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_16:
+            case IREE_HAL_ELEMENT_TYPE_BOOL_8:
+            case IREE_HAL_ELEMENT_TYPE_INT_4:            
+            case IREE_HAL_ELEMENT_TYPE_SINT_4:           
+            case IREE_HAL_ELEMENT_TYPE_UINT_4:           
+            case IREE_HAL_ELEMENT_TYPE_INT_8:
+            case IREE_HAL_ELEMENT_TYPE_SINT_8:           
+            case IREE_HAL_ELEMENT_TYPE_UINT_8:           
+            case IREE_HAL_ELEMENT_TYPE_INT_16:
+            case IREE_HAL_ELEMENT_TYPE_SINT_16:
+            case IREE_HAL_ELEMENT_TYPE_UINT_16:
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_16:
+            case IREE_HAL_ELEMENT_TYPE_BFLOAT_16:
+            case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
+            case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
+            default:
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
+            case IREE_HAL_ELEMENT_TYPE_INT_32:
+            case IREE_HAL_ELEMENT_TYPE_SINT_32: {
+#ifdef REAL_T_IS_DOUBLE
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+#else
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<int32_t>(p_value.components[i]);
+                break;
+#endif
+            }
+
+
+            case IREE_HAL_ELEMENT_TYPE_UINT_32: {
+#ifdef REAL_T_IS_DOUBLE
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+#else
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<uint32_t>(p_value.components[i]);
+                break;
+#endif
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_64:
+            case IREE_HAL_ELEMENT_TYPE_INT_64:
+            case IREE_HAL_ELEMENT_TYPE_SINT_64: {
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<int64_t>(p_value.components[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_UINT_64: {
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<uint64_t>(p_value.components[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_32: {
+#ifdef REAL_T_IS_DOUBLE
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+#else
+                m_bytes.append_bytes<float>(p_value.components[i]);
+                break;
+#endif
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_64: {
+                m_bytes.append_bytes<double>(p_value.components[i]);
+                break;
+            }
+        }
+
+    return OK;
+
+on_fail:
+    m_bytes.clear();
     return FAILED;
 }
 
 Error IREEData::push_value_into_byte_array(const Vector4i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
-    ERR_PRINT("Yet to be implemented");
+    ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
+
+    for(int i = 0; i < p_value.AXIS_COUNT; i++)
+        switch(p_value_type) {
+            case IREE_HAL_ELEMENT_TYPE_NONE:
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_8:
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_16:
+            case IREE_HAL_ELEMENT_TYPE_BOOL_8:
+            case IREE_HAL_ELEMENT_TYPE_INT_4:            
+            case IREE_HAL_ELEMENT_TYPE_SINT_4:           
+            case IREE_HAL_ELEMENT_TYPE_UINT_4:           
+            case IREE_HAL_ELEMENT_TYPE_INT_8:
+            case IREE_HAL_ELEMENT_TYPE_SINT_8:           
+            case IREE_HAL_ELEMENT_TYPE_UINT_8:           
+            case IREE_HAL_ELEMENT_TYPE_INT_16:
+            case IREE_HAL_ELEMENT_TYPE_SINT_16:
+            case IREE_HAL_ELEMENT_TYPE_UINT_16:
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_16:
+            case IREE_HAL_ELEMENT_TYPE_BFLOAT_16:
+            case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
+            case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
+            default:
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
+            case IREE_HAL_ELEMENT_TYPE_INT_32:
+            case IREE_HAL_ELEMENT_TYPE_SINT_32: {
+                m_bytes.append_bytes<int32_t>(p_value.coord[i]);
+                break;
+            }
+
+
+            case IREE_HAL_ELEMENT_TYPE_UINT_32: {
+                m_bytes.append_bytes<uint32_t>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_64:
+            case IREE_HAL_ELEMENT_TYPE_INT_64:
+            case IREE_HAL_ELEMENT_TYPE_SINT_64: {
+                m_bytes.append_bytes<int64_t>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_UINT_64: {
+                m_bytes.append_bytes<uint64_t>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_32: {
+                m_bytes.append_bytes<float>(p_value.coord[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_64: {
+                m_bytes.append_bytes<double>(p_value.coord[i]);
+                break;
+            }
+        }
+
+    return OK;
+
+on_fail:
+    m_bytes.clear();
     return FAILED;
 }
 
 Error IREEData::push_value_into_byte_array(const Color& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
-    ERR_PRINT("Yet to be implemented");
+    ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
+
+    for(int i = 0; i < 4; i++)
+        switch(p_value_type) {
+            case IREE_HAL_ELEMENT_TYPE_NONE:
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_8:
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_16:
+            case IREE_HAL_ELEMENT_TYPE_BOOL_8:
+            case IREE_HAL_ELEMENT_TYPE_INT_4:            
+            case IREE_HAL_ELEMENT_TYPE_SINT_4:           
+            case IREE_HAL_ELEMENT_TYPE_UINT_4:           
+            case IREE_HAL_ELEMENT_TYPE_INT_8:
+            case IREE_HAL_ELEMENT_TYPE_SINT_8:           
+            case IREE_HAL_ELEMENT_TYPE_UINT_8:           
+            case IREE_HAL_ELEMENT_TYPE_INT_16:
+            case IREE_HAL_ELEMENT_TYPE_SINT_16:
+            case IREE_HAL_ELEMENT_TYPE_UINT_16:
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_16:
+            case IREE_HAL_ELEMENT_TYPE_BFLOAT_16:
+            case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
+            case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
+            default:
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
+            case IREE_HAL_ELEMENT_TYPE_INT_32:
+            case IREE_HAL_ELEMENT_TYPE_SINT_32: {
+#ifdef REAL_T_IS_DOUBLE
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+#else
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<int32_t>(p_value.components[i]);
+                break;
+#endif
+            }
+
+
+            case IREE_HAL_ELEMENT_TYPE_UINT_32: {
+#ifdef REAL_T_IS_DOUBLE
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+#else
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<uint32_t>(p_value.components[i]);
+                break;
+#endif
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_OPAQUE_64:
+            case IREE_HAL_ELEMENT_TYPE_INT_64:
+            case IREE_HAL_ELEMENT_TYPE_SINT_64: {
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<int64_t>(p_value.components[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_UINT_64: {
+                WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
+                m_bytes.append_bytes<uint64_t>(p_value.components[i]);
+                break;
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_32: {
+#ifdef REAL_T_IS_DOUBLE
+                ERR_PRINT("Unable to convert value in array.");
+                goto on_fail;
+#else
+                m_bytes.append_bytes<float>(p_value.components[i]);
+                break;
+#endif
+            }
+
+            case IREE_HAL_ELEMENT_TYPE_FLOAT_64: {
+                m_bytes.append_bytes<double>(p_value.components[i]);
+                break;
+            }
+        }
+
+    return OK;
+
+on_fail:
+    m_bytes.clear();
     return FAILED;
 }
 
