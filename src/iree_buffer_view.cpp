@@ -1,4 +1,4 @@
-#include "iree_data.h"
+#include "iree_buffer_view.h"
 
 #include <godot_cpp/core/error_macros.hpp>
 #include <godot_cpp/variant/variant.hpp>
@@ -29,10 +29,10 @@ using namespace godot;
     ((mp_value_type) == Variant::Type::COLOR) \
 )
 
-void IREEData::_bind_methods() {
+void IREEBufferView::_bind_methods() {
 }
 
-Array IREEData::estimate_dimension(const Variant& p_value) {
+Array IREEBufferView::estimate_dimension(const Variant& p_value) {
     switch(p_value.get_type()) {
         case Variant::Type::ARRAY: return estimate_dimension(Array(p_value));
         case Variant::Type::PACKED_BYTE_ARRAY: return estimate_dimension(PackedByteArray(p_value));
@@ -79,7 +79,7 @@ Array IREEData::estimate_dimension(const Variant& p_value) {
 
 }
 
-Array IREEData::estimate_dimension(const Array& p_value) {
+Array IREEBufferView::estimate_dimension(const Array& p_value) {
     Array result;
 
     bool expecting_atomic = true;
@@ -114,99 +114,99 @@ Array IREEData::estimate_dimension(const Array& p_value) {
     return result;
 }
 
-Array IREEData::estimate_dimension(const PackedByteArray& p_value) {
+Array IREEBufferView::estimate_dimension(const PackedByteArray& p_value) {
     Array result;
     result.append(p_value.size());
     return result;
 }
 
-Array IREEData::estimate_dimension(const PackedInt32Array& p_value) {
+Array IREEBufferView::estimate_dimension(const PackedInt32Array& p_value) {
     Array result;
     result.append(p_value.size());
     return result;
 }
-Array IREEData::estimate_dimension(const PackedInt64Array& p_value) {
-    Array result;
-    result.append(p_value.size());
-    return result;
-}
-
-Array IREEData::estimate_dimension(const PackedFloat32Array& p_value) {
+Array IREEBufferView::estimate_dimension(const PackedInt64Array& p_value) {
     Array result;
     result.append(p_value.size());
     return result;
 }
 
-Array IREEData::estimate_dimension(const PackedFloat64Array& p_value) {
+Array IREEBufferView::estimate_dimension(const PackedFloat32Array& p_value) {
     Array result;
     result.append(p_value.size());
     return result;
 }
 
-Array IREEData::estimate_dimension(const PackedVector2Array& p_value) {
+Array IREEBufferView::estimate_dimension(const PackedFloat64Array& p_value) {
+    Array result;
+    result.append(p_value.size());
+    return result;
+}
+
+Array IREEBufferView::estimate_dimension(const PackedVector2Array& p_value) {
     Array result;
     result.append(p_value.size());
     result.append(2);
     return result;
 }
 
-Array IREEData::estimate_dimension(const PackedVector3Array& p_value) {
+Array IREEBufferView::estimate_dimension(const PackedVector3Array& p_value) {
     Array result;
     result.append(p_value.size());
     result.append(3);
     return result;
 }
 
-Array IREEData::estimate_dimension(const PackedColorArray& p_value) {
+Array IREEBufferView::estimate_dimension(const PackedColorArray& p_value) {
     Array result;
     result.append(p_value.size());
     result.append(4);
     return result;
 }
 
-Array IREEData::estimate_dimension(const Vector2& p_value) {
+Array IREEBufferView::estimate_dimension(const Vector2& p_value) {
     Array result;
     result.append(2);
     return result;
 }
 
-Array IREEData::estimate_dimension(const Vector2i& p_value) {
+Array IREEBufferView::estimate_dimension(const Vector2i& p_value) {
     Array result;
     result.append(2);
     return result;
 }
 
-Array IREEData::estimate_dimension(const Vector3& p_value) {
+Array IREEBufferView::estimate_dimension(const Vector3& p_value) {
     Array result;
     result.append(3);
     return result;
 }
 
-Array IREEData::estimate_dimension(const Vector3i& p_value) {
+Array IREEBufferView::estimate_dimension(const Vector3i& p_value) {
     Array result;
     result.append(3);
     return result;
 }
 
-Array IREEData::estimate_dimension(const Vector4& p_value) {
+Array IREEBufferView::estimate_dimension(const Vector4& p_value) {
     Array result;
     result.append(4);
     return result;
 }
 
-Array IREEData::estimate_dimension(const Vector4i& p_value) {
+Array IREEBufferView::estimate_dimension(const Vector4i& p_value) {
     Array result;
     result.append(4);
     return result;
 }
 
-Array IREEData::estimate_dimension(const Color& p_value) {
+Array IREEBufferView::estimate_dimension(const Color& p_value) {
     Array result;
     result.append(4);
     return result;
 }
 
-iree_hal_buffer_view_t* IREEData::create_raw_buffer_view_from_value(const Variant& p_value, iree_hal_element_type_t p_value_type) {
+iree_hal_buffer_view_t* IREEBufferView::to_raw_buffer_view(const Variant& p_value, iree_hal_element_type_t p_value_type) {
     iree_hal_buffer_view_t* buffer_view = nullptr;
     Array dimension = estimate_dimension(p_value);    
     const int64_t shape_rank = dimension.size();
@@ -233,7 +233,7 @@ iree_hal_buffer_view_t* IREEData::create_raw_buffer_view_from_value(const Varian
     return buffer_view;
 }
 
-Error IREEData::push_value_into_byte_array(const Variant& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const Variant& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     switch(p_value.get_type()) {
         case Variant::Type::ARRAY: return push_value_into_byte_array(Array(p_value), p_value_type, m_bytes);
         case Variant::Type::PACKED_BYTE_ARRAY: return push_value_into_byte_array(PackedByteArray(p_value), p_value_type, m_bytes);
@@ -280,7 +280,7 @@ Error IREEData::push_value_into_byte_array(const Variant& p_value, iree_hal_elem
     }
 }
 
-Error IREEData::push_value_into_byte_array(const Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     const int element_count = p_value.size();
@@ -436,7 +436,7 @@ on_fail:
     return FAILED;
 }
 
-Error IREEData::push_value_into_byte_array(const PackedByteArray& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const PackedByteArray& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(const int8_t byte : p_value)
@@ -521,7 +521,7 @@ on_fail:
     return FAILED;
 }
 
-Error IREEData::push_value_into_byte_array(const PackedInt32Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const PackedInt32Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(const int32_t number : p_value)
@@ -590,7 +590,7 @@ on_fail:
     return FAILED;
 }
 
-Error IREEData::push_value_into_byte_array(const PackedInt64Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const PackedInt64Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(const int64_t number : p_value)
@@ -647,7 +647,7 @@ on_fail:
     return FAILED;
 }
 
-Error IREEData::push_value_into_byte_array(const PackedFloat32Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const PackedFloat32Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(const float number : p_value)
@@ -719,7 +719,7 @@ on_fail:
     return FAILED;
 }
 
-Error IREEData::push_value_into_byte_array(const PackedFloat64Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const PackedFloat64Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(const float number : p_value)
@@ -778,7 +778,7 @@ on_fail:
     return FAILED;
 }
 
-Error IREEData::push_value_into_byte_array(const PackedVector2Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const PackedVector2Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(const Vector2& vector : p_value) {
@@ -789,7 +789,7 @@ Error IREEData::push_value_into_byte_array(const PackedVector2Array& p_value, ir
     return OK;
 }
 
-Error IREEData::push_value_into_byte_array(const PackedVector3Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const PackedVector3Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(const Vector3& vector : p_value) {
@@ -800,7 +800,7 @@ Error IREEData::push_value_into_byte_array(const PackedVector3Array& p_value, ir
     return OK;
 }
 
-Error IREEData::push_value_into_byte_array(const PackedColorArray& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const PackedColorArray& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(const Color& color : p_value) {
@@ -811,7 +811,7 @@ Error IREEData::push_value_into_byte_array(const PackedColorArray& p_value, iree
     return OK;
 }
 
-Error IREEData::push_value_into_byte_array(const Vector2& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const Vector2& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(int i = 0; i < p_value.AXIS_COUNT; i++)
@@ -899,7 +899,7 @@ on_fail:
     return FAILED;
 }
 
-Error IREEData::push_value_into_byte_array(const Vector2i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const Vector2i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(int i = 0; i < p_value.AXIS_COUNT; i++)
@@ -968,7 +968,7 @@ on_fail:
     return FAILED;
 }
 
-Error IREEData::push_value_into_byte_array(const Vector3& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const Vector3& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(int i = 0; i < p_value.AXIS_COUNT; i++)
@@ -1056,7 +1056,7 @@ on_fail:
     return FAILED;
 }
 
-Error IREEData::push_value_into_byte_array(const Vector3i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const Vector3i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(int i = 0; i < p_value.AXIS_COUNT; i++)
@@ -1125,7 +1125,7 @@ on_fail:
     return FAILED;
 }
 
-Error IREEData::push_value_into_byte_array(const Vector4& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const Vector4& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(int i = 0; i < p_value.AXIS_COUNT; i++)
@@ -1213,7 +1213,7 @@ on_fail:
     return FAILED;
 }
 
-Error IREEData::push_value_into_byte_array(const Vector4i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const Vector4i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(int i = 0; i < p_value.AXIS_COUNT; i++)
@@ -1282,7 +1282,7 @@ on_fail:
     return FAILED;
 }
 
-Error IREEData::push_value_into_byte_array(const Color& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+Error IREEBufferView::push_value_into_byte_array(const Color& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
     ERR_FAIL_COND_V_MSG(p_value_type == IREE_HAL_ELEMENT_TYPE_NONE, FAILED, "Unable to produce IREE list with undefined type.");
 
     for(int i = 0; i < 4; i++)
@@ -1370,8 +1370,8 @@ on_fail:
     return FAILED;
 }
 
-Array IREEData::create_array_from_raw_buffer_view(const iree_hal_buffer_view_t* p_buffer_view) {
-    PackedByteArray data = create_bytes_from_raw_buffer_view(p_buffer_view);
+Array IREEBufferView::to_array(const iree_hal_buffer_view_t* p_buffer_view) {
+    PackedByteArray data = extract_bytes(p_buffer_view);
     if(data.size() == 0) return Array();
 
     Array result;
@@ -1436,7 +1436,7 @@ Array IREEData::create_array_from_raw_buffer_view(const iree_hal_buffer_view_t* 
     return result;
 }
 
-PackedByteArray IREEData::create_bytes_from_raw_buffer_view(const iree_hal_buffer_view_t* p_buffer_view) {
+PackedByteArray IREEBufferView::extract_bytes(const iree_hal_buffer_view_t* p_buffer_view) {
     PackedByteArray data;
 
     iree_device_size_t data_size = iree_hal_buffer_view_byte_length(p_buffer_view);
@@ -1452,7 +1452,7 @@ PackedByteArray IREEData::create_bytes_from_raw_buffer_view(const iree_hal_buffe
     return data;
 }
 
-Array IREEData::group_elements(const Array& p_array, uint64_t p_elements_per_group) {
+Array IREEBufferView::group_elements(const Array& p_array, uint64_t p_elements_per_group) {
     const uint64_t element_count = p_array.size();
     ERR_FAIL_COND_V_MSG(
         element_count % p_elements_per_group != 0 || p_elements_per_group > element_count, 
@@ -1469,6 +1469,6 @@ Array IREEData::group_elements(const Array& p_array, uint64_t p_elements_per_gro
     return result;
 }
 
-IREEData::IREEData() {}
+IREEBufferView::IREEBufferView() {}
 
-IREEData::~IREEData() { }
+IREEBufferView::~IREEBufferView() { }

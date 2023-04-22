@@ -95,9 +95,9 @@ IREEIOList IREEModule::call_vmfb(const String& p_func_name, const Array& p_args)
     ERR_FAIL_COND_V(!inputs.is_init(), IREEIOList());
 
     for(int64_t i = 0; i < p_args.size(); i++) {
-        iree_hal_buffer_view_t* arg = IREEData::create_raw_buffer_view_from_value(p_args[i], IREE_HAL_ELEMENT_TYPE_FLOAT_32); // TODO: Figure out the type of input.
+        iree_hal_buffer_view_t* arg = IREEBufferView::to_raw_buffer_view(p_args[i], IREE_HAL_ELEMENT_TYPE_FLOAT_32); // TODO: Figure out the type of input.
         ERR_FAIL_NULL_V(arg, IREEIOList());
-        inputs.append_move(arg);
+        inputs.append(arg);
     }
 
     // Create a new iree list for outputs.
@@ -115,7 +115,7 @@ IREEIOList IREEModule::call_vmfb(const String& p_func_name, const Array& p_args)
 }
 
 Array IREEModule::call_vmfb_array(const String& p_func_name, const Array& p_args) const {
-    return call_vmfb(p_func_name, p_args).create_arrays();
+    return call_vmfb(p_func_name, p_args).to_array();
 }
 
 void IREEModule::_bind_methods() {

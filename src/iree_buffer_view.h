@@ -1,5 +1,5 @@
-#ifndef IREE_DATA_H
-#define IREE_DATA_H
+#ifndef IREE_BUFFER_VIEW_H
+#define IREE_BUFFER_VIEW_H
 
 #include <godot_cpp/classes/ref_counted.hpp>
 #include <godot_cpp/variant/array.hpp>
@@ -19,8 +19,8 @@
 using namespace godot;
 
 /* Interface between Godot and IREE bytecode in term of data. */
-class IREEData : public RefCounted {
-    GDCLASS(IREEData, RefCounted)
+class IREEBufferView : public RefCounted {
+    GDCLASS(IREEBufferView, RefCounted)
 
 private:
 
@@ -65,17 +65,17 @@ public:
     static Array estimate_dimension(const Vector4& p_value);
     static Array estimate_dimension(const Vector4i& p_value);
     static Array estimate_dimension(const Color& p_value);
-
-    static iree_hal_buffer_view_t* create_raw_buffer_view_from_value(const Variant& p_value, iree_hal_element_type_t p_value_type);
-
+    // Convert Godot value to buffer view. Caller will need to release it after use.
+    static iree_hal_buffer_view_t* to_raw_buffer_view(const Variant& p_value, iree_hal_element_type_t p_value_type);
     // Convert IREE buffer view to Godot array.
-    static Array create_array_from_raw_buffer_view(const iree_hal_buffer_view_t* p_buffer_view);
-
-    static PackedByteArray create_bytes_from_raw_buffer_view(const iree_hal_buffer_view_t* p_buffer_view);
+    static Array to_array(const iree_hal_buffer_view_t* p_buffer_view);
+    // Extract bytes from buffer views, abandon dimensions.
+    static PackedByteArray extract_bytes(const iree_hal_buffer_view_t* p_buffer_view);
+    // Group elements in array into arrays.
     static Array group_elements(const Array& p_array, uint64_t p_element_per_group);
 
-    IREEData();
-    ~IREEData();
+    IREEBufferView();
+    ~IREEBufferView();
 };
 
-#endif //IREE_DATA_H
+#endif //IREE_BUFFER_VIEW_H

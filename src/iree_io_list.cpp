@@ -3,19 +3,19 @@
 #include <iree/modules/hal/module.h>
 #include <godot_cpp/core/error_macros.hpp>
 
-#include "iree_data.h"
+#include "iree_buffer_view.h"
 
 #define INIT_CAPACITY 10
 
 using namespace godot;
 
-Array IREEIOList::create_arrays_from_raw_list(const iree_vm_list_t* p_list) {
+Array IREEIOList::to_array(const iree_vm_list_t* p_list) {
     if(p_list == nullptr) return Array();
     Array result;
     iree_host_size_t size = iree_vm_list_size(p_list);
     for(iree_host_size_t i = 0; i < size; i++) {
         iree_hal_buffer_view_t* buffer_view = iree_vm_list_get_buffer_view_assign(p_list, i);
-        result.append_array(IREEData::create_array_from_raw_buffer_view(buffer_view));
+        result.append_array(IREEBufferView::to_array(buffer_view));
     }
     return result;
 }
@@ -56,11 +56,11 @@ iree_vm_list_t* IREEIOList::ptrw() {
     return list;
 }
 
-Array IREEIOList::create_arrays() const {
-    return create_arrays_from_raw_list(list);
+Array IREEIOList::to_array() const {
+    return to_array(list);
 }
 
-Error IREEIOList::append_move(iree_hal_buffer_view_t* p_buffer_view) {
+Error IREEIOList::append(iree_hal_buffer_view_t* p_buffer_view) {
     iree_vm_ref_t buffer_view_ref = iree_hal_buffer_view_move_ref(p_buffer_view);
     ERR_FAIL_COND_V_MSG(iree_vm_list_push_ref_move(list, &buffer_view_ref), FAILED, "Unable to append IREE buffer view to IREE list.");
     return OK;

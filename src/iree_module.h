@@ -19,7 +19,7 @@
 #include <iree/hal/api.h>
 #include <iree/vm/api.h>
 
-#include "iree_data.h"
+#include "iree_buffer_view.h"
 #include "iree_io_list.h"
 
 using namespace godot;
