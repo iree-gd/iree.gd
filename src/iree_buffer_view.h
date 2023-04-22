@@ -22,7 +22,9 @@ using namespace godot;
 class IREEBufferView : public RefCounted {
     GDCLASS(IREEBufferView, RefCounted)
 
+    friend class IREEIOList;
 private:
+    iree_hal_buffer_view_t* buffer_view;
 
     // Convert Godot variant and append to byte array.
     static Error push_value_into_byte_array(const Variant& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
@@ -42,6 +44,8 @@ private:
     static Error push_value_into_byte_array(const Vector4& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
     static Error push_value_into_byte_array(const Vector4i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
     static Error push_value_into_byte_array(const Color& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+
+    IREEBufferView(iree_hal_buffer_view_t* p_buffer_view);
 
 protected:
     static void _bind_methods();
@@ -73,6 +77,10 @@ public:
     static PackedByteArray extract_bytes(const iree_hal_buffer_view_t* p_buffer_view);
     // Group elements in array into arrays.
     static Array group_elements(const Array& p_array, uint64_t p_element_per_group);
+
+    bool is_null() const;
+    Array to_array() const;
+    PackedByteArray extract_bytes() const;
 
     IREEBufferView();
     ~IREEBufferView();

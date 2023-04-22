@@ -30,6 +30,9 @@ using namespace godot;
 )
 
 void IREEBufferView::_bind_methods() {
+    ClassDB::bind_method<MethodDefinition, bool (IREEBufferView::*)() const>(D_METHOD("is_null"), &IREEBufferView::is_null);
+    ClassDB::bind_method<MethodDefinition, Array (IREEBufferView::*)() const>(D_METHOD("to_array"), &IREEBufferView::to_array);
+    ClassDB::bind_method<MethodDefinition, PackedByteArray (IREEBufferView::*)() const>(D_METHOD("extract_bytes"), &IREEBufferView::extract_bytes);
 }
 
 Array IREEBufferView::estimate_dimension(const Variant& p_value) {
@@ -1469,6 +1472,26 @@ Array IREEBufferView::group_elements(const Array& p_array, uint64_t p_elements_p
     return result;
 }
 
-IREEBufferView::IREEBufferView() {}
+bool IREEBufferView::is_null() const {
+    return buffer_view == nullptr;
+}
+
+Array IREEBufferView::to_array() const {
+    return to_array(buffer_view);
+}
+
+PackedByteArray IREEBufferView::extract_bytes() const {
+    return extract_bytes(buffer_view);
+}
+
+IREEBufferView::IREEBufferView(iree_hal_buffer_view_t* p_buffer_view)
+:
+    buffer_view(p_buffer_view)
+{ }
+
+IREEBufferView::IREEBufferView()
+:
+    buffer_view(nullptr)
+{}
 
 IREEBufferView::~IREEBufferView() { }

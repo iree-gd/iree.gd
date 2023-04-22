@@ -15,8 +15,8 @@ void initialize_iree_gd_module(ModuleInitializationLevel p_level) {
 		return;
 	}
 
+	ClassDB::register_class<IREEBufferView>();
 	ClassDB::register_class<IREEModule>();
-	//ClassDB::register_class<IREEBufferView>();
 }
 
 void uninitialize_iree_gd_module(ModuleInitializationLevel p_level) {
