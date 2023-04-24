@@ -1499,4 +1499,11 @@ IREEBufferView::IREEBufferView()
     buffer_view(nullptr)
 {}
 
+IREEBufferView::IREEBufferView(IREEBufferView&& m_buffer_view)
+:
+    buffer_view(m_buffer_view.buffer_view)
+{
+    m_buffer_view.buffer_view = nullptr;
+}
+
 IREEBufferView::~IREEBufferView() { }

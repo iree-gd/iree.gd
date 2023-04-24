@@ -68,7 +68,7 @@ public:
     static Array estimate_dimension(const Vector4& p_value);
     static Array estimate_dimension(const Vector4i& p_value);
     static Array estimate_dimension(const Color& p_value);
-    // Convert Godot value to buffer view. Caller will need to release it after use.
+    // Convert Godot value to raw buffer view. Caller will need to release it after use.
     static iree_hal_buffer_view_t* to_raw_buffer_view(const Variant& p_value, iree_hal_element_type_t p_value_type);
     // Convert IREE buffer view to Godot array.
     static Array to_array(const iree_hal_buffer_view_t* p_buffer_view);
@@ -83,6 +83,8 @@ public:
     void set_raw_buffer_view(iree_hal_buffer_view_t* p_buffer_view);
 
     IREEBufferView();
+    IREEBufferView(IREEBufferView&& m_buffer_view);
+    IREEBufferView(const IREEBufferView& p_buffer_view) = delete;
     ~IREEBufferView();
 };
 
