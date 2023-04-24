@@ -14,12 +14,23 @@ Array IREEIOList::to_array(const iree_vm_list_t* p_list) {
     Array result;
     iree_host_size_t size = iree_vm_list_size(p_list);
     for(iree_host_size_t i = 0; i < size; i++) {
-        iree_hal_buffer_view_t* buffer_view = iree_vm_list_get_buffer_view_assign(p_list, i);
-        iree_hal_buffer_view_retain(buffer_view);
-        Ref<IREEBufferView> buffer_view_ref;
-        buffer_view_ref.instantiate();
-        buffer_view_ref->set_raw_buffer_view(buffer_view);
-        result.append(buffer_view_ref);
+        iree_vm_ref_t ref;
+        if(iree_vm_list_get_ref_assign(p_list, i, &ref)) continue; // Ignore other data types.
+
+        if(ref.type == iree_vm_list_type()) {
+            result.append(to_array((iree_vm_list_t*)ref.ptr));
+        }
+
+        else if(ref.type == iree_vm_buffer_type()) {
+            iree_hal_buffer_view_t* buffer_view = (iree_hal_buffer_view_t*)ref.ptr;
+            iree_hal_buffer_view_retain(buffer_view);
+            Ref<IREEBufferView> buffer_view_ref;
+            buffer_view_ref.instantiate();
+            buffer_view_ref->set_raw_buffer_view(buffer_view);
+            result.append(buffer_view_ref);
+        }
+
+        else continue; // Ignore other data types.
     }
     return result;
 }
