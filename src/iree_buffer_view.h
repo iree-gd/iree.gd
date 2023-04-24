@@ -44,8 +44,6 @@ private:
     static Error push_value_into_byte_array(const Vector4i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
     static Error push_value_into_byte_array(const Color& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
 
-    IREEBufferView(iree_hal_buffer_view_t* p_buffer_view);
-
 protected:
     static void _bind_methods();
 
