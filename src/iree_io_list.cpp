@@ -63,12 +63,6 @@ Error IREEIOList::append(iree_hal_buffer_view_t* p_buffer_view) {
     return OK;
 }
 
-Error IREEIOList::append(const iree_hal_buffer_view_t* p_buffer_view) {
-    iree_vm_ref_t buffer_view_ref = iree_hal_buffer_view_retain_ref((iree_hal_buffer_view_t*)p_buffer_view);
-    ERR_FAIL_COND_V_MSG(iree_vm_list_push_ref_move(list, &buffer_view_ref), FAILED, "Unable to append IREE buffer view to IREE list.");
-    return OK;
-}
-
 IREEIOList::IREEIOList(IREEIOList&& p_list)
 :
     list(p_list.list)

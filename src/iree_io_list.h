@@ -15,8 +15,8 @@ private:
 public:
     static Array to_array(const iree_vm_list_t* p_list);
 
-    IREEIOList(IREEIOList&& p_list);
     IREEIOList();
+    IREEIOList(IREEIOList&& p_list);
     ~IREEIOList();
 
     bool is_init() const;
@@ -29,7 +29,6 @@ public:
     Array to_array() const;
     
     Error append(iree_hal_buffer_view_t* p_buffer_view); // move
-    Error append(const iree_hal_buffer_view_t* p_buffer_view); // retain
 };
 
 } // namespace godot
