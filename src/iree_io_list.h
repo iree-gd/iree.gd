@@ -13,11 +13,6 @@ class IREEIOList {
 private:
     iree_vm_list_t* list;
 public:
-    enum ElementType {
-        LIST,
-        BUFFER_VIEW,
-    };
-
     static Array to_array(const iree_vm_list_t* p_list);
 
     IREEIOList();
