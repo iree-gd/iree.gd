@@ -33,6 +33,7 @@ void IREEBufferView::_bind_methods() {
     ClassDB::bind_method<MethodDefinition, bool (IREEBufferView::*)() const>(D_METHOD("is_null"), &IREEBufferView::is_null);
     ClassDB::bind_method<MethodDefinition, Array (IREEBufferView::*)() const>(D_METHOD("to_array"), &IREEBufferView::to_array);
     ClassDB::bind_method<MethodDefinition, PackedByteArray (IREEBufferView::*)() const>(D_METHOD("extract_bytes"), &IREEBufferView::extract_bytes);
+    ClassDB::bind_method(D_METHOD("clean"), &IREEBufferView::clean);
 }
 
 Array IREEBufferView::estimate_dimension(const Variant& p_value) {
@@ -1494,6 +1495,13 @@ void IREEBufferView::set_raw_buffer_view(iree_hal_buffer_view_t* p_buffer_view) 
     buffer_view = p_buffer_view;
 }
 
+void IREEBufferView::clean() {
+    if(buffer_view == nullptr) {
+        iree_hal_buffer_view_release(buffer_view);
+        buffer_view = nullptr;
+    }
+}
+
 IREEBufferView::IREEBufferView()
 :
     buffer_view(nullptr)
@@ -1506,4 +1514,4 @@ IREEBufferView::IREEBufferView(IREEBufferView&& m_buffer_view)
     m_buffer_view.buffer_view = nullptr;
 }
 
-IREEBufferView::~IREEBufferView() { }
+IREEBufferView::~IREEBufferView() { clean(); }

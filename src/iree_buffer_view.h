@@ -79,6 +79,7 @@ public:
     Array to_array() const;
     PackedByteArray extract_bytes() const;
     void set_raw_buffer_view(iree_hal_buffer_view_t* p_buffer_view);
+    void clean();
 
     IREEBufferView();
     IREEBufferView(IREEBufferView&& m_buffer_view);
