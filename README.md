@@ -13,9 +13,7 @@ What I have done:
 - [x] Calling functions in bytecode and retrieving the output `call_vmfb`.
 - [x] Data conversion from Godot's Image to `iree_hal_buffer_view_t`.
 - [x] Data conversion from `iree_hal_buffer_view_t` to Godot's Image.
-
-Yet to be implemented:
-- [ ] Resource loader to auto import `.vmfb` bytecodes.
+- [x] Resource loader to import `.vmfb` bytecodes.
 
 Things not going to be included in this version:
 - [ ] Nested list of `IREEBufferView`.

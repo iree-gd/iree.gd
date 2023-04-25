@@ -1,20 +1,26 @@
 #include "register_types.h"
 #include "iree_module.h"
 #include "iree_buffer_view.h"
+#include "resource_format_loader_iree_module.h"
 
 #include <gdextension_interface.h>
 
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
+#include <godot_cpp/classes/resource_loader.hpp>
 
 using namespace godot;
+
+static Ref<ResourceFormatLoaderIREEModule> resource_loader_iree_module;
 
 void initialize_iree_gd_module(ModuleInitializationLevel p_level) {
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}
 
+	resource_loader_iree_module.instantiate();
+	ResourceLoader::get_singleton()->add_resource_format_loader(resource_loader_iree_module);
 	ClassDB::register_class<IREEBufferView>();
 	ClassDB::register_class<IREEModule>();
 }
@@ -23,6 +29,9 @@ void uninitialize_iree_gd_module(ModuleInitializationLevel p_level) {
 	if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
 		return;
 	}
+
+	ResourceLoader::get_singleton()->remove_resource_format_loader(resource_loader_iree_module);
+	resource_loader_iree_module.unref();
 }
 
 extern "C" {
