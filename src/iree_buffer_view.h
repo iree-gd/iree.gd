@@ -26,26 +26,26 @@ class IREEBufferView : public RefCounted {
 private:
     iree_hal_buffer_view_t* buffer_view;
 
-    // Convert Godot variant and append to byte array.
-    static Error push_value_into_byte_array(const Variant& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const PackedByteArray& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const PackedInt32Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const PackedInt64Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const PackedFloat32Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const PackedFloat64Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const PackedVector2Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const PackedVector3Array& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const PackedColorArray& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const Vector2& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const Vector2i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const Vector3& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const Vector3i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const Vector4& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const Vector4i& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const Color& p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const Object* p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
-    static Error push_value_into_byte_array(const Ref<Image> p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes);
+    // Estimate the shape of the variant as if it is converted to buffer_view.
+    static Array estimate_shape(const Variant& p_value);
+    static Array estimate_shape(const Array& p_value);
+    static Array estimate_shape(const PackedByteArray& p_value);
+    static Array estimate_shape(const PackedInt32Array& p_value);
+    static Array estimate_shape(const PackedInt64Array& p_value);
+    static Array estimate_shape(const PackedFloat32Array& p_value);
+    static Array estimate_shape(const PackedFloat64Array& p_value);
+    static Array estimate_shape(const PackedVector2Array& p_value);
+    static Array estimate_shape(const PackedVector3Array& p_value);
+    static Array estimate_shape(const PackedColorArray& p_value);
+    static Array estimate_shape(const Vector2& p_value);
+    static Array estimate_shape(const Vector2i& p_value);
+    static Array estimate_shape(const Vector3& p_value);
+    static Array estimate_shape(const Vector3i& p_value);
+    static Array estimate_shape(const Vector4& p_value);
+    static Array estimate_shape(const Vector4i& p_value);
+    static Array estimate_shape(const Color& p_value);
+    static Array estimate_shape(const Object* p_value);
+    static Array estimate_shape(const Ref<Image> p_value);
 
 protected:
     static void _bind_methods();
@@ -81,39 +81,11 @@ public:
         COMPLEX_FLOAT_128 = IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128,
     };
 
-    // Estimate the dimension of the variant as if it is converted to buffer_view.
-    static Array estimate_dimension(const Variant& p_value);
-    static Array estimate_dimension(const Array& p_value);
-    static Array estimate_dimension(const PackedByteArray& p_value);
-    static Array estimate_dimension(const PackedInt32Array& p_value);
-    static Array estimate_dimension(const PackedInt64Array& p_value);
-    static Array estimate_dimension(const PackedFloat32Array& p_value);
-    static Array estimate_dimension(const PackedFloat64Array& p_value);
-    static Array estimate_dimension(const PackedVector2Array& p_value);
-    static Array estimate_dimension(const PackedVector3Array& p_value);
-    static Array estimate_dimension(const PackedColorArray& p_value);
-    static Array estimate_dimension(const Vector2& p_value);
-    static Array estimate_dimension(const Vector2i& p_value);
-    static Array estimate_dimension(const Vector3& p_value);
-    static Array estimate_dimension(const Vector3i& p_value);
-    static Array estimate_dimension(const Vector4& p_value);
-    static Array estimate_dimension(const Vector4i& p_value);
-    static Array estimate_dimension(const Color& p_value);
-    static Array estimate_dimension(const Object* p_value);
-    static Array estimate_dimension(const Ref<Image> p_value);
-    // Convert Godot value to raw buffer view. Caller will need to release it after use.
-    static iree_hal_buffer_view_t* to_raw_buffer_view(const Variant& p_value, iree_hal_element_type_t p_value_type);
-    // Convert IREE buffer view to Godot array.
-    static Array to_array(const iree_hal_buffer_view_t* p_buffer_view);
-    // Extract bytes from buffer views, abandon dimensions.
-    static PackedByteArray extract_bytes(const iree_hal_buffer_view_t* p_buffer_view);
-    // Group elements in array into arrays.
-    static Array group_elements(const Array& p_array, uint64_t p_element_per_group);
-
     static Ref<IREEBufferView> from(const Variant& p_value, ElementType p_value_type);
 
-    void set_raw_buffer_view(iree_hal_buffer_view_t* p_buffer_view);
+    void set_move_raw_buffer_view(iree_hal_buffer_view_t* p_buffer_view);
     iree_hal_buffer_view_t* get_retain_raw_buffer_view();
+    iree_hal_buffer_view_t* get_assign_raw_buffer_view();
 
     bool is_null() const;
     Array to_array() const;

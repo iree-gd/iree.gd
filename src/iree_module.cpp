@@ -129,23 +129,23 @@ IREEIOList IREEModule::call_vmfb(const String& p_func_name, const Array& p_args)
     // Convert inputs.
     IREEIOList inputs; 
     inputs.init();
-    ERR_FAIL_COND_V(!inputs.is_init(), IREEIOList());
+    ERR_FAIL_COND_V(!inputs.is_null(), IREEIOList());
 
     for(int64_t i = 0; i < p_args.size(); i++) {
         Ref<IREEBufferView> arg = (p_args[i]);
         ERR_FAIL_COND_V_MSG(arg.is_null(), IREEIOList(), "Given IREEBufferView is null.");
-        inputs.append(arg);
+        inputs.append_retain_raw_buffer_view(arg->get_assign_raw_buffer_view());
     }
 
     // Create a new iree list for outputs.
     IREEIOList outputs; 
     outputs.init();
-    ERR_FAIL_COND_V(!outputs.is_init(), IREEIOList());
+    ERR_FAIL_COND_V(!outputs.is_null(), IREEIOList());
 
     // Call.
     ERR_FAIL_COND_V_MSG(iree_vm_invoke(
         context, func, IREE_VM_INVOCATION_FLAG_NONE,
-        /*policy=*/ NULL, inputs.ptr(), outputs.ptrw(), iree_allocator_system()
+        /*policy=*/ NULL, inputs.get_assign_raw_list(), outputs.get_assign_raw_list(), iree_allocator_system()
     ), IREEIOList(), vformat("Unable to call IREE function '%s'.", p_func_name));
 
     return outputs;

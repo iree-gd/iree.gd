@@ -16,22 +16,19 @@ class IREEIOList {
 private:
     iree_vm_list_t* list;
 public:
-    static Array to_array(const iree_vm_list_t* p_list);
-
     IREEIOList();
     IREEIOList(IREEIOList&& p_list);
     ~IREEIOList();
 
-    bool is_init() const;
+    bool is_null() const;
     Error init();
     void deinit();
 
-    const iree_vm_list_t* ptr() const;
-    iree_vm_list_t* ptrw();
+    iree_vm_list_t* get_assign_raw_list();
 
     Array to_array() const;
     
-    Error append(Ref<IREEBufferView> p_buffer_view);
+    Error append_retain_raw_buffer_view(iree_hal_buffer_view_t* m_buffer_view);
 };
 
 } // namespace godot

@@ -9,21 +9,7 @@
 
 using namespace godot;
 
-Array IREEIOList::to_array(const iree_vm_list_t* p_list) {
-    if(p_list == nullptr) return Array();
-    Array result;
-    iree_host_size_t size = iree_vm_list_size(p_list);
-    for(iree_host_size_t i = 0; i < size; i++) {
-        iree_hal_buffer_view_t* buffer_view = iree_vm_list_get_buffer_view_retain(p_list, i);
-        Ref<IREEBufferView> buffer_view_ref;
-        buffer_view_ref.instantiate();
-        buffer_view_ref->set_raw_buffer_view(buffer_view);
-        result.append(buffer_view_ref);
-    }
-    return result;
-}
-
-bool IREEIOList::is_init() const {
+bool IREEIOList::is_null() const {
     return list != nullptr;
 }
 
@@ -44,20 +30,26 @@ void IREEIOList::deinit() {
     }
 }
 
-const iree_vm_list_t* IREEIOList::ptr() const {
-    return list;
-}
-
-iree_vm_list_t* IREEIOList::ptrw() {
+iree_vm_list_t* IREEIOList::get_assign_raw_list() {
     return list;
 }
 
 Array IREEIOList::to_array() const {
-    return to_array(list);
+    if(list == nullptr) return Array();
+    Array result;
+    iree_host_size_t size = iree_vm_list_size(list);
+    for(iree_host_size_t i = 0; i < size; i++) {
+        iree_hal_buffer_view_t* buffer_view = iree_vm_list_get_buffer_view_retain(list, i);
+        Ref<IREEBufferView> buffer_view_ref;
+        buffer_view_ref.instantiate();
+        buffer_view_ref->set_move_raw_buffer_view(buffer_view);
+        result.append(buffer_view_ref);
+    }
+    return result;
 }
 
-Error IREEIOList::append(Ref<IREEBufferView> p_buffer_view) {
-    iree_vm_ref_t buffer_view_ref = iree_hal_buffer_view_move_ref(p_buffer_view->get_retain_raw_buffer_view());
+Error IREEIOList::append_retain_raw_buffer_view(iree_hal_buffer_view_t* m_buffer_view) {
+    iree_vm_ref_t buffer_view_ref = iree_hal_buffer_view_retain_ref(m_buffer_view);
     if(iree_vm_list_push_ref_move(list, &buffer_view_ref)) {
         ERR_PRINT("Unable to append IREE buffer view to IREE list.");
         iree_vm_ref_release(&buffer_view_ref);
