@@ -13,9 +13,10 @@ using namespace godot;
 void IREEBufferView::_bind_methods() {
     ClassDB::bind_static_method("IREEBufferView", D_METHOD("from", "value", "type"), &IREEBufferView::from);
 
-    ClassDB::bind_method<MethodDefinition, bool (IREEBufferView::*)() const>(D_METHOD("is_null"), &IREEBufferView::is_null);
-    ClassDB::bind_method<MethodDefinition, Array (IREEBufferView::*)() const>(D_METHOD("to_array"), &IREEBufferView::to_array);
-    ClassDB::bind_method<MethodDefinition, PackedByteArray (IREEBufferView::*)() const>(D_METHOD("extract_bytes"), &IREEBufferView::extract_bytes);
+    ClassDB::bind_method(D_METHOD("is_null"), &IREEBufferView::is_null);
+    ClassDB::bind_method(D_METHOD("to_array"), &IREEBufferView::to_array);
+    ClassDB::bind_method(D_METHOD("to_image"), &IREEBufferView::to_image);
+    ClassDB::bind_method(D_METHOD("extract_bytes"), &IREEBufferView::extract_bytes);
     ClassDB::bind_method(D_METHOD("clean"), &IREEBufferView::clean);
 
     BIND_ENUM_CONSTANT(NONE             );
@@ -349,6 +350,18 @@ Array IREEBufferView::to_array() const {
     );
 
     return result;
+}
+
+Ref<Image> IREEBufferView::to_image(Image::Format p_format) const {
+    PackedByteArray data = extract_bytes();
+    if(data.size() == 0) return Ref<Image>();
+
+    const iree_hal_dim_t* dimensions = iree_hal_buffer_view_shape_dims(buffer_view);
+    iree_host_size_t shape_rank = iree_hal_buffer_view_shape_rank(buffer_view);
+
+    ERR_FAIL_COND_V_MSG(shape_rank != 2, Ref<Image>(), "Unable to convert IREE buffer view with shape not equal to 2 to image.");
+
+    return Image::create_from_data(dimensions[0], dimensions[1], false, p_format, data);
 }
 
 PackedByteArray IREEBufferView::extract_bytes() const {
