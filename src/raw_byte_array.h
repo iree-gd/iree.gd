@@ -2,6 +2,7 @@
 #define RAW_BYTE_ARRAY_H
 
 #include <godot_cpp/classes/global_constants.hpp>
+#include <godot_cpp/variant/packed_byte_array.hpp>
 
 #include <iree/hal/api.h>
 
@@ -39,6 +40,7 @@ public:
     Error append_bytes(const T& p_source) {
         return append_bytes<T>(&p_source, 1);
     }
+
 };
 
 } // namespace godot

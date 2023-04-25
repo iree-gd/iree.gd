@@ -3,9 +3,12 @@
 
 #include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/classes/global_constants.hpp>
+#include <godot_cpp/classes/ref.hpp>
 
 #include <iree/vm/api.h>
 #include <iree/hal/api.h>
+
+#include "iree_buffer_view.h"
 
 namespace godot {
 
@@ -28,9 +31,7 @@ public:
 
     Array to_array() const;
     
-    Error append(IREEIOList&& m_list); // move
-    Error append(IREEBufferView&& m_buffer_view); // move
-    Error append(iree_hal_buffer_view_t* m_buffer_view); // move
+    Error append(Ref<IREEBufferView> p_buffer_view);
 };
 
 } // namespace godot

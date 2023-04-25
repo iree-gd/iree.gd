@@ -30,10 +30,41 @@ using namespace godot;
 )
 
 void IREEBufferView::_bind_methods() {
+    ClassDB::bind_static_method("IREEBufferView", D_METHOD("from", "value", "type"), &IREEBufferView::from);
+
     ClassDB::bind_method<MethodDefinition, bool (IREEBufferView::*)() const>(D_METHOD("is_null"), &IREEBufferView::is_null);
     ClassDB::bind_method<MethodDefinition, Array (IREEBufferView::*)() const>(D_METHOD("to_array"), &IREEBufferView::to_array);
     ClassDB::bind_method<MethodDefinition, PackedByteArray (IREEBufferView::*)() const>(D_METHOD("extract_bytes"), &IREEBufferView::extract_bytes);
     ClassDB::bind_method(D_METHOD("clean"), &IREEBufferView::clean);
+
+    BIND_ENUM_CONSTANT(NONE             );
+    BIND_ENUM_CONSTANT(OPAQUE_8         );
+    BIND_ENUM_CONSTANT(OPAQUE_16        );
+    BIND_ENUM_CONSTANT(OPAQUE_32        );
+    BIND_ENUM_CONSTANT(OPAQUE_64        );
+    BIND_ENUM_CONSTANT(BOOL_8           );
+    BIND_ENUM_CONSTANT(INT_4            );
+    BIND_ENUM_CONSTANT(SINT_4           );
+    BIND_ENUM_CONSTANT(UINT_4           );
+    BIND_ENUM_CONSTANT(INT_8            );
+    BIND_ENUM_CONSTANT(SINT_8           );
+    BIND_ENUM_CONSTANT(UINT_8           );
+    BIND_ENUM_CONSTANT(INT_16           );
+    BIND_ENUM_CONSTANT(SINT_16          );
+    BIND_ENUM_CONSTANT(UINT_16          );
+    BIND_ENUM_CONSTANT(INT_32           );
+    BIND_ENUM_CONSTANT(SINT_32          );
+    BIND_ENUM_CONSTANT(UINT_32          );
+    BIND_ENUM_CONSTANT(INT_64           );
+    BIND_ENUM_CONSTANT(SINT_64          );
+    BIND_ENUM_CONSTANT(UINT_64          );
+    BIND_ENUM_CONSTANT(FLOAT_16         );
+    BIND_ENUM_CONSTANT(FLOAT_32         );
+    BIND_ENUM_CONSTANT(FLOAT_64         );
+    BIND_ENUM_CONSTANT(BFLOAT_16        );
+    BIND_ENUM_CONSTANT(COMPLEX_FLOAT_64 );
+    BIND_ENUM_CONSTANT(ElementType::COMPLEX_FLOAT_128);
+
 }
 
 Array IREEBufferView::estimate_dimension(const Variant& p_value) {
@@ -54,6 +85,7 @@ Array IREEBufferView::estimate_dimension(const Variant& p_value) {
         case Variant::Type::COLOR: return estimate_dimension(Color(p_value));
         case Variant::Type::VECTOR4: return estimate_dimension(Vector4(p_value));
         case Variant::Type::VECTOR4I: return estimate_dimension(Vector4i(p_value));
+        case Variant::Type::OBJECT: return estimate_dimension((Object*)(p_value));
         case Variant::Type::BOOL:
         case Variant::Type::INT:
         case Variant::Type::FLOAT:
@@ -70,7 +102,6 @@ Array IREEBufferView::estimate_dimension(const Variant& p_value) {
         case Variant::Type::STRING_NAME:
         case Variant::Type::NODE_PATH:
         case Variant::Type::RID:
-        case Variant::Type::OBJECT:
         case Variant::Type::CALLABLE:
         case Variant::Type::SIGNAL:
         case Variant::Type::DICTIONARY:
@@ -210,6 +241,19 @@ Array IREEBufferView::estimate_dimension(const Color& p_value) {
     return result;
 }
 
+Array IREEBufferView::estimate_dimension(const Object* p_value) {
+    String class_name = p_value->get_class();
+    if(class_name == "Image") return estimate_dimension(Ref<Image>(p_value));
+    else return Array();
+}
+
+Array IREEBufferView::estimate_dimension(const Ref<Image> p_value) {
+    Array result;
+    result.append(p_value->get_width());
+    result.append(p_value->get_height());
+    return result;
+}
+
 iree_hal_buffer_view_t* IREEBufferView::to_raw_buffer_view(const Variant& p_value, iree_hal_element_type_t p_value_type) {
     iree_hal_buffer_view_t* buffer_view = nullptr;
     Array dimension = estimate_dimension(p_value);    
@@ -255,6 +299,7 @@ Error IREEBufferView::push_value_into_byte_array(const Variant& p_value, iree_ha
         case Variant::Type::COLOR: return push_value_into_byte_array(Color(p_value), p_value_type, m_bytes);
         case Variant::Type::VECTOR4: return push_value_into_byte_array(Vector4(p_value), p_value_type, m_bytes);
         case Variant::Type::VECTOR4I: return push_value_into_byte_array(Vector4i(p_value), p_value_type, m_bytes);
+        case Variant::Type::OBJECT: return push_value_into_byte_array((Object*)(p_value), p_value_type, m_bytes);
         case Variant::Type::BOOL:
         case Variant::Type::INT:
         case Variant::Type::FLOAT:
@@ -271,7 +316,6 @@ Error IREEBufferView::push_value_into_byte_array(const Variant& p_value, iree_ha
         case Variant::Type::STRING_NAME:
         case Variant::Type::NODE_PATH:
         case Variant::Type::RID:
-        case Variant::Type::OBJECT:
         case Variant::Type::CALLABLE:
         case Variant::Type::SIGNAL:
         case Variant::Type::DICTIONARY:
@@ -322,14 +366,14 @@ Error IREEBufferView::push_value_into_byte_array(const Array& p_value, iree_hal_
                 case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
                 case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
                 default:
-                    ERR_PRINT("Unable to convert value in array.");
+                    ERR_PRINT("Unable to convert value.");
                     goto on_fail;
 
                 case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: {
                     if(element_type == Variant::Type::INT) m_bytes.append_bytes<int32_t>(element);
                     else {
 #ifdef REAL_T_IS_DOUBLE
-                        ERR_PRINT("Unable to convert value in array.");
+                        ERR_PRINT("Unable to convert value.");
                         goto on_fail;
 #else
                         m_bytes.append_bytes<float>(element);
@@ -354,7 +398,7 @@ Error IREEBufferView::push_value_into_byte_array(const Array& p_value, iree_hal_
                     if(element_type == Variant::Type::INT) m_bytes.append_bytes<int32_t>(element);
                     else {
 #ifdef REAL_T_IS_DOUBLE
-                        ERR_PRINT("Unable to convert value in array.");
+                        ERR_PRINT("Unable to convert value.");
                         goto on_fail;
 #else
                         WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
@@ -368,7 +412,7 @@ Error IREEBufferView::push_value_into_byte_array(const Array& p_value, iree_hal_
                     if(element_type == Variant::Type::INT) m_bytes.append_bytes<uint32_t>(int32_t(element));
                     else {
 #ifdef REAL_T_IS_DOUBLE
-                        ERR_PRINT("Unable to convert value in array.");
+                        ERR_PRINT("Unable to convert value.");
                         goto on_fail;
 #else
                         WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
@@ -409,7 +453,7 @@ Error IREEBufferView::push_value_into_byte_array(const Array& p_value, iree_hal_
                     if(element_type == Variant::Type::INT) m_bytes.append_bytes<float>(int32_t(element));
                     else {
 #ifdef REAL_T_IS_DOUBLE
-                        ERR_PRINT("Unable to convert value in array.");
+                        ERR_PRINT("Unable to convert value.");
                         goto on_fail;
 #else
                         m_bytes.append_bytes<float>(element);
@@ -454,7 +498,7 @@ Error IREEBufferView::push_value_into_byte_array(const PackedByteArray& p_value,
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
             default:
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 
             case IREE_HAL_ELEMENT_TYPE_OPAQUE_8:
@@ -548,7 +592,7 @@ Error IREEBufferView::push_value_into_byte_array(const PackedInt32Array& p_value
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
             default:
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 
             case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
@@ -622,7 +666,7 @@ Error IREEBufferView::push_value_into_byte_array(const PackedInt64Array& p_value
             case IREE_HAL_ELEMENT_TYPE_UINT_32:
             case IREE_HAL_ELEMENT_TYPE_FLOAT_32:
             default:
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 
             case IREE_HAL_ELEMENT_TYPE_OPAQUE_64:
@@ -674,7 +718,7 @@ Error IREEBufferView::push_value_into_byte_array(const PackedFloat32Array& p_val
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
             default:
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 
             case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
@@ -751,7 +795,7 @@ Error IREEBufferView::push_value_into_byte_array(const PackedFloat64Array& p_val
             case IREE_HAL_ELEMENT_TYPE_UINT_32:
             case IREE_HAL_ELEMENT_TYPE_FLOAT_32:
             default:
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 
 
@@ -838,14 +882,14 @@ Error IREEBufferView::push_value_into_byte_array(const Vector2& p_value, iree_ha
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
             default:
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 
             case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
             case IREE_HAL_ELEMENT_TYPE_INT_32:
             case IREE_HAL_ELEMENT_TYPE_SINT_32: {
 #ifdef REAL_T_IS_DOUBLE
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 #else
                 WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
@@ -857,7 +901,7 @@ Error IREEBufferView::push_value_into_byte_array(const Vector2& p_value, iree_ha
 
             case IREE_HAL_ELEMENT_TYPE_UINT_32: {
 #ifdef REAL_T_IS_DOUBLE
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 #else
                 WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
@@ -882,7 +926,7 @@ Error IREEBufferView::push_value_into_byte_array(const Vector2& p_value, iree_ha
 
             case IREE_HAL_ELEMENT_TYPE_FLOAT_32: {
 #ifdef REAL_T_IS_DOUBLE
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 #else
                 m_bytes.append_bytes<float>(p_value.coord[i]);
@@ -926,7 +970,7 @@ Error IREEBufferView::push_value_into_byte_array(const Vector2i& p_value, iree_h
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
             default:
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 
             case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
@@ -995,14 +1039,14 @@ Error IREEBufferView::push_value_into_byte_array(const Vector3& p_value, iree_ha
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
             default:
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 
             case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
             case IREE_HAL_ELEMENT_TYPE_INT_32:
             case IREE_HAL_ELEMENT_TYPE_SINT_32: {
 #ifdef REAL_T_IS_DOUBLE
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 #else
                 WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
@@ -1014,7 +1058,7 @@ Error IREEBufferView::push_value_into_byte_array(const Vector3& p_value, iree_ha
 
             case IREE_HAL_ELEMENT_TYPE_UINT_32: {
 #ifdef REAL_T_IS_DOUBLE
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 #else
                 WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
@@ -1039,7 +1083,7 @@ Error IREEBufferView::push_value_into_byte_array(const Vector3& p_value, iree_ha
 
             case IREE_HAL_ELEMENT_TYPE_FLOAT_32: {
 #ifdef REAL_T_IS_DOUBLE
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 #else
                 m_bytes.append_bytes<float>(p_value.coord[i]);
@@ -1083,7 +1127,7 @@ Error IREEBufferView::push_value_into_byte_array(const Vector3i& p_value, iree_h
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
             default:
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 
             case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
@@ -1152,14 +1196,14 @@ Error IREEBufferView::push_value_into_byte_array(const Vector4& p_value, iree_ha
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
             default:
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 
             case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
             case IREE_HAL_ELEMENT_TYPE_INT_32:
             case IREE_HAL_ELEMENT_TYPE_SINT_32: {
 #ifdef REAL_T_IS_DOUBLE
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 #else
                 WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
@@ -1171,7 +1215,7 @@ Error IREEBufferView::push_value_into_byte_array(const Vector4& p_value, iree_ha
 
             case IREE_HAL_ELEMENT_TYPE_UINT_32: {
 #ifdef REAL_T_IS_DOUBLE
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 #else
                 WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
@@ -1196,7 +1240,7 @@ Error IREEBufferView::push_value_into_byte_array(const Vector4& p_value, iree_ha
 
             case IREE_HAL_ELEMENT_TYPE_FLOAT_32: {
 #ifdef REAL_T_IS_DOUBLE
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 #else
                 m_bytes.append_bytes<float>(p_value.components[i]);
@@ -1240,7 +1284,7 @@ Error IREEBufferView::push_value_into_byte_array(const Vector4i& p_value, iree_h
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
             default:
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 
             case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
@@ -1309,14 +1353,14 @@ Error IREEBufferView::push_value_into_byte_array(const Color& p_value, iree_hal_
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
             case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
             default:
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 
             case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
             case IREE_HAL_ELEMENT_TYPE_INT_32:
             case IREE_HAL_ELEMENT_TYPE_SINT_32: {
 #ifdef REAL_T_IS_DOUBLE
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 #else
                 WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
@@ -1328,7 +1372,7 @@ Error IREEBufferView::push_value_into_byte_array(const Color& p_value, iree_hal_
 
             case IREE_HAL_ELEMENT_TYPE_UINT_32: {
 #ifdef REAL_T_IS_DOUBLE
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 #else
                 WARN_PRINT_ONCE("Conversion from float to int, might lost preciesion.");
@@ -1353,7 +1397,7 @@ Error IREEBufferView::push_value_into_byte_array(const Color& p_value, iree_hal_
 
             case IREE_HAL_ELEMENT_TYPE_FLOAT_32: {
 #ifdef REAL_T_IS_DOUBLE
-                ERR_PRINT("Unable to convert value in array.");
+                ERR_PRINT("Unable to convert value.");
                 goto on_fail;
 #else
                 m_bytes.append_bytes<float>(p_value.components[i]);
@@ -1372,6 +1416,38 @@ Error IREEBufferView::push_value_into_byte_array(const Color& p_value, iree_hal_
 on_fail:
     m_bytes.clear();
     return FAILED;
+}
+
+Error IREEBufferView::push_value_into_byte_array(const Object* p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+    if(p_value->get_class() == "Image") return push_value_into_byte_array(Ref<Image>(p_value), p_value_type, m_bytes);
+
+    else {
+        ERR_PRINT("Unable to convert value.");
+        goto on_fail;
+    }
+    
+    return OK;
+
+on_fail:
+    m_bytes.clear();
+    return FAILED;
+}
+
+Error IREEBufferView::push_value_into_byte_array(const Ref<Image> p_value, iree_hal_element_type_t p_value_type, RawByteArray& m_bytes) {
+    const PackedByteArray data = p_value->get_data();
+    m_bytes.append_bytes(data.ptr(), data.size());
+    return OK;
+}
+
+Ref<IREEBufferView> IREEBufferView::from(const Variant& p_value, ElementType p_value_type) {
+    Ref<IREEBufferView> buffer_view_ref;
+    buffer_view_ref.instantiate();
+
+    iree_hal_buffer_view_t* raw_buffer_view = to_raw_buffer_view(p_value, (iree_hal_element_type_t) p_value_type);
+    ERR_FAIL_COND_V(raw_buffer_view == nullptr, buffer_view_ref);
+
+    buffer_view_ref->set_raw_buffer_view(raw_buffer_view);
+    return buffer_view_ref;
 }
 
 Array IREEBufferView::to_array(const iree_hal_buffer_view_t* p_buffer_view) {
@@ -1400,7 +1476,7 @@ Array IREEBufferView::to_array(const iree_hal_buffer_view_t* p_buffer_view) {
         case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_64: 
         case IREE_HAL_ELEMENT_TYPE_COMPLEX_FLOAT_128:
         default:
-            ERR_PRINT("Unable to convert value in array.");
+            ERR_PRINT("Unable to convert value.");
             return Array();
 
         case IREE_HAL_ELEMENT_TYPE_OPAQUE_32: 
@@ -1488,6 +1564,11 @@ Array IREEBufferView::to_array() const {
 
 PackedByteArray IREEBufferView::extract_bytes() const {
     return extract_bytes(buffer_view);
+}
+
+iree_hal_buffer_view_t* IREEBufferView::get_retain_raw_buffer_view() {
+    iree_hal_buffer_view_retain(buffer_view);
+    return buffer_view;
 }
 
 void IREEBufferView::set_raw_buffer_view(iree_hal_buffer_view_t* p_buffer_view) {

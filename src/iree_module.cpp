@@ -36,8 +36,25 @@ Array IREEModule::_bind_call_vmfb(const Variant** p_argv, GDExtensionInt p_argc,
 
     String func_name = String(*p_argv[0]);
     Array args;
-    for(int i = 1; i < p_argc; i++) 
-        args.append(*p_argv[i]);
+    for(int i = 1; i < p_argc; i++) {
+        const Variant value = *p_argv[i];
+
+        if(value.get_type() != Variant::Type::OBJECT) {
+            m_error.argument = i;
+            m_error.error = GDExtensionCallErrorType::GDEXTENSION_CALL_ERROR_INVALID_ARGUMENT;
+            m_error.expected = Variant::Type::OBJECT;
+            return Array();
+        }
+
+        const Object* object = value;
+
+        if(object->get_class() != "IREEBufferView") {
+            ERR_PRINT("Expecting IREEBufferView.");
+            return Array();
+        }
+
+        args.append(value);
+    }
 
     return call_vmfb(func_name, args).to_array();
 }
@@ -115,8 +132,8 @@ IREEIOList IREEModule::call_vmfb(const String& p_func_name, const Array& p_args)
     ERR_FAIL_COND_V(!inputs.is_init(), IREEIOList());
 
     for(int64_t i = 0; i < p_args.size(); i++) {
-        iree_hal_buffer_view_t* arg = IREEBufferView::to_raw_buffer_view(p_args[i], IREE_HAL_ELEMENT_TYPE_FLOAT_32); // TODO: Figure out the type of input.
-        ERR_FAIL_NULL_V(arg, IREEIOList());
+        Ref<IREEBufferView> arg = (p_args[i]);
+        ERR_FAIL_COND_V_MSG(arg.is_null(), IREEIOList(), "Given IREEBufferView is null.");
         inputs.append(arg);
     }
 
