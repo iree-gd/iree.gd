@@ -382,7 +382,7 @@ void IREEBufferView::set_move_raw_buffer_view(iree_hal_buffer_view_t* p_buffer_v
 }
 
 void IREEBufferView::clean() {
-    if(buffer_view == nullptr) {
+    if(buffer_view != nullptr) {
         iree_hal_buffer_view_release(buffer_view);
         buffer_view = nullptr;
     }
