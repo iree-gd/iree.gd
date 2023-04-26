@@ -14,6 +14,7 @@ bool IREEIOList::is_null() const {
 }
 
 Error IREEIOList::init() {
+    if(list != nullptr) return OK;
     iree_vm_list_t* new_list = nullptr;
     ERR_FAIL_COND_V_MSG(iree_vm_list_create(
         iree_vm_make_undefined_type_def(),
@@ -49,6 +50,7 @@ Array IREEIOList::to_array() const {
 }
 
 Error IREEIOList::append_retain_raw_buffer_view(iree_hal_buffer_view_t* m_buffer_view) {
+    if(m_buffer_view == nullptr) return ERR_INVALID_PARAMETER;
     iree_vm_ref_t buffer_view_ref = iree_hal_buffer_view_retain_ref(m_buffer_view);
     if(iree_vm_list_push_ref_move(list, &buffer_view_ref)) {
         ERR_PRINT("Unable to append IREE buffer view to IREE list.");

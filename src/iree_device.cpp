@@ -15,6 +15,7 @@
 using namespace godot;
 
 Error IREEDevice::capture_vmvx(iree_vm_instance_t* p_instance) {
+    if(p_instance == nullptr) return ERR_INVALID_PARAMETER;
     Error e = OK;
     iree_string_view_t id = iree_make_cstring_view("vmvx");
     iree_hal_sync_device_params_t params;
@@ -79,6 +80,7 @@ clean_up_loader:
 }
 
 Error IREEDevice::capture_cpu_async(iree_vm_instance_t* p_instance) {
+    if(p_instance == nullptr) return ERR_INVALID_PARAMETER;
     Error e = OK;
     iree_string_view_t id = iree_make_cstring_view("local-task");
     iree_hal_executable_loader_t* loader = nullptr;

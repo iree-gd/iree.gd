@@ -223,12 +223,14 @@ Array IREEBufferView::estimate_shape(const Color& p_value) {
 }
 
 Array IREEBufferView::estimate_shape(const Object* p_value) {
+    if(p_value == nullptr) return Array();
     String class_name = p_value->get_class();
     if(class_name == "Image") return estimate_shape(Ref<Image>(p_value));
     else return Array();
 }
 
 Array IREEBufferView::estimate_shape(const Ref<Image> p_value) {
+    if(p_value == nullptr) return Array();
     Array result;
     result.append(p_value->get_width());
     result.append(p_value->get_height());
@@ -242,14 +244,14 @@ Ref<IREEBufferView> IREEBufferView::from(const Variant& p_value, ElementType p_v
     iree_hal_buffer_view_t* raw_buffer_view = nullptr;
     Array shape_array = estimate_shape(p_value);    
     const int64_t shape_rank = shape_array.size();
-    ERR_FAIL_COND_V_MSG(shape_rank == 0, nullptr, "Unable to convert dimensionless value to IREE buffer view.");
-    ERR_FAIL_COND_V_MSG(shape_rank > MAX_SHAPE_RANK, nullptr, "Unable to convert such high dimension value.");
+    ERR_FAIL_COND_V_MSG(shape_rank == 0, Ref<IREEBufferView>(), "Unable to convert dimensionless value to IREE buffer view.");
+    ERR_FAIL_COND_V_MSG(shape_rank > MAX_SHAPE_RANK, Ref<IREEBufferView>(), "Unable to convert such high dimension value.");
 
     iree_hal_dim_t shape[MAX_SHAPE_RANK] = {0};
     for(int i = 0; i < shape_rank; i++) shape[i] = shape_array[i];
 
     RawByteArray bytes;
-    ERR_FAIL_COND_V(bytes.append(p_value, p_value_type), nullptr);
+    ERR_FAIL_COND_V(bytes.append(p_value, p_value_type), Ref<IREEBufferView>());
 
     ERR_FAIL_COND_V_MSG(
         iree_hal_buffer_view_allocate_buffer(
@@ -260,7 +262,7 @@ Ref<IREEBufferView> IREEBufferView::from(const Variant& p_value, ElementType p_v
                 .type = IREE_HAL_MEMORY_TYPE_DEVICE_LOCAL
             },
             iree_make_const_byte_span(bytes.get_data(), bytes.get_length()), &raw_buffer_view
-    ), nullptr, "Unable to allocate buffer for IREE buffer view.");
+    ), Ref<IREEBufferView>(), "Unable to allocate buffer for IREE buffer view.");
 
     buffer_view_ref->set_move_raw_buffer_view(raw_buffer_view);
     return buffer_view_ref;
@@ -271,6 +273,7 @@ bool IREEBufferView::is_null() const {
 }
 
 Array IREEBufferView::to_array() const {
+    if(buffer_view == nullptr) return Array();
     PackedByteArray data = extract_bytes();
     if(data.size() == 0) return Array();
 
@@ -365,6 +368,7 @@ Ref<Image> IREEBufferView::to_image(Image::Format p_format) const {
 }
 
 PackedByteArray IREEBufferView::extract_bytes() const {
+    if(buffer_view == nullptr) return PackedByteArray();
     PackedByteArray data;
 
     iree_device_size_t data_size = iree_hal_buffer_view_byte_length(buffer_view);
@@ -381,11 +385,13 @@ PackedByteArray IREEBufferView::extract_bytes() const {
 }
 
 iree_hal_buffer_view_t* IREEBufferView::get_retain_raw_buffer_view() {
+    if(buffer_view == nullptr) return nullptr;
     iree_hal_buffer_view_retain(buffer_view);
     return buffer_view;
 }
 
 iree_hal_buffer_view_t* IREEBufferView::get_assign_raw_buffer_view() {
+    if(buffer_view == nullptr) return nullptr;
     return buffer_view;
 }
 

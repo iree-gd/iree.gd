@@ -1173,6 +1173,7 @@ on_fail:
 }
 
 Error RawByteArray::append(const Object* p_value, iree_hal_element_type_t p_value_type) {
+    if(p_value == nullptr) return ERR_INVALID_PARAMETER;
     if(p_value->get_class() == "Image") return append(Ref<Image>(p_value), p_value_type);
 
     else {
@@ -1188,6 +1189,7 @@ on_fail:
 }
 
 Error RawByteArray::append(const Ref<Image> p_value, iree_hal_element_type_t p_value_type) {
+    if(p_value == nullptr) return ERR_INVALID_PARAMETER;
     const PackedByteArray data = p_value->get_data();
     append(data.ptr(), data.size());
     return OK;
