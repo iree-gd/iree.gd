@@ -10,6 +10,65 @@
 
 using namespace godot;
 
+static iree_host_size_t get_image_format_channel_count(Image::Format p_format) {
+    switch (p_format) {
+		case Image::Format::FORMAT_RF:
+		case Image::Format::FORMAT_R8:
+		case Image::Format::FORMAT_L8: {
+            return 1;
+        }
+
+		case Image::Format::FORMAT_RGF:
+		case Image::Format::FORMAT_RG8:
+		case Image::Format::FORMAT_LA8: {
+            return 2;
+        }
+
+		case Image::Format::FORMAT_RGBF:
+		case Image::Format::FORMAT_RGB565:
+		case Image::Format::FORMAT_RGB8: {
+            return 3;
+        }
+
+		case Image::Format::FORMAT_RGBAF:
+		case Image::Format::FORMAT_RGBA4444:
+		case Image::Format::FORMAT_RGBA8: {
+            return 4;
+        }
+
+		case Image::Format::FORMAT_ETC2_R11:
+		case Image::Format::FORMAT_ETC2_R11S:
+		case Image::Format::FORMAT_RH:
+		case Image::Format::FORMAT_ETC2_RA_AS_RG:
+		case Image::Format::FORMAT_ETC2_RG11:
+		case Image::Format::FORMAT_ETC2_RG11S:
+		case Image::Format::FORMAT_RGH:
+		case Image::Format::FORMAT_DXT5_RA_AS_RG:
+		case Image::Format::FORMAT_ETC2_RGB8:
+		case Image::Format::FORMAT_ETC:
+		case Image::Format::FORMAT_BPTC_RGBFU:
+		case Image::Format::FORMAT_BPTC_RGBF:
+		case Image::Format::FORMAT_RGBE9995:
+		case Image::Format::FORMAT_RGBH:
+		case Image::Format::FORMAT_RGBAH:
+		case Image::Format::FORMAT_ETC2_RGB8A1:
+		case Image::Format::FORMAT_ETC2_RGBA8:
+		case Image::Format::FORMAT_BPTC_RGBA:
+		case Image::Format::FORMAT_RGTC_RG:
+		case Image::Format::FORMAT_RGTC_R:
+		case Image::Format::FORMAT_DXT5:
+		case Image::Format::FORMAT_DXT3:
+		case Image::Format::FORMAT_DXT1:
+		case Image::Format::FORMAT_ASTC_4x4:
+		case Image::Format::FORMAT_ASTC_4x4_HDR:
+		case Image::Format::FORMAT_ASTC_8x8:
+		case Image::Format::FORMAT_ASTC_8x8_HDR:
+		case Image::Format::FORMAT_MAX: {
+            return 0; // Unsupported. These are madness.
+        }
+    }
+}
+
 void IREEBufferView::_bind_methods() {
     ClassDB::bind_static_method("IREEBufferView", D_METHOD("from", "value", "type"), &IREEBufferView::from);
 
@@ -231,9 +290,12 @@ Array IREEBufferView::estimate_shape(const Object* p_value) {
 
 Array IREEBufferView::estimate_shape(const Ref<Image> p_value) {
     if(p_value == nullptr) return Array();
+    const iree_host_size_t channel_count = get_image_format_channel_count(p_value->get_format());
+    if(channel_count == 0) return Array();
     Array result;
     result.append(p_value->get_width());
     result.append(p_value->get_height());
+    result.append(channel_count);
     return result;
 }
 
@@ -356,13 +418,18 @@ Array IREEBufferView::to_array() const {
 }
 
 Ref<Image> IREEBufferView::to_image(Image::Format p_format) const {
-    PackedByteArray data = extract_bytes();
-    if(data.size() == 0) return Ref<Image>();
+    if(buffer_view == nullptr) return Ref<Image>();
+    iree_host_size_t channel_count = get_image_format_channel_count(p_format);
+    ERR_FAIL_COND_V_MSG(channel_count == 0, Ref<Image>(), "Unsupported image format.");
 
     const iree_hal_dim_t* dimensions = iree_hal_buffer_view_shape_dims(buffer_view);
     iree_host_size_t shape_rank = iree_hal_buffer_view_shape_rank(buffer_view);
 
-    ERR_FAIL_COND_V_MSG(shape_rank != 2, Ref<Image>(), "Unable to convert IREE buffer view with shape not equal to 2 to image.");
+    ERR_FAIL_COND_V_MSG(shape_rank != 3, Ref<Image>(), "Unable to convert IREE buffer view with shape not equal to 3 to image.");
+    ERR_FAIL_COND_V_MSG(dimensions[2] != channel_count, Ref<Image>(), "Incorrect channel count.");
+
+    PackedByteArray data = extract_bytes();
+    if(data.size() == 0) return Ref<Image>();
 
     return Image::create_from_data(dimensions[0], dimensions[1], false, p_format, data);
 }

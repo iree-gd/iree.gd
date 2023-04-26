@@ -56,7 +56,9 @@ Array IREEModule::_bind_call_vmfb(const Variant** p_argv, GDExtensionInt p_argc,
         args.append(value);
     }
 
-    return call_vmfb(func_name, args).to_array();
+    IREEIOList output = call_vmfb(func_name, args);
+
+    return output.to_array();
 }
 
 bool IREEModule::is_loaded() const {
