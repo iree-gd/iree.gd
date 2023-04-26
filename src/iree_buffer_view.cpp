@@ -74,7 +74,8 @@ void IREEBufferView::_bind_methods() {
 
     ClassDB::bind_method(D_METHOD("is_null"), &IREEBufferView::is_null);
     ClassDB::bind_method(D_METHOD("to_array"), &IREEBufferView::to_array);
-    ClassDB::bind_method(D_METHOD("to_image"), &IREEBufferView::to_image);
+    ClassDB::bind_method(D_METHOD("to_image", "format"), &IREEBufferView::to_image);
+    ClassDB::bind_method(D_METHOD("to_images", "format"), &IREEBufferView::to_images);
     ClassDB::bind_method(D_METHOD("extract_bytes"), &IREEBufferView::extract_bytes);
     ClassDB::bind_method(D_METHOD("clean"), &IREEBufferView::clean);
 
@@ -432,6 +433,35 @@ Ref<Image> IREEBufferView::to_image(Image::Format p_format) const {
     if(data.size() == 0) return Ref<Image>();
 
     return Image::create_from_data(dimensions[0], dimensions[1], false, p_format, data);
+}
+
+Array IREEBufferView::to_images(Image::Format p_format) const {
+    if(buffer_view == nullptr) return Array();
+    iree_host_size_t channel_count = get_image_format_channel_count(p_format);
+    ERR_FAIL_COND_V_MSG(channel_count == 0, Array(), "Unsupported image format.");
+
+    const iree_hal_dim_t* dimensions = iree_hal_buffer_view_shape_dims(buffer_view);
+    iree_host_size_t shape_rank = iree_hal_buffer_view_shape_rank(buffer_view);
+
+    ERR_FAIL_COND_V_MSG(shape_rank != 4, Array(), "Unable to convert IREE buffer view with shape not equal to 4 to image.");
+    ERR_FAIL_COND_V_MSG(dimensions[3] != channel_count, Array(), "Incorrect channel count.");
+
+    PackedByteArray data = extract_bytes();
+    if(data.size() == 0) return Array();
+
+    const iree_hal_dim_t image_count = dimensions[0];
+    const iree_hal_dim_t image_width = dimensions[1];
+    const iree_hal_dim_t image_height = dimensions[1];
+    const iree_hal_dim_t image_size = data.size()/image_count;
+
+    Array result;
+
+    for(iree_hal_dim_t i = 0; i < image_count; i++) {
+        PackedByteArray image_data = data.slice(i * image_size, (i + 1) * image_size);
+        result.append(Image::create_from_data(image_width, image_height, false, p_format, image_data));
+    }
+
+    return result;
 }
 
 PackedByteArray IREEBufferView::extract_bytes() const {

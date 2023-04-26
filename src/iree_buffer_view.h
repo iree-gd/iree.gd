@@ -90,6 +90,7 @@ public:
     bool is_null() const;
     Array to_array() const;
     Ref<Image> to_image(Image::Format p_format) const;
+    Array to_images(Image::Format p_format) const;
     PackedByteArray extract_bytes() const;
     void clean();
 
