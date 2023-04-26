@@ -63,7 +63,8 @@ static iree_host_size_t get_image_format_channel_count(Image::Format p_format) {
 		case Image::Format::FORMAT_ASTC_4x4_HDR:
 		case Image::Format::FORMAT_ASTC_8x8:
 		case Image::Format::FORMAT_ASTC_8x8_HDR:
-		case Image::Format::FORMAT_MAX: {
+		case Image::Format::FORMAT_MAX: 
+        default: {
             return 0; // Unsupported. These are madness.
         }
     }
