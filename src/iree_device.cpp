@@ -191,8 +191,23 @@ Error IREEDevice::capture_cpu_async(iree_vm_instance_t* p_instance) {
         goto clean_up_device_allocator;
     }
 
-    goto create_hal_module;
+    // Create hal module.
+    if(iree_hal_module_create(
+        p_instance, new_device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
+        iree_allocator_system(), &new_hal_module
+    )) {
+        e = ERR_CANT_CREATE;
+        ERR_PRINT("Unable to create HAL module of the device.");
+        goto clean_up_device;
+    }
 
+    device = new_device;
+    hal_module = new_hal_module;
+
+    goto clean_up_device_allocator;
+
+clean_up_device:
+    iree_hal_device_release(new_device);
 clean_up_device_allocator:
     iree_hal_allocator_release(device_allocator);
 clean_up_executors:
@@ -202,22 +217,6 @@ clean_up_loader:
     iree_hal_executable_loader_release(loader);
 
     return e;
-
-create_hal_module:
-    // Create hal module.
-    if(iree_hal_module_create(
-        p_instance, new_device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
-        iree_allocator_system(), &new_hal_module
-    )) {
-        iree_hal_device_release(new_device);
-        ERR_PRINT("Unable to create HAL module of the device.");
-        return ERR_CANT_CREATE;
-    }
-
-    device = new_device;
-    hal_module = new_hal_module;
-
-    return OK;
 }
 
 void IREEDevice::release() {
