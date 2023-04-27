@@ -4,6 +4,7 @@
 #include <iree/hal/local/executable_loader.h>
 #include <iree/hal/local/loaders/embedded_elf_loader.h>
 #include <iree/hal/drivers/local_sync/sync_device.h>
+#include <iree/hal/drivers/vulkan/registration/driver_module.h>
 #include <iree/hal/local/loaders/vmvx_module_loader.h>
 #include <iree/task/api.h>
 #include <iree/modules/hal/module.h>
@@ -77,6 +78,61 @@ clean_up_loader:
     iree_hal_executable_loader_release(loader);
     
     return e;
+}
+
+Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
+    if(p_instance == nullptr) return ERR_INVALID_PARAMETER;
+
+    release();
+
+    ERR_FAIL_COND_V_MSG(
+        iree_hal_vulkan_driver_module_register(iree_hal_driver_registry_default()),
+        FAILED, "Unable to register Vulkan HAL driver."
+    );
+
+    Error error = OK;
+    iree_string_view_t identifier = iree_make_cstring_view("vulkan");
+    iree_hal_driver_t* driver = nullptr;
+    iree_hal_device_t* new_device = nullptr;
+    iree_vm_module_t* new_hal_module = nullptr;
+
+    // Create driver.
+    ERR_FAIL_COND_V_MSG(
+        iree_hal_driver_registry_try_create(
+            iree_hal_driver_registry_default(), identifier, iree_allocator_system(), &driver
+        ), ERR_CANT_CREATE, "Unable to create Vulkan device."
+    );
+
+    // Create device.
+    if(iree_hal_driver_create_default_device(driver, iree_allocator_system(), &new_device)) {
+        ERR_PRINT("Unable to create HAL driver.");
+        error = ERR_CANT_CREATE;
+        goto clean_up_driver;
+    }
+
+    // Create hal module.
+    if(iree_hal_module_create(
+        p_instance, new_device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
+        iree_allocator_system(), &new_hal_module
+    )) {
+        ERR_PRINT("Unable to create HAL module of the Vulkan device.");
+        error = ERR_CANT_CREATE;
+        goto clean_up_device;
+    }
+
+    // Setup value.
+    device = new_device;
+    hal_module = new_hal_module;
+
+    goto clean_up_driver;
+
+clean_up_device:
+    iree_hal_device_release(new_device);
+
+clean_up_driver:
+    iree_hal_driver_release(driver);
+
+    return error;
 }
 
 Error IREEDevice::capture_cpu_async(iree_vm_instance_t* p_instance) {
