@@ -183,6 +183,7 @@ target_link_libraries(
 	iree::vm::bytecode::module
 	iree::hal::drivers::local_task::task_driver
 	iree::task::api
+    iree::hal::drivers::vulkan::registration
 	godot-cpp
 )
 set_property(
