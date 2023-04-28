@@ -2,6 +2,7 @@
 #include "iree_module.h"
 #include "iree_buffer_view.h"
 #include "resource_format_loader_iree_module.h"
+#include "image_utility.h"
 
 #include <gdextension_interface.h>
 
@@ -23,6 +24,7 @@ void initialize_iree_gd_module(ModuleInitializationLevel p_level) {
 	ResourceLoader::get_singleton()->add_resource_format_loader(resource_loader_iree_module);
 	ClassDB::register_class<IREEBufferView>();
 	ClassDB::register_class<IREEModule>();
+	ClassDB::register_class<ImageUtility>();
 }
 
 void uninitialize_iree_gd_module(ModuleInitializationLevel p_level) {
