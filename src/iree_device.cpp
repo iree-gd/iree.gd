@@ -1,15 +1,20 @@
 #include "iree_device.h"
 
+#include <godot_cpp/core/error_macros.hpp>
+#include <godot_cpp/classes/rendering_device.hpp>
+#include <godot_cpp/classes/rendering_server.hpp>
+
+#include <vulkan/vulkan.h>
+
 #include <iree/hal/drivers/local_task/task_device.h>
 #include <iree/hal/local/executable_loader.h>
 #include <iree/hal/local/loaders/embedded_elf_loader.h>
 #include <iree/hal/drivers/local_sync/sync_device.h>
 #include <iree/hal/drivers/vulkan/registration/driver_module.h>
+#include <iree/hal/drivers/vulkan/api.h>
 #include <iree/hal/local/loaders/vmvx_module_loader.h>
 #include <iree/task/api.h>
 #include <iree/modules/hal/module.h>
-
-#include <godot_cpp/core/error_macros.hpp>
 
 #define IREE_MAX_EXECUTOR_COUNT 8
 
@@ -88,52 +93,124 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
 
     release();
 
-    ERR_FAIL_COND_V_MSG(
-        iree_hal_vulkan_driver_module_register(iree_hal_driver_registry_default()),
-        FAILED, "Unable to register Vulkan HAL driver."
-    );
-
     Error error = OK;
-    iree_string_view_t identifier = iree_make_cstring_view("vulkan");
     iree_hal_driver_t* driver = nullptr;
     iree_hal_device_t* new_device = nullptr;
     iree_vm_module_t* new_hal_module = nullptr;
+    iree_string_view_t identifier = iree_make_cstring_view("vulkan");
+    
+    RenderingDevice* rendering_device = RenderingServer::get_singleton()->get_rendering_device();
 
-    // Create driver.
-    ERR_FAIL_COND_V_MSG(
-        iree_hal_driver_registry_try_create(
-            iree_hal_driver_registry_default(), identifier, iree_allocator_system(), &driver
-        ), ERR_CANT_CREATE, "Unable to create Vulkan device."
-    );
+    // TODO: In future version of godot, we would need to check whether rendering device is vulkan or not, through `get_device_capabilities`.
+    if(rendering_device == nullptr) { // Not using vulkan, create vulkan device ourselves.
+        ERR_FAIL_COND_V_MSG(
+            iree_hal_vulkan_driver_module_register(iree_hal_driver_registry_default()),
+            FAILED, "Unable to register Vulkan HAL driver."
+        );
 
-    // Create device.
-    if(iree_hal_driver_create_default_device(driver, iree_allocator_system(), &new_device)) {
-        ERR_PRINT("Unable to create HAL driver.");
-        error = ERR_CANT_CREATE;
-        goto clean_up_driver;
+
+        // Create driver.
+        ERR_FAIL_COND_V_MSG(
+            iree_hal_driver_registry_try_create(
+                iree_hal_driver_registry_default(), identifier, iree_allocator_system(), &driver
+            ), ERR_CANT_CREATE, "Unable to create Vulkan device."
+        );
+
+        // Create device.
+        if(iree_hal_driver_create_default_device(driver, iree_allocator_system(), &new_device)) {
+            ERR_PRINT("Unable to create HAL driver.");
+            error = ERR_CANT_CREATE;
+            goto create_clean_up_driver;
+        }
+
+        // Create hal module.
+        if(iree_hal_module_create(
+            p_instance, new_device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
+            iree_allocator_system(), &new_hal_module
+        )) {
+            ERR_PRINT("Unable to create HAL module of the Vulkan device.");
+            error = ERR_CANT_CREATE;
+            goto create_clean_up_device;
+        }
+
+        // Setup value.
+        device = new_device;
+        hal_module = new_hal_module;
+
+        goto create_clean_up_driver;
+
+    create_clean_up_device:
+        iree_hal_device_release(new_device);
+
+    create_clean_up_driver:
+        iree_hal_driver_release(driver);
+
+    } 
+
+    else { // Godot is using vulkan, wrap vulkan.
+        iree_hal_vulkan_syms_t* syms = nullptr;
+        iree_hal_vulkan_driver_options_t driver_options;
+        iree_hal_vulkan_queue_set_t compute_queue_set;
+        iree_hal_vulkan_queue_set_t transfer_queue_set;
+
+        const VkInstance vk_instance = (VkInstance) rendering_device->get_driver_resource(RenderingDevice::DriverResource::DRIVER_RESOURCE_VULKAN_INSTANCE, RID(), 0);
+        ERR_FAIL_COND_V_MSG(vk_instance == VK_NULL_HANDLE, ERR_QUERY_FAILED, "Unable to retrieve Vulkan instance.");
+        const VkPhysicalDevice vk_physical_device = (VkPhysicalDevice) rendering_device->get_driver_resource(RenderingDevice::DriverResource::DRIVER_RESOURCE_VULKAN_PHYSICAL_DEVICE, RID(), 0);
+        ERR_FAIL_COND_V_MSG(vk_physical_device == VK_NULL_HANDLE, ERR_QUERY_FAILED, "Unable to retrieve Vulkan physical device.");
+        const VkDevice vk_device = (VkDevice) rendering_device->get_driver_resource(RenderingDevice::DriverResource::DRIVER_RESOURCE_VULKAN_DEVICE, RID(), 0);
+        ERR_FAIL_COND_V_MSG(vk_device == VK_NULL_HANDLE, ERR_QUERY_FAILED, "Unable to retrieve Vulkan device.");
+        compute_queue_set.queue_family_index = rendering_device->get_driver_resource(RenderingDevice::DriverResource::DRIVER_RESOURCE_VULKAN_QUEUE_FAMILY_INDEX, RID(), 0);
+        compute_queue_set.queue_indices = 1 << 0;
+        transfer_queue_set.queue_indices = 0;
+        driver_options.api_version = VK_API_VERSION_1_0;
+        driver_options.requested_features = (iree_hal_vulkan_features_t)(IREE_HAL_VULKAN_FEATURE_ENABLE_DEBUG_UTILS);
+
+        ERR_FAIL_COND_V_MSG(
+            iree_hal_vulkan_syms_create((void*)vkGetInstanceProcAddr, iree_allocator_system(), &syms),
+            ERR_CANT_CREATE, "Unable to create Vulkan syms."
+        );
+
+        if(iree_hal_vulkan_driver_create_using_instance(identifier, &driver_options, syms, vk_instance, iree_allocator_system(), &driver)) {
+            error = ERR_CANT_CREATE;
+            ERR_PRINT("Unable to create Vulkan driver.");
+            goto wrap_clean_up_syms;
+        }
+
+        if(iree_hal_vulkan_wrap_device(
+            identifier, &driver_options.device_options, syms, vk_instance, vk_physical_device, vk_device, &compute_queue_set,
+            &transfer_queue_set, iree_allocator_system(), &new_device
+        )) {
+            error = ERR_CANT_CREATE;
+            ERR_PRINT("Unable to wrap Vualkan device.");
+            goto wrap_clean_up_driver;
+        }
+
+        // Create hal module.
+        if(iree_hal_module_create(
+            p_instance, new_device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
+            iree_allocator_system(), &new_hal_module
+        )) {
+            ERR_PRINT("Unable to create HAL module of the Vulkan device.");
+            error = ERR_CANT_CREATE;
+            goto wrap_clean_up_device;
+        }
+
+        // Setup value.
+        device = new_device;
+        hal_module = new_hal_module;
+
+        goto wrap_clean_up_driver;
+
+
+        wrap_clean_up_device:
+            iree_hal_device_release(new_device);
+
+        wrap_clean_up_driver:
+            iree_hal_driver_release(driver);
+
+        wrap_clean_up_syms: 
+            iree_hal_vulkan_syms_release(syms);
     }
-
-    // Create hal module.
-    if(iree_hal_module_create(
-        p_instance, new_device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
-        iree_allocator_system(), &new_hal_module
-    )) {
-        ERR_PRINT("Unable to create HAL module of the Vulkan device.");
-        error = ERR_CANT_CREATE;
-        goto clean_up_device;
-    }
-
-    // Setup value.
-    device = new_device;
-    hal_module = new_hal_module;
-
-    goto clean_up_driver;
-
-clean_up_device:
-    iree_hal_device_release(new_device);
-
-clean_up_driver:
-    iree_hal_driver_release(driver);
 
     return error;
 }

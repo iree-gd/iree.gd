@@ -27,6 +27,8 @@ project(
     LANGUAGES CXX C
 )
 
+find_package(Vulkan REQUIRED)
+
 # Ccache for sanity
 find_program(CCACHE_FOUND ccache)
 if(CCACHE_FOUND)
@@ -184,7 +186,8 @@ target_link_libraries(
 	iree::vm::bytecode::module
 	iree::hal::drivers::local_task::task_driver
 	iree::task::api
-    iree::hal::drivers::vulkan::registration
+	iree::hal::drivers::vulkan::registration
+	Vulkan::Vulkan
 	godot-cpp
 )
 set_property(
