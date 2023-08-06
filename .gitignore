@@ -14,3 +14,7 @@
 /custom/
 /compile_commands.json
 /.vscode/
+
+# Caches
+/.cache/
+/.ccls-cache/
