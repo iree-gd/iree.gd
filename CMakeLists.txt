@@ -46,6 +46,7 @@ option(IREE_HAL_DRIVER_LOCAL_SYNC "Enables the 'local-sync' runtime HAL driver" 
 option(IREE_HAL_DRIVER_LOCAL_TASK "Enables the 'local-task' runtime HAL driver" ON)
 option(IREE_HAL_EXECUTABLE_LOADER_VMVX_MODULE "Enables the VMVX module loader for local HAL drivers" ON)
 option(IREE_ENABLE_THREADING "Enables threading for IREE." ON)
+option(IREE_ENABLE_RTTI "Enables Runtime type information." ON)
 
 set(IREE_HOST_BIN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools/bin)
 
@@ -134,7 +135,7 @@ endif()
 #       defaults to RTTI disabled in `iree_copts.cmake`.
 #       RTTI is disabled for `dialect` target, but you may want to consider to
 #       to pass `-fno-rtti` as a global compile option by adding the line
-add_compile_options("-fno-rtti")
+#add_compile_options("-fno-rtti")
 
 # ASan might not work: https://github.com/google/sanitizers/issues/856
 # Sanitize for debugging
@@ -155,7 +156,6 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_BINARY_DIR}/lib/cmake/mlir")
 
 add_subdirectory(${3RD_PARTY_DIR}/iree)
 
-add_compile_definitions(NO_SAFE_CAST) # To disable `typeid` usage (-fno-rtti)
 add_subdirectory(${3RD_PARTY_DIR}/godot-cpp)
 
 #-------------------------------------------------------------------------------

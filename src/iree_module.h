@@ -19,8 +19,8 @@
 #include <iree/hal/api.h>
 #include <iree/vm/api.h>
 
-#include "iree_buffer_view.h"
-#include "iree_io_list.h"
+#include "iree_tensor.h"
+#include "iree_list.h"
 
 using namespace godot;
 
@@ -33,23 +33,21 @@ private:
 	iree_vm_context_t* context;
     String load_path;
 
-    void unload(); // unload the bytecode.
-
-    Array _bind_call_vmfb(const Variant** p_args, GDExtensionInt p_argc, GDExtensionCallError &m_error);
-
 protected:
     static void _bind_methods();
 
 public:
-    bool is_loaded() const; // check whether the bytecode is loaded.
+    IREEModule();
+    IREEModule(IREEModule& p_module);
+    IREEModule(IREEModule&& p_module);
+    ~IREEModule();
 
     Error load(const String& p_path);
+    void unload();
+
+    bool is_loaded() const;
     String get_load_path() const;
-
-    IREEIOList call_vmfb(const String& p_func_name, const Array& p_args) const;
-
-    IREEModule();
-    ~IREEModule();
+    Array call_vmfb(const String& p_func_name, const Array& p_args) const;
 };
 
 #endif //IREE_MODULE_H

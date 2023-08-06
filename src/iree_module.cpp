@@ -5,73 +5,66 @@
 #include <godot_cpp/core/object.hpp>
 #include <godot_cpp/classes/ref.hpp>
 #include <godot_cpp/classes/file_access.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
 
 #include <iree/modules/hal/types.h>
 #include <iree/modules/hal/module.h>
 #include <iree/vm/bytecode/module.h>
 
-#include "iree.h"
+#include "iree_instance.h"
 
 using namespace godot;
 
-void IREEModule::unload() {
-	if(context != nullptr) {iree_vm_context_release(context); context = nullptr;}
-	if(bytecode != nullptr) {iree_vm_module_release(bytecode);  bytecode = nullptr;}
-    load_path = "";
+void IREEModule::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("load", "path"), &IREEModule::load);
+    ClassDB::bind_method(D_METHOD("unload"), &IREEModule::unload);
+    ClassDB::bind_method(D_METHOD("get_load_path"), &IREEModule::get_load_path);
+    ClassDB::bind_method(D_METHOD("call_vmfb", "func_name", "args"), &IREEModule::call_vmfb);
+    
+    ADD_PROPERTY(PropertyInfo(Variant::STRING, "load_path", PROPERTY_HINT_FILE, "*.vmfb"), "load", "get_load_path");
 }
 
-Array IREEModule::_bind_call_vmfb(const Variant** p_argv, GDExtensionInt p_argc, GDExtensionCallError &m_error) {
-    if(p_argc < 1) {
-        m_error.argument = 0;
-        m_error.error = GDExtensionCallErrorType::GDEXTENSION_CALL_ERROR_TOO_FEW_ARGUMENTS;
-        return Array();
-    }
+IREEModule::IREEModule()
+:
+    bytecode_data(),
+    bytecode(nullptr),
+    context(nullptr),
+    load_path("")
+{}
 
-    if(p_argv[0]->get_type() != Variant::Type::STRING && p_argv[0]->get_type() != Variant::Type::STRING_NAME) {
-        m_error.argument = 0;
-        m_error.error = GDExtensionCallErrorType::GDEXTENSION_CALL_ERROR_INVALID_ARGUMENT;
-        m_error.expected = Variant::Type::STRING;
-        return Array();
-    }
-
-    String func_name = String(*p_argv[0]);
-    Array args;
-    for(int i = 1; i < p_argc; i++) {
-        const Variant value = *p_argv[i];
-
-        if(value.get_type() != Variant::Type::OBJECT) {
-            m_error.argument = i;
-            m_error.error = GDExtensionCallErrorType::GDEXTENSION_CALL_ERROR_INVALID_ARGUMENT;
-            m_error.expected = Variant::Type::OBJECT;
-            return Array();
-        }
-
-        const Object* object = value;
-
-        if(object->get_class() != "IREEBufferView") {
-            ERR_PRINT("Expecting IREEBufferView.");
-            return Array();
-        }
-
-        args.append(value);
-    }
-
-    IREEIOList output = call_vmfb(func_name, args);
-
-    return output.to_array();
+IREEModule::IREEModule(IREEModule& p_module)
+:
+    bytecode_data(p_module.bytecode_data),
+    bytecode(p_module.bytecode),
+    context(p_module.context),
+    load_path(p_module.load_path)
+{
+    iree_vm_module_retain(p_module.bytecode);
+    iree_vm_context_retain(p_module.context);
 }
 
-bool IREEModule::is_loaded() const {
-    return bytecode && context;
+IREEModule::IREEModule(IREEModule&& p_module)
+:
+    bytecode_data(p_module.bytecode_data),
+    bytecode(p_module.bytecode),
+    context(p_module.context),
+    load_path(p_module.load_path)
+{
+    p_module.bytecode_data.clear();
+    p_module.bytecode = nullptr;
+    p_module.context = nullptr;
+    p_module.load_path = "";
 }
+
+IREEModule::~IREEModule() { unload(); }
 
 Error IREEModule::load(const String& p_path) {
     // Get hal module.
-    iree_vm_module_t* const hal_module = IREE::get_hal_module();
+    iree_vm_module_t* const hal_module = IREEInstance::borrow_singleton()->borrow_hal_module();
     ERR_FAIL_NULL_V(hal_module, ERR_CANT_CREATE);
 
     // Get instance.
-    iree_vm_instance_t* const instance = IREE::get_vm_instance();
+    iree_vm_instance_t* const instance = IREEInstance::borrow_singleton()->borrow_vm_instance();
     ERR_FAIL_NULL_V(instance, ERR_CANT_CREATE);
 
     // Unload old data.
@@ -108,71 +101,79 @@ Error IREEModule::load(const String& p_path) {
     return OK;
 }
 
+void IREEModule::unload() {
+    bytecode_data.clear();
+	if(context != nullptr) {iree_vm_context_release(context); context = nullptr;}
+	if(bytecode != nullptr) {iree_vm_module_release(bytecode);  bytecode = nullptr;}
+    load_path = "";
+}
+
+bool IREEModule::is_loaded() const {
+    return bytecode && context;
+}
+
 String IREEModule::get_load_path() const {
     return load_path;
 }
 
-IREEIOList IREEModule::call_vmfb(const String& p_func_name, const Array& p_args) const {
-    ERR_FAIL_COND_V_MSG(!is_loaded(), IREEIOList(), "IREEModule is not loaded.");
-
-    iree_vm_function_t func = {0};
+Array IREEModule::call_vmfb(const String& p_func_name, const Array& p_args) const {
+    ERR_FAIL_COND_V_MSG(!is_loaded(), Array(), "IREE Module is not loaded.");
+    UtilityFunctions::print(vformat(" function: '%s'", p_func_name));
 
     PackedByteArray func_name = p_func_name.to_utf8_buffer();
+    iree_vm_function_t func = {0};
+
+    iree_status_t status = nullptr;
 
     // Query function.
-    ERR_FAIL_COND_V_MSG(iree_vm_context_resolve_function(
+    status = iree_vm_context_resolve_function(
         context, iree_string_view_t{
             .data = (const char*)func_name.ptr(), 
             .size = (unsigned long)func_name.size()
         }, 
         &func
-    ), IREEIOList(), vformat("Unable to find function '%s' in VMFB bytecode.", p_func_name));
+    );
+    ERR_FAIL_COND_V_MSG(
+        status, 
+        Array(), 
+        vformat("Unable to find function '%s' in VMFB bytecode, error code: %s.", p_func_name, iree_status_code_string(iree_status_code(status)))
+    );
+
+    UtilityFunctions::print(vformat("Found function: '%s'", p_func_name));
 
     // Convert inputs.
-    IREEIOList inputs; 
-    inputs.init();
-    ERR_FAIL_COND_V(!inputs.is_null(), IREEIOList());
+    IREEList inputs; 
+    inputs.capture(10);
+    ERR_FAIL_COND_V(inputs.is_null(), Array());
 
     for(int64_t i = 0; i < p_args.size(); i++) {
-        Ref<IREEBufferView> arg = (p_args[i]);
-        ERR_FAIL_COND_V_MSG(arg.is_null(), IREEIOList(), "Given IREEBufferView is null.");
-        inputs.append_retain_raw_buffer_view(arg->get_assign_raw_buffer_view());
+        Variant arg = p_args[i];
+        if(arg.get_type() != Variant::Type::OBJECT) {
+            ERR_PRINT("Expecting only IREE Tensors as arguments.");
+            return Array();
+        }
+        Object* obj = (Object*)arg;
+        if(!obj->is_class("IREETensor")) {
+            ERR_PRINT("Expecting only IREE Tensors as arguments.");
+            return Array();
+        }
+        Ref<IREETensor> tensor = (Ref<IREETensor>)obj;
+        ERR_FAIL_COND_V_MSG(tensor.is_null(), Array(), "Given IREE tensor is null.");
+        ERR_FAIL_COND_V_MSG(tensor->is_null(), Array(), "Given IREE tensor is null.");
+        inputs.append(*tensor.ptr());
     }
 
     // Create a new iree list for outputs.
-    IREEIOList outputs; 
-    outputs.init();
-    ERR_FAIL_COND_V(!outputs.is_null(), IREEIOList());
+    IREEList outputs; 
+    outputs.capture(10);
+    ERR_FAIL_COND_V(outputs.is_null(), Array());
 
     // Call.
-    ERR_FAIL_COND_V_MSG(iree_vm_invoke(
+    status = iree_vm_invoke(
         context, func, IREE_VM_INVOCATION_FLAG_NONE,
-        /*policy=*/ NULL, inputs.get_assign_raw_list(), outputs.get_assign_raw_list(), iree_allocator_system()
-    ), IREEIOList(), vformat("Unable to call IREE function '%s'.", p_func_name));
+        /*policy=*/ NULL, inputs.borrow_vm_list(), outputs.borrow_vm_list(), iree_allocator_system()
+    );
+    ERR_FAIL_COND_V_MSG(status, Array(), vformat("Unable to call IREE function '%s', error code: %s.", p_func_name, iree_status_code_string(iree_status_code(status))));
 
-    return outputs;
+    return outputs.get_tensors();
 }
-
-void IREEModule::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("load", "path"), &IREEModule::load);
-    ClassDB::bind_method(D_METHOD("get_load_path"), &IREEModule::get_load_path);
-
-    {
-        MethodInfo mi;
-        mi.arguments.push_back(PropertyInfo(Variant::Type::STRING, "func_name"));
-        mi.name = "call_vmfb";
-        ClassDB::bind_vararg_method(METHOD_FLAGS_DEFAULT, "call_vmfb", &IREEModule::_bind_call_vmfb, mi, {}, true);
-    }
-
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "load_path", PROPERTY_HINT_FILE, "*.vmfb"), "load", "get_load_path");
-}
-
-IREEModule::IREEModule()
-:
-    bytecode_data(),
-    bytecode(nullptr),
-    context(nullptr),
-    load_path("")
-{ }
-
-IREEModule::~IREEModule() { unload(); }
