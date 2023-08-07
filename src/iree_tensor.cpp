@@ -46,15 +46,17 @@ Ref<IREETensor> IREETensor::from(typename StorageType<T>::type p_data, PackedInt
 }
 
 void IREETensor::_bind_methods() {
-    ClassDB::bind_static_method(
-        "IREETensor", 
-        D_METHOD("from_bytes", "bytes", "dimension"), 
-        &IREETensor::from<IREE_HAL_ELEMENT_TYPE_UINT_8>
-    );
+    ClassDB::bind_static_method("IREETensor", D_METHOD("from_bytes", "bytes", "dimension"), &IREETensor::from<IREE_HAL_ELEMENT_TYPE_UINT_8>);
     ClassDB::bind_static_method("IREETensor", D_METHOD("from_float32s", "float32s", "dimension"), &IREETensor::from<IREE_HAL_ELEMENT_TYPE_FLOAT_32>);
+    ClassDB::bind_static_method("IREETensor", D_METHOD("from_float64s", "float64s", "dimension"), &IREETensor::from<IREE_HAL_ELEMENT_TYPE_FLOAT_64>);
+    ClassDB::bind_static_method("IREETensor", D_METHOD("from_int32s", "int32s", "dimension"), &IREETensor::from<IREE_HAL_ELEMENT_TYPE_SINT_32>);
+    ClassDB::bind_static_method("IREETensor", D_METHOD("from_int64s", "int64s", "dimension"), &IREETensor::from<IREE_HAL_ELEMENT_TYPE_SINT_64>);
 
     ClassDB::bind_method(D_METHOD("capture_bytes", "bytes", "dimension"), &IREETensor::capture<IREE_HAL_ELEMENT_TYPE_UINT_8>);
     ClassDB::bind_method(D_METHOD("capture_float32s", "float32s", "dimension"), &IREETensor::capture<IREE_HAL_ELEMENT_TYPE_FLOAT_32>);
+    ClassDB::bind_method(D_METHOD("capture_float64s", "float64s", "dimension"), &IREETensor::capture<IREE_HAL_ELEMENT_TYPE_FLOAT_64>);
+    ClassDB::bind_method(D_METHOD("capture_int32s", "int32s", "dimension"), &IREETensor::capture<IREE_HAL_ELEMENT_TYPE_SINT_32>);
+    ClassDB::bind_method(D_METHOD("capture_int64s", "int64s", "dimension"), &IREETensor::capture<IREE_HAL_ELEMENT_TYPE_SINT_64>);
     ClassDB::bind_method(D_METHOD("release"), &IREETensor::release);
     ClassDB::bind_method(D_METHOD("is_null"), &IREETensor::is_null);
     ClassDB::bind_method(D_METHOD("get_data"), &IREETensor::get_data);
