@@ -68,8 +68,8 @@ endif(CCACHE_FOUND)
 
 if(ENABLE_ASAN)
     set(IREE_ENABLE_ASAN ON)
-    add_compile_options("$<IF:$<BOOL:${WIN32}>,\\fsanitize=address,-fsanitize=address>")
-    add_link_options("$<IF:$<BOOL:${WIN32}>,\\fsanitize=address,-fsanitize=address>")
+    add_compile_options("$<IF:$<STREQUAL:${CMAKE_CXX_COMPILER_ID},MSVC>,/fsanitize=address,-fsanitize=address>")
+    add_link_options("$<IF:$<STREQUAL:${CMAKE_CXX_COMPILER_ID},MSVC>,/fsanitize=address,-fsanitize=address>")
 endif(ENABLE_ASAN)
 
 #-------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ target_link_libraries(
 target_compile_options(
     ${LIB_NAME}
     PRIVATE
-    "$<IF:$<BOOL:${WIN32}>,\\GR,-frtti>" # Enable RTTI.
+    "$<IF:$<BOOL:${WIN32}>,/GR,-frtti>" # Enable RTTI.
 )
 set_property(
 	TARGET 
