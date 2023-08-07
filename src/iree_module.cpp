@@ -19,7 +19,7 @@ void IREEModule::_bind_methods() {
     ClassDB::bind_method(D_METHOD("load", "path"), &IREEModule::load);
     ClassDB::bind_method(D_METHOD("unload"), &IREEModule::unload);
     ClassDB::bind_method(D_METHOD("get_load_path"), &IREEModule::get_load_path);
-    ClassDB::bind_method(D_METHOD("call_vmfb", "func_name", "args"), &IREEModule::call_vmfb);
+    ClassDB::bind_method(D_METHOD("call_module", "func_name", "args"), &IREEModule::call_module);
     
     ADD_PROPERTY(PropertyInfo(Variant::STRING, "load_path", PROPERTY_HINT_FILE, "*.vmfb"), "load", "get_load_path");
 }
@@ -116,7 +116,7 @@ String IREEModule::get_load_path() const {
     return load_path;
 }
 
-Array IREEModule::call_vmfb(const String& p_func_name, const Array& p_args) const {
+Array IREEModule::call_module(const String& p_func_name, const Array& p_args) const {
     ERR_FAIL_COND_V_MSG(!is_loaded(), Array(), "IREE Module is not loaded.");
 
     PackedByteArray func_name = p_func_name.to_utf8_buffer();
@@ -135,7 +135,7 @@ Array IREEModule::call_vmfb(const String& p_func_name, const Array& p_args) cons
     ERR_FAIL_COND_V_MSG(
         status, 
         Array(), 
-        vformat("Unable to find function '%s' in VMFB bytecode, error code: %s.", p_func_name, iree_status_code_string(iree_status_code(status)))
+        vformat("Unable to find function '%s' in module bytecode, error code: %s.", p_func_name, iree_status_code_string(iree_status_code(status)))
     );
 
 

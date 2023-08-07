@@ -47,7 +47,7 @@ public:
 
     bool is_loaded() const;
     String get_load_path() const;
-    Array call_vmfb(const String& p_func_name, const Array& p_args) const;
+    Array call_module(const String& p_func_name, const Array& p_args) const;
 };
 
 #endif //IREE_MODULE_H
