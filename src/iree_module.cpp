@@ -102,9 +102,9 @@ Error IREEModule::load(const String& p_path) {
 }
 
 void IREEModule::unload() {
-    //bytecode_data = PackedByteArray(); //I don't know why but this causes crash.
 	if(context != nullptr) {iree_vm_context_release(context); context = nullptr;}
 	if(bytecode != nullptr) {iree_vm_module_release(bytecode);  bytecode = nullptr;}
+    bytecode_data.clear(); //I don't know why but this causes crash.
     load_path = "";
 }
 
