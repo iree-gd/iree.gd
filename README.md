@@ -71,4 +71,4 @@ cmake --build . # Building the project, this will take a while, add `-j` flag to
 If you would like to compile LLVM from source, you'll need to set `IREE_BUILD_BUNDLED_LLVM` to `ON` when generating build files with cmake.
 
 After compilation, the library will be in `build/lib` directory.
-If you have a sample godot project in `sample` directory, it will copy the library to `sample/extension/iree/` directory.
+If you have a sample godot project in `sample` directory, it will copy the library to `sample/extensions/iree/` directory.
