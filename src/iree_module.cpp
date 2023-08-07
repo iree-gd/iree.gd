@@ -102,7 +102,7 @@ Error IREEModule::load(const String& p_path) {
 }
 
 void IREEModule::unload() {
-    bytecode_data.clear();
+    //bytecode_data = PackedByteArray(); //I don't know why but this causes crash.
 	if(context != nullptr) {iree_vm_context_release(context); context = nullptr;}
 	if(bytecode != nullptr) {iree_vm_module_release(bytecode);  bytecode = nullptr;}
     load_path = "";
@@ -118,7 +118,6 @@ String IREEModule::get_load_path() const {
 
 Array IREEModule::call_vmfb(const String& p_func_name, const Array& p_args) const {
     ERR_FAIL_COND_V_MSG(!is_loaded(), Array(), "IREE Module is not loaded.");
-    UtilityFunctions::print(vformat(" function: '%s'", p_func_name));
 
     PackedByteArray func_name = p_func_name.to_utf8_buffer();
     iree_vm_function_t func = {0};
@@ -139,7 +138,6 @@ Array IREEModule::call_vmfb(const String& p_func_name, const Array& p_args) cons
         vformat("Unable to find function '%s' in VMFB bytecode, error code: %s.", p_func_name, iree_status_code_string(iree_status_code(status)))
     );
 
-    UtilityFunctions::print(vformat("Found function: '%s'", p_func_name));
 
     // Convert inputs.
     IREEList inputs; 

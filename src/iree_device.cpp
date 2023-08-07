@@ -142,8 +142,6 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
 
     // TODO: In future version of godot, we would need to check whether rendering device is vulkan or not, through `get_device_capabilities`.
     if(rendering_device == nullptr) { // Not using vulkan, create vulkan device ourselves.
-        UtilityFunctions::print("Godot is not using a vulkan device, create one ourselves.");
-
         ERR_FAIL_COND_V_MSG(
             iree_hal_vulkan_driver_module_register(iree_hal_driver_registry_default()),
             FAILED, "Unable to register Vulkan HAL driver."
@@ -189,8 +187,6 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
     } 
 
     else { // Godot is using vulkan, wrap vulkan.
-        UtilityFunctions::print("Godot is using a vulkan device, wrap vulkan.");
-
         iree_hal_vulkan_syms_t* syms = nullptr;
         iree_hal_vulkan_driver_options_t driver_options;
         iree_hal_vulkan_queue_set_t compute_queue_set;

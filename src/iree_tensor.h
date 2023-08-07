@@ -28,16 +28,19 @@ protected:
     static void _bind_methods();
 
 public:
-    static Ref<IREETensor> from_bytes(PackedByteArray p_data, PackedInt64Array p_dimension);
-    static Ref<IREETensor> from_float32s(PackedFloat32Array p_data, PackedInt64Array p_dimension);
+    template<iree_hal_element_type_t> struct StorageType;
+
+    template<iree_hal_element_type_t T>
+    static Ref<IREETensor> from(typename StorageType<T>::type p_data, PackedInt64Array p_dimension);
+
+    template<iree_hal_element_type_t T>
+    Error capture(typename StorageType<T>::type p_data, PackedInt64Array p_dimension);
 
     IREETensor();
     IREETensor(IREETensor& p_tensor);
     IREETensor(IREETensor&& p_tensor);
     ~IREETensor();
 
-    Error capture_bytes(PackedByteArray p_data, PackedInt64Array p_dimension);
-    Error capture_float32s(PackedFloat32Array p_data, PackedInt64Array p_dimension);
     void set_buffer_view(iree_hal_buffer_view_t* p_buffer_view);
     iree_hal_buffer_view_t* give_buffer_view();
     iree_hal_buffer_view_t* share_buffer_view();
@@ -48,5 +51,24 @@ public:
     PackedByteArray get_data() const;
     Array get_dimension() const;
 };
-
+template<> struct IREETensor::StorageType<IREE_HAL_ELEMENT_TYPE_UINT_8> {
+    using type = PackedByteArray;
+    static constexpr int64_t element_size = 1; // In bytes.
+};
+template<> struct IREETensor::StorageType<IREE_HAL_ELEMENT_TYPE_FLOAT_32> {
+    using type = PackedFloat32Array;
+    static constexpr int64_t element_size = 4; // In bytes.
+};
+template<> struct IREETensor::StorageType<IREE_HAL_ELEMENT_TYPE_FLOAT_64> {
+    using type = PackedFloat64Array;
+    static constexpr int64_t element_size = 8; // In bytes.
+};
+template<> struct IREETensor::StorageType<IREE_HAL_ELEMENT_TYPE_SINT_32> {
+    using type = PackedInt32Array;
+    static constexpr int64_t element_size = 4; // In bytes.
+};
+template<> struct IREETensor::StorageType<IREE_HAL_ELEMENT_TYPE_SINT_64> {
+    using type = PackedInt64Array;
+    static constexpr int64_t element_size = 8; // In bytes.
+};
 #endif //IREE_TENSOR_H
