@@ -5,21 +5,6 @@
 cmake_minimum_required(VERSION 3.23)
 
 #-------------------------------------------------------------------------------
-# Fetch
-#-------------------------------------------------------------------------------
-message(STATUS "Downloading IREE tools.")
-include(FetchContent)
-set(FETCHCONTENT_QUIET FALSE)
-FetchContent_Declare(
-	iree-dist
-	URL https://github.com/openxla/iree/releases/download/candidate-20230415.490/iree-dist-20230415.490-linux-x86_64.tar.xz
-	DOWNLOAD_DIR ${CMAKE_CURRENT_SOURCE_DIR}/.tmp
-	SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools
-	DOWNLOAD_EXTRACT_TIMESTAMP NEW
-)
-FetchContent_MakeAvailable(iree-dist)
-
-#-------------------------------------------------------------------------------
 # Project configuration
 #-------------------------------------------------------------------------------
 project(
@@ -33,6 +18,7 @@ project(
 #-------------------------------------------------------------------------------
 find_package(Vulkan REQUIRED)
 find_program(CCACHE_FOUND ccache)
+find_program(PYTHON_FOUND python REQUIRED)
 
 #-------------------------------------------------------------------------------
 # Options
@@ -56,6 +42,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src CACHE STRING "Path to sources files (and header files).")
+set(SAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sample)
 set(3RD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty CACHE STRING "Path to all the thirdparty libraries.")
 set(IREE_HOST_BIN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools/bin)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_BINARY_DIR}/lib/cmake/mlir") # Extend module path to allow submodules to find AddMLIR
@@ -213,15 +200,9 @@ set_target_properties(
 )
 
 # Copy the libraries into `sample/` folder
-# as assuming it contain a godot project to test things out.
-set(SAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sample)
-if(EXISTS ${SAMPLE_DIR})
-	if(TARGET ${LIB_NAME})
-		add_custom_command(
-			TARGET ${LIB_NAME} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy 
-					$<TARGET_FILE:${LIB_NAME}> 
-					${SAMPLE_DIR}/extensions/iree-gd/$<TARGET_FILE_NAME:${LIB_NAME}>
-		)
-	endif()
-endif()
+add_custom_command(
+    TARGET ${LIB_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy 
+            $<TARGET_FILE:${LIB_NAME}> 
+            ${SAMPLE_DIR}/extensions/iree-gd/$<TARGET_FILE_NAME:${LIB_NAME}>
+)

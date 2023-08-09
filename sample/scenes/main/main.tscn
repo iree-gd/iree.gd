@@ -1,0 +1,73 @@
+[gd_scene load_steps=6 format=3 uid="uid://cb8sex5bn677y"]
+
+[ext_resource type="Texture2D" uid="uid://ukmu71enxm4n" path="res://assets/example_images/anime_girl_input.jpeg" id="1_ckite"]
+[ext_resource type="Theme" uid="uid://c4hif364nxikg" path="res://resources/themes/default_themes.tres" id="2_hskai"]
+[ext_resource type="Script" path="res://scenes/main/esrgan_texture.gd" id="3_ujyfa"]
+[ext_resource type="IREEModule" uid="uid://b73m8vt7ymjyx" path="res://resources/iree_modules/esrgan.tres" id="4_fdklp"]
+[ext_resource type="Script" path="res://scenes/main/progress.gd" id="8_0ch1m"]
+
+[node name="Main" type="Node2D"]
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="TextureRect" type="TextureRect" parent="UI"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -380.0
+offset_top = -205.0
+offset_right = 380.0
+offset_bottom = 205.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+texture = ExtResource("1_ckite")
+expand_mode = 1
+stretch_mode = 5
+script = ExtResource("3_ujyfa")
+module = ExtResource("4_fdklp")
+
+[node name="Container" type="HBoxContainer" parent="UI"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -101.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = ExtResource("2_hskai")
+alignment = 1
+
+[node name="UpscaleTrigger" type="Button" parent="UI/Container"]
+layout_mode = 2
+size_flags_vertical = 6
+text = "Upscale"
+
+[node name="DownscaleTrigger" type="Button" parent="UI/Container"]
+layout_mode = 2
+size_flags_vertical = 6
+text = "Downscale
+"
+
+[node name="ProgressBar" type="ProgressBar" parent="UI"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -374.0
+offset_top = -13.0
+offset_right = 374.0
+offset_bottom = 14.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("8_0ch1m")
+
+[connection signal="on_upscaling_start" from="UI/TextureRect" to="UI/ProgressBar" method="_on_texture_rect_on_upscaling_start"]
+[connection signal="on_upscaling_step" from="UI/TextureRect" to="UI/ProgressBar" method="_on_texture_rect_on_upscaling_step"]
+[connection signal="on_upscaling_stop" from="UI/TextureRect" to="UI/ProgressBar" method="_on_texture_rect_on_upscaling_stop"]
+[connection signal="button_up" from="UI/Container/UpscaleTrigger" to="UI/TextureRect" method="upscale" flags=3]
+[connection signal="button_up" from="UI/Container/DownscaleTrigger" to="UI/TextureRect" method="downscale"]

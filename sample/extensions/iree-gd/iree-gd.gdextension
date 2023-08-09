@@ -1,0 +1,23 @@
+[configuration]
+
+entry_symbol = "iree_gd_library_init"
+compatibility_minimum = 4.1
+
+[libraries]
+
+macos.debug = "libiree-gd.macos.debug.so"
+macos.release = "libiree-gd.macos.release.so"
+windows.debug.x86_32 = "libiree-gd.windows.debug.so"
+windows.release.x86_32 = "libiree-gd.windows.release.so"
+windows.debug.x86_64 = "libiree-gd.windows.debug.so"
+windows.release.x86_64 = "libiree-gd.windows.release.so"
+linux.debug.x86_64 = "libiree-gd.linux.release.so"
+linux.release.x86_64 = "libiree-gd.linux.release.so"
+linux.debug.arm64 = "libiree-gd.linux.debug.so"
+linux.release.arm64 = "libiree-gd.linux.release.so"
+linux.debug.rv64 = "libiree-gd.linux.debug.so"
+linux.release.rv64 = "libiree-gd.linux.release.so"
+android.debug.x86_64 = "libiree-gd.linux.debug.so"
+android.release.x86_64 = "libiree-gd.linux.release.so"
+android.debug.arm64 = "libiree-gd.linux.debug.so"
+android.release.arm64 = "libiree-gd.linux.release.so"

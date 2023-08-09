@@ -1,0 +1,5 @@
+# Godot 4+ specific ignores
+.godot/
+
+extensions/iree-gd/*
+!extensions/iree-gd/iree-gd.gdextension

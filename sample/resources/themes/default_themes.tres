@@ -1,0 +1,48 @@
+[gd_resource type="Theme" load_steps=9 format=3 uid="uid://c4hif364nxikg"]
+
+[ext_resource type="FontFile" uid="uid://cbe7xs2gcd0wd" path="res://assets/fonts/Kenney Future Narrow.ttf" id="1_qsal1"]
+[ext_resource type="StyleBox" uid="uid://vru5wyyvd05u" path="res://resources/styleboxes/blue.tres" id="2_dlb8h"]
+[ext_resource type="StyleBox" uid="uid://cxwiguq3yb6up" path="res://resources/styleboxes/green_outline.tres" id="2_vsucq"]
+[ext_resource type="StyleBox" uid="uid://2mq6egegaug8" path="res://resources/styleboxes/white.tres" id="3_rdqd0"]
+[ext_resource type="StyleBox" uid="uid://b1ysqsuth3frm" path="res://resources/styleboxes/green.tres" id="4_jxn5s"]
+[ext_resource type="FontFile" uid="uid://cd5fodtaqo5lr" path="res://assets/fonts/Kenney Future.ttf" id="5_bolvx"]
+[ext_resource type="StyleBox" uid="uid://co68ulcxm7m5s" path="res://resources/styleboxes/yellow_outline.tres" id="6_1un4p"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j3ec2"]
+bg_color = Color(0.411765, 0.411765, 0.411765, 0.556863)
+
+[resource]
+Button/colors/font_color = Color(0.568627, 0.568627, 0.568627, 1)
+Button/colors/font_focus_color = Color(0.372549, 0.733333, 0.337255, 1)
+Button/colors/font_hover_color = Color(0.372549, 0.733333, 0.337255, 1)
+Button/colors/font_hover_pressed_color = Color(0.945154, 0.957167, 0.972549, 1)
+Button/colors/font_pressed_color = Color(0.945154, 0.957167, 0.972549, 1)
+Button/font_sizes/font_size = 20
+Button/fonts/font = ExtResource("1_qsal1")
+Button/styles/disabled = SubResource("StyleBoxFlat_j3ec2")
+Button/styles/hover = ExtResource("2_vsucq")
+Button/styles/normal = ExtResource("3_rdqd0")
+Button/styles/pressed = ExtResource("4_jxn5s")
+Label/font_sizes/font_size = 20
+Label/fonts/font = ExtResource("5_bolvx")
+LineEdit/colors/caret_color = Color(0.211765, 0.243137, 0.364706, 1)
+LineEdit/colors/clear_button_color = Color(0.211765, 0.243137, 0.364706, 1)
+LineEdit/colors/font_color = Color(0.211765, 0.243137, 0.364706, 1)
+LineEdit/colors/font_placeholder_color = Color(0.533333, 0.533333, 0.533333, 0.6)
+LineEdit/colors/font_uneditable_color = Color(0.533333, 0.533333, 0.533333, 0.6)
+LineEdit/colors/selection_color = Color(0.501961, 0.501961, 0.501961, 0.478431)
+LineEdit/font_sizes/font_size = 20
+LineEdit/fonts/font = ExtResource("1_qsal1")
+LineEdit/styles/normal = ExtResource("6_1un4p")
+LineEdit/styles/read_only = ExtResource("3_rdqd0")
+MarginContainer/constants/margin_bottom = 20
+MarginContainer/constants/margin_left = 60
+MarginContainer/constants/margin_right = 60
+MarginContainer/constants/margin_top = 20
+Panel/styles/panel = ExtResource("2_dlb8h")
+PanelContainer/styles/panel = ExtResource("2_dlb8h")
+RichTextLabel/fonts/bold_font = ExtResource("5_bolvx")
+RichTextLabel/fonts/bold_italics_font = ExtResource("5_bolvx")
+RichTextLabel/fonts/italics_font = ExtResource("1_qsal1")
+RichTextLabel/fonts/mono_font = ExtResource("5_bolvx")
+RichTextLabel/fonts/normal_font = ExtResource("1_qsal1")

@@ -1,0 +1,10 @@
+[gd_resource type="StyleBoxTexture" load_steps=2 format=3 uid="uid://bqjwmmkp80ofk"]
+
+[ext_resource type="Texture2D" uid="uid://cd1rgvpbx6obu" path="res://assets/graphics/ui/9-slice/Colored/grey_pressed.png" id="1_uarip"]
+
+[resource]
+texture = ExtResource("1_uarip")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0

@@ -4,12 +4,6 @@
 # CMake generated temporary files.
 /.tmp/
 
-# iree-dist
-/tools/ 
-
-# Godot sample project
-/sample/
-
 # Custom helper scripts, binaries, and configurations.
 /custom/
 /compile_commands.json
