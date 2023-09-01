@@ -4,3 +4,6 @@
 [submodule "thirdparty/iree"]
 	path = thirdparty/iree
 	url = https://github.com/openxla/iree.git
+[submodule "thirdparty/volk"]
+	path = thirdparty/volk
+	url = https://github.com/RechieKho/volk
