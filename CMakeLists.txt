@@ -16,7 +16,6 @@ project(
 #-------------------------------------------------------------------------------
 # System packages and programs
 #-------------------------------------------------------------------------------
-find_package(Vulkan REQUIRED)
 find_program(CCACHE_FOUND ccache)
 find_program(PYTHON_FOUND python REQUIRED)
 
@@ -44,13 +43,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src CACHE STRING "Path to sources files (and header files).")
 set(SAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sample)
 set(3RD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty CACHE STRING "Path to all the thirdparty libraries.")
-set(IREE_HOST_BIN_DIR ${CMAKE_CURRENT_SOURCE_DIR}/tools/bin)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_BINARY_DIR}/lib/cmake/mlir") # Extend module path to allow submodules to find AddMLIR
 
 if(CCACHE_FOUND)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-    set(IREE_ENABLE_CCACHE ON)
 endif(CCACHE_FOUND)
 
 if(ENABLE_ASAN)
@@ -141,8 +138,21 @@ endif()
 #-------------------------------------------------------------------------------
 # Third-party dependencies
 #-------------------------------------------------------------------------------
+if(CMAKE_SYSTEM_NAME STREQUAL  "Windows")
+    set(VOLK_STATICS_DEFINES "VK_USE_PLATFORM_WIN32_KHR")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(VOLK_STATICS_DEFINES "VK_USE_PLATFORM_MACOS_MVK")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Android")
+    set(VOLK_STATICS_DEFINES "VK_USE_PLATFORM_ANDROID_MVK")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "IOS")
+    set(VOLK_STATICS_DEFINES "VK_USE_PLATFORM_IOS_KHR")
+elseif(UNIX)
+    set(VOLK_STATICS_DEFINES "VK_USE_PLATFORM_XLIB_KHR")
+endif()
+
 add_subdirectory(${3RD_PARTY_DIR}/iree)
 add_subdirectory(${3RD_PARTY_DIR}/godot-cpp)
+add_subdirectory(${3RD_PARTY_DIR}/volk)
 
 #-------------------------------------------------------------------------------
 # `iree.gd` library
@@ -172,7 +182,7 @@ target_link_libraries(
 	iree::hal::drivers::local_task::task_driver
 	iree::task::api
 	iree::hal::drivers::vulkan::registration
-	Vulkan::Vulkan
+    volk
 	godot-cpp
 )
 target_compile_options(

@@ -5,16 +5,14 @@
 #include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include <vulkan/vulkan.h>
+#include <volk.h>
 
-#include <iree/hal/drivers/local_task/task_device.h>
 #include <iree/hal/local/executable_loader.h>
 #include <iree/hal/local/loaders/embedded_elf_loader.h>
 #include <iree/hal/drivers/local_sync/sync_device.h>
 #include <iree/hal/drivers/vulkan/registration/driver_module.h>
 #include <iree/hal/drivers/vulkan/api.h>
 #include <iree/hal/local/loaders/vmvx_module_loader.h>
-#include <iree/task/api.h>
 #include <iree/modules/hal/module.h>
 
 #define IREE_MAX_EXECUTOR_COUNT 8
@@ -187,6 +185,9 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
     } 
 
     else { // Godot is using vulkan, wrap vulkan.
+        // Setup volk.
+        ERR_FAIL_COND_V_MSG(volkInitialize(), ERR_CANT_CREATE, "Unable to initialize volk.");
+
         iree_hal_vulkan_syms_t* syms = nullptr;
         iree_hal_vulkan_driver_options_t driver_options;
         iree_hal_vulkan_queue_set_t compute_queue_set;
@@ -204,9 +205,10 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
         driver_options.api_version = VK_API_VERSION_1_0;
         driver_options.requested_features = (iree_hal_vulkan_features_t)(IREE_HAL_VULKAN_FEATURE_ENABLE_DEBUG_UTILS);
 
-        void* const vk_get_instance_proc_addr = (void*)rendering_device->get_driver_resource(RenderingDevice::DriverResource::DRIVER_RESOURCE_VULKAN_INSTANCE_PROC_ADDR_FN, RID(), 0);
+        void* const vk_get_instance_proc_addr = (void*) vkGetInstanceProcAddr;
+
         ERR_FAIL_COND_V_MSG(
-            iree_hal_vulkan_syms_create(vk_get_instance_proc_addr, iree_allocator_system(), &syms),
+            iree_hal_vulkan_syms_create((void*)vk_get_instance_proc_addr, iree_allocator_system(), &syms),
             ERR_CANT_CREATE, "Unable to create Vulkan syms."
         );
 
