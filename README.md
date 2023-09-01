@@ -1,8 +1,5 @@
 # `iree.gd`
 
-> **Warning**
-> This GDExtension requires Godot compiled with [this Pull Request](https://github.com/godotengine/godot/pull/80322).
-
 ![iree.gd logo](./graphics/logo.svg)
 
 [IREE](https://github.com/openxla/iree) runtime in Godot through GDExtension, a mission to run machine learning model (e.g. Tensorflow lite) natively in Godot.
