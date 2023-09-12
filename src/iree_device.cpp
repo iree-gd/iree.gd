@@ -5,8 +5,6 @@
 #include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include <volk.h>
-
 #include <iree/hal/local/executable_loader.h>
 #include <iree/hal/local/loaders/embedded_elf_loader.h>
 #include <iree/hal/drivers/local_sync/sync_device.h>
@@ -131,7 +129,6 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
     release();
 
     Error error = OK;
-    iree_hal_driver_t* driver = nullptr;
     iree_hal_device_t* new_hal_device = nullptr;
     iree_vm_module_t* new_hal_module = nullptr;
     iree_string_view_t identifier = iree_make_cstring_view("vulkan");
@@ -140,6 +137,8 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
 
     // TODO: In future version of godot, we would need to check whether rendering device is vulkan or not, through `get_device_capabilities`.
     if(rendering_device == nullptr) { // Not using vulkan, create vulkan device ourselves.
+        iree_hal_driver_t* driver = nullptr;
+
         ERR_FAIL_COND_V_MSG(
             iree_hal_vulkan_driver_module_register(iree_hal_driver_registry_default()),
             FAILED, "Unable to register Vulkan HAL driver."
@@ -186,7 +185,7 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
 
     else { // Godot is using vulkan, wrap vulkan.
         // Setup volk.
-        ERR_FAIL_COND_V_MSG(volkInitialize(), ERR_CANT_CREATE, "Unable to initialize volk.");
+        //ERR_FAIL_COND_V_MSG(volkInitialize(), ERR_CANT_CREATE, "Unable to initialize volk.");
 
         iree_hal_vulkan_syms_t* syms = nullptr;
         iree_hal_vulkan_driver_options_t driver_options;
@@ -205,18 +204,18 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
         driver_options.api_version = VK_API_VERSION_1_0;
         driver_options.requested_features = (iree_hal_vulkan_features_t)(IREE_HAL_VULKAN_FEATURE_ENABLE_DEBUG_UTILS);
 
-        void* const vk_get_instance_proc_addr = (void*) vkGetInstanceProcAddr;
+        //void* const vk_get_instance_proc_addr = (void*) vkGetInstanceProcAddr;
+
+        //ERR_FAIL_COND_V_MSG(
+            //iree_hal_vulkan_syms_create((void*)vk_get_instance_proc_addr, iree_allocator_system(), &syms),
+            //ERR_CANT_CREATE, "Unable to create Vulkan syms."
+        //);
 
         ERR_FAIL_COND_V_MSG(
-            iree_hal_vulkan_syms_create((void*)vk_get_instance_proc_addr, iree_allocator_system(), &syms),
+            iree_hal_vulkan_syms_create_from_system_loader(iree_allocator_system(), &syms),
             ERR_CANT_CREATE, "Unable to create Vulkan syms."
         );
-
-        if(iree_hal_vulkan_driver_create_using_instance(identifier, &driver_options, syms, vk_instance, iree_allocator_system(), &driver)) {
-            error = ERR_CANT_CREATE;
-            ERR_PRINT("Unable to create Vulkan driver.");
-            goto wrap_clean_up_syms;
-        }
+          
 
         if(iree_hal_vulkan_wrap_device(
             identifier, &driver_options.device_options, syms, vk_instance, vk_physical_device, vk_device, &compute_queue_set,
@@ -224,7 +223,7 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
         )) {
             error = ERR_CANT_CREATE;
             ERR_PRINT("Unable to wrap Vualkan device.");
-            goto wrap_clean_up_driver;
+            goto wrap_clean_up_syms;
         }
 
         // Create hal module.
@@ -241,14 +240,9 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
         hal_device = new_hal_device;
         hal_module = new_hal_module;
 
-        goto wrap_clean_up_driver;
-
 
         wrap_clean_up_device:
             iree_hal_device_release(new_hal_device);
-
-        wrap_clean_up_driver:
-            iree_hal_driver_release(driver);
 
         wrap_clean_up_syms: 
             iree_hal_vulkan_syms_release(syms);
