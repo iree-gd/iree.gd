@@ -1,0 +1,42 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-x86-64-linux:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Prepare Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: 1.3.204.0
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
+
+      - uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Set up CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G Ninja
+
+      - name: Build project
+        run: ninja -C build
+
+      - name: Export artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: libiree-gd.linux.release.so
+          path: build/lib/libiree-gd.linux.release.so
+          
