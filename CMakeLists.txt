@@ -37,7 +37,7 @@ option(IREE_ENABLE_THREADING "Enables threading for IREE." ON)
 #-------------------------------------------------------------------------------
 # Project-wide properties
 #-------------------------------------------------------------------------------
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src CACHE STRING "Path to sources files (and header files).")

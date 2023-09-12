@@ -1,0 +1,33 @@
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-x86-64-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      
+      - uses: ilammy/msvc-dev-cmd@7315a94840631165970262a99c72cfb48a65d25d # v1.12.0
+      
+      - name: Set up CMake
+        shell: cmd
+        run: | 
+          mkdir build
+          cd build
+          cmake ..
+          cmake --build .
+
+      - name: Export artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: libiree-gd.windows.release.dll
+          path: build/lib/libiree-gd.windows.release.dll
