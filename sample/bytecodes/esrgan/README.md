@@ -2,7 +2,7 @@
 This directory is for storing [esrgan-tf2](https://tfhub.dev/captain-pool/lite-model/esrgan-tf2/1) tflite model.
 
 > **Note**
-> Remember to setup the [tools](../../../tools) first before generating the bytecodes.
+> Remember to setup the [tools](../../../tools%2Ftflite-vulkan-vmfb-generate) first before generating the bytecodes.
 
 Run these commands to generate the bytecodes:
 ```sh
