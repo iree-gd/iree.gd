@@ -12,8 +12,8 @@ def main():
             prog="tflite-vulkan-vmfb-generate",
             description="Generate vmfb in vulkan format from tflite model."
             )
-    parser.add_argument("tflite_model_url", "URL to tflite model to be downloaded.")
-    parser.add_argument("model_name", "Name of the model.")
+    parser.add_argument("tflite_model_url", help="URL to tflite model to be downloaded.")
+    parser.add_argument("model_name", help="Name of the model.")
     args = parser.parse_args()
     tflite_url = args.tflite_model_url
     model_name = args.model_name
