@@ -64,11 +64,11 @@ Error IREEModule::load(const String& p_path) {
 
     // Get instance.
     iree_vm_instance_t* const instance = IREEInstance::borrow_singleton()->borrow_assured_vm_instance();
-    ERR_FAIL_NULL_V_MSG(instance, ERR_CANT_CREATE, "Failure in `IREEModule::load`");
+    ERR_FAIL_NULL_V(instance, ERR_CANT_CREATE);
 
     // Get hal module.
     iree_vm_module_t* const hal_module = IREEInstance::borrow_singleton()->borrow_assured_hal_module();
-    ERR_FAIL_NULL_V_MSG(hal_module, ERR_CANT_CREATE, "Failure in `IREEModule::load`");
+    ERR_FAIL_NULL_V(hal_module, ERR_CANT_CREATE);
 
     // Unload old data.
     unload();

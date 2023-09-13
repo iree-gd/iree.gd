@@ -26,7 +26,7 @@ Error IREETensor::capture(typename StorageType<T>::type p_data, PackedInt64Array
     for(int i = 0; i < shape_rank; i++) shape[i] = p_dimension[i];
 
     iree_hal_device_t* const device = IREEInstance::borrow_singleton()->borrow_assured_hal_device();
-    ERR_FAIL_NULL_V_MSG(device, ERR_QUERY_FAILED, "Failure in `IREETensor::capture`.");
+    ERR_FAIL_NULL_V(device, ERR_QUERY_FAILED);
 
     iree_hal_buffer_params_t buffer_params = {0};
     buffer_params.usage = IREE_HAL_BUFFER_USAGE_DEFAULT;
@@ -123,7 +123,7 @@ PackedByteArray IREETensor::get_data() const {
     ERR_FAIL_COND_V_MSG(data.size() != data_size, PackedByteArray(), "Fail to allocate memory for data in IREE Tensor for retrieving data.");
 
     iree_hal_device_t* const device = IREEInstance::borrow_singleton()->borrow_assured_hal_device();
-    ERR_FAIL_NULL_V_MSG(device, PackedByteArray(), "Failure in `IREETensor::get_data`.");
+    ERR_FAIL_NULL_V(device, PackedByteArray());
 
     ERR_FAIL_COND_V_MSG(
         iree_hal_device_transfer_d2h(
