@@ -42,6 +42,8 @@ Error IREEInstance::assure_vm_instance_captured() {
 }
 
 Error IREEInstance::assure_device_captured() {
+    if(device.is_valid()) return OK;
+
     Error error = OK;
 
     error = assure_vm_instance_captured();
