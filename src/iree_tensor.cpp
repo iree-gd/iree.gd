@@ -25,13 +25,18 @@ Error IREETensor::capture(typename StorageType<T>::type p_data, PackedInt64Array
     iree_hal_dim_t shape[MAX_SHAPE_RANK] = {0};
     for(int i = 0; i < shape_rank; i++) shape[i] = p_dimension[i];
 
+    iree_hal_device_t* const device = IREEInstance::borrow_singleton()->borrow_hal_device();
+    ERR_FAIL_COND_V(device == nullptr, ERR_QUERY_FAILED);
+
+    iree_hal_buffer_params_t buffer_params = {0};
+    buffer_params.usage = IREE_HAL_BUFFER_USAGE_DEFAULT;
+    buffer_params.type = IREE_HAL_MEMORY_TYPE_DEVICE_LOCAL;
+    
     ERR_FAIL_COND_V_MSG(
-        iree_hal_buffer_view_allocate_buffer(
-            iree_hal_device_allocator(IREEInstance::borrow_singleton()->borrow_hal_device()), shape_rank, shape, T, IREE_HAL_ENCODING_TYPE_DENSE_ROW_MAJOR,
-            (iree_hal_buffer_params_t){
-                .usage = IREE_HAL_BUFFER_USAGE_DEFAULT,
-                .type = IREE_HAL_MEMORY_TYPE_DEVICE_LOCAL
-            },
+        iree_hal_buffer_view_allocate_buffer_copy(
+            device,
+            iree_hal_device_allocator(device), shape_rank, shape, T, 
+            IREE_HAL_ENCODING_TYPE_DENSE_ROW_MAJOR, buffer_params,
             iree_make_const_byte_span(p_data.ptr(), p_data.size() * StorageType<T>::element_size), &buffer_view
     ), ERR_CANT_CREATE, "Unable to allocate buffer on device for IREE tensor.");
     return OK;
