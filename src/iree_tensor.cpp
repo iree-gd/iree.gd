@@ -26,7 +26,7 @@ Error IREETensor::capture(typename StorageType<T>::type p_data, PackedInt64Array
     for(int i = 0; i < shape_rank; i++) shape[i] = p_dimension[i];
 
     ERR_FAIL_COND_V_MSG(
-        iree_hal_buffer_view_allocate_buffer(
+        iree_hal_buffer_view_generate_buffer(
             iree_hal_device_allocator(IREEInstance::borrow_singleton()->borrow_hal_device()), shape_rank, shape, T, IREE_HAL_ENCODING_TYPE_DENSE_ROW_MAJOR,
             (iree_hal_buffer_params_t){
                 .usage = IREE_HAL_BUFFER_USAGE_DEFAULT,
