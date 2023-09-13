@@ -5,6 +5,8 @@
 
 #include <iree/modules/hal/types.h>
 
+#include "iree_error.h"
+
 using namespace godot;
 
 IREEInstance* IREEInstance::singleton = nullptr;
@@ -24,13 +26,14 @@ IREEInstance::~IREEInstance() {
 Error IREEInstance::assure_vm_instance_captured() {
     if(vm_instance != nullptr) return OK;
 
-	ERR_FAIL_COND_V_MSG(
+
+	IREE_ERR_V_MSG(
 		iree_vm_instance_create(IREE_VM_TYPE_CAPACITY_DEFAULT, iree_allocator_system(), &vm_instance),
         ERR_CANT_CREATE,
 		"Unable create a VM instance."
 	);
 
-	ERR_FAIL_COND_V_MSG(
+	IREE_ERR_V_MSG(
 		iree_hal_module_register_all_types(vm_instance),
         ERR_CANT_CREATE,
 		"Unable register HAL modules."
