@@ -13,6 +13,8 @@
 #include <iree/hal/local/loaders/vmvx_module_loader.h>
 #include <iree/modules/hal/module.h>
 
+#include "iree_error.h"
+
 #define IREE_MAX_EXECUTOR_COUNT 8
 
 using namespace godot;
@@ -70,7 +72,7 @@ Error IREEDevice::capture_vmvx(iree_vm_instance_t* p_instance) {
     iree_hal_sync_device_params_initialize(&params);
     
     // Create loader.
-    ERR_FAIL_COND_V_MSG(iree_hal_vmvx_module_loader_create(
+    IREE_ERR_V_MSG(iree_hal_vmvx_module_loader_create(
         p_instance, /*user_module_count=*/0, /*user_module=*/NULL,
         iree_allocator_system(), &loader
     ), ERR_CANT_CREATE, "Unable to create loader for CPU task.");
@@ -139,14 +141,14 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
     if(rendering_device == nullptr) { // Not using vulkan, create vulkan device ourselves.
         iree_hal_driver_t* driver = nullptr;
 
-        ERR_FAIL_COND_V_MSG(
+        IREE_ERR_V_MSG(
             iree_hal_vulkan_driver_module_register(iree_hal_driver_registry_default()),
             FAILED, "Unable to register Vulkan HAL driver."
         );
 
 
         // Create driver.
-        ERR_FAIL_COND_V_MSG(
+        IREE_ERR_V_MSG(
             iree_hal_driver_registry_try_create(
                 iree_hal_driver_registry_default(), identifier, iree_allocator_system(), &driver
             ), ERR_CANT_CREATE, "Unable to create Vulkan device."
@@ -201,7 +203,7 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
         driver_options.api_version = VK_API_VERSION_1_0;
         driver_options.requested_features = (iree_hal_vulkan_features_t)(IREE_HAL_VULKAN_FEATURE_ENABLE_DEBUG_UTILS);
 
-        ERR_FAIL_COND_V_MSG(
+        IREE_ERR_V_MSG(
             iree_hal_vulkan_syms_create_from_system_loader(iree_allocator_system(), &syms),
             ERR_CANT_CREATE, "Unable to create Vulkan syms."
         );
