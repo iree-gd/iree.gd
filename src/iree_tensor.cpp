@@ -25,8 +25,8 @@ Error IREETensor::capture(typename StorageType<T>::type p_data, PackedInt64Array
     iree_hal_dim_t shape[MAX_SHAPE_RANK] = {0};
     for(int i = 0; i < shape_rank; i++) shape[i] = p_dimension[i];
 
-    iree_hal_device_t* const device = IREEInstance::borrow_singleton()->borrow_hal_device();
-    ERR_FAIL_COND_V(device == nullptr, ERR_QUERY_FAILED);
+    iree_hal_device_t* const device = IREEInstance::borrow_singleton()->borrow_assured_hal_device();
+    ERR_FAIL_NULL_V_MSG(device, ERR_QUERY_FAILED, "Failure in `IREETensor::capture`.");
 
     iree_hal_buffer_params_t buffer_params = {0};
     buffer_params.usage = IREE_HAL_BUFFER_USAGE_DEFAULT;
@@ -122,9 +122,12 @@ PackedByteArray IREETensor::get_data() const {
     data.resize(data_size);
     ERR_FAIL_COND_V_MSG(data.size() != data_size, PackedByteArray(), "Fail to allocate memory for data in IREE Tensor for retrieving data.");
 
+    iree_hal_device_t* const device = IREEInstance::borrow_singleton()->borrow_assured_hal_device();
+    ERR_FAIL_NULL_V_MSG(device, PackedByteArray(), "Failure in `IREETensor::get_data`.");
+
     ERR_FAIL_COND_V_MSG(
         iree_hal_device_transfer_d2h(
-            IREEInstance::borrow_singleton()->borrow_hal_device(), iree_hal_buffer_view_buffer(buffer_view),
+            device, iree_hal_buffer_view_buffer(buffer_view),
             0, data.ptrw(), data_size, IREE_HAL_TRANSFER_BUFFER_FLAG_DEFAULT, iree_infinite_timeout()
     ), PackedByteArray(), "Unable to retrieve data from device in IREE Tensor.");
 
