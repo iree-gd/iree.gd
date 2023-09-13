@@ -5,6 +5,8 @@
 
 #include <iree/modules/hal/types.h>
 
+#include "iree_error.h"
+
 using namespace godot;
 
 IREEInstance* IREEInstance::singleton = nullptr;
@@ -21,21 +23,45 @@ IREEInstance::~IREEInstance() {
     release();
 }
 
-Error IREEInstance::capture() {
-	ERR_FAIL_COND_V_MSG(
+Error IREEInstance::assure_vm_instance_captured() {
+    if(vm_instance != nullptr) return OK;
+
+
+	IREE_ERR_V_MSG(
 		iree_vm_instance_create(IREE_VM_TYPE_CAPACITY_DEFAULT, iree_allocator_system(), &vm_instance),
         ERR_CANT_CREATE,
 		"Unable create a VM instance."
 	);
-	ERR_FAIL_COND_V_MSG(
+
+	IREE_ERR_V_MSG(
 		iree_hal_module_register_all_types(vm_instance),
         ERR_CANT_CREATE,
 		"Unable register HAL modules."
 	);
+    return OK;
+}
+
+Error IREEInstance::assure_device_captured() {
+    if(device.is_valid()) return OK;
+
+    Error error = OK;
+
+    error = assure_vm_instance_captured();
+    ERR_FAIL_COND_V(error != OK, error);
 
     // TODO: add fallbacks.
-	device.capture_vulkan(vm_instance);
+	error = device.capture_vulkan(vm_instance);
+    ERR_FAIL_COND_V(error != OK, error);
+    return OK;
+}
 
+Error IREEInstance::capture() {
+    Error error = OK;
+
+    error = assure_vm_instance_captured();
+    ERR_FAIL_COND_V(error != OK, error);
+	error = assure_device_captured();
+    ERR_FAIL_COND_V(error != OK, error);
     return OK;
 }
 
@@ -53,15 +79,21 @@ bool IREEInstance::is_valid() const {
     return vm_instance != nullptr && device.is_valid();
 }
 
-iree_vm_instance_t* IREEInstance::borrow_vm_instance() const {
+iree_vm_instance_t* IREEInstance::borrow_assured_vm_instance() {
+    Error error = assure_vm_instance_captured();
+    ERR_FAIL_COND_V(error != OK, nullptr);
     return vm_instance;
 }
 
-iree_hal_device_t* IREEInstance::borrow_hal_device() const {
+iree_hal_device_t* IREEInstance::borrow_assured_hal_device() {
+    Error error = assure_device_captured();
+    ERR_FAIL_COND_V(error != OK, nullptr);
     return device.borrow_hal_device();
 }
 
-iree_vm_module_t* IREEInstance::borrow_hal_module() const {
+iree_vm_module_t* IREEInstance::borrow_assured_hal_module() {
+    Error error = assure_device_captured();
+    ERR_FAIL_COND_V(error != OK, nullptr);
     return device.borrow_hal_module();
 }
 

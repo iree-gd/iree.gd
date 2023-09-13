@@ -5,6 +5,7 @@
 #include <godot_cpp/variant/vector2i.hpp>
 
 #include "iree_instance.h"
+#include "iree_error.h"
 
 #define MAX_SHAPE_RANK 50
 #define STRINGIFY_MACROS(m_macros) #m_macros
@@ -25,14 +26,14 @@ Error IREETensor::capture(typename StorageType<T>::type p_data, PackedInt64Array
     iree_hal_dim_t shape[MAX_SHAPE_RANK] = {0};
     for(int i = 0; i < shape_rank; i++) shape[i] = p_dimension[i];
 
-    iree_hal_device_t* const device = IREEInstance::borrow_singleton()->borrow_hal_device();
-    ERR_FAIL_COND_V(device == nullptr, ERR_QUERY_FAILED);
+    iree_hal_device_t* const device = IREEInstance::borrow_singleton()->borrow_assured_hal_device();
+    ERR_FAIL_NULL_V(device, ERR_QUERY_FAILED);
 
     iree_hal_buffer_params_t buffer_params = {0};
     buffer_params.usage = IREE_HAL_BUFFER_USAGE_DEFAULT;
     buffer_params.type = IREE_HAL_MEMORY_TYPE_DEVICE_LOCAL;
     
-    ERR_FAIL_COND_V_MSG(
+    IREE_ERR_V_MSG(
         iree_hal_buffer_view_allocate_buffer_copy(
             device,
             iree_hal_device_allocator(device), shape_rank, shape, T, 
@@ -122,9 +123,12 @@ PackedByteArray IREETensor::get_data() const {
     data.resize(data_size);
     ERR_FAIL_COND_V_MSG(data.size() != data_size, PackedByteArray(), "Fail to allocate memory for data in IREE Tensor for retrieving data.");
 
-    ERR_FAIL_COND_V_MSG(
+    iree_hal_device_t* const device = IREEInstance::borrow_singleton()->borrow_assured_hal_device();
+    ERR_FAIL_NULL_V(device, PackedByteArray());
+
+    IREE_ERR_V_MSG(
         iree_hal_device_transfer_d2h(
-            IREEInstance::borrow_singleton()->borrow_hal_device(), iree_hal_buffer_view_buffer(buffer_view),
+            device, iree_hal_buffer_view_buffer(buffer_view),
             0, data.ptrw(), data_size, IREE_HAL_TRANSFER_BUFFER_FLAG_DEFAULT, iree_infinite_timeout()
     ), PackedByteArray(), "Unable to retrieve data from device in IREE Tensor.");
 
@@ -134,7 +138,7 @@ PackedByteArray IREETensor::get_data() const {
 Array IREETensor::get_dimension() const {
     iree_host_size_t shape_rank = 0;
     iree_hal_dim_t shape[MAX_SHAPE_RANK] = {0};
-    ERR_FAIL_COND_V_MSG(iree_hal_buffer_view_shape(buffer_view, MAX_SHAPE_RANK, shape, &shape_rank),
+    IREE_ERR_V_MSG(iree_hal_buffer_view_shape(buffer_view, MAX_SHAPE_RANK, shape, &shape_rank),
             Array(), "Dimension of IREETensor exceed maximum rank (" STRINGIFY_MACROS(MAX_SHAPE_RANK) ") to be acquired.");
     Array dimension;
     for(iree_host_size_t i = 0; i < shape_rank; i++) dimension.push_back(shape[i]);

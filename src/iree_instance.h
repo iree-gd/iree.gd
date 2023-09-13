@@ -16,16 +16,19 @@ private:
 
     IREEInstance();
     ~IREEInstance();
+
+    Error assure_vm_instance_captured();
+    Error assure_device_captured();
 public:
     static IREEInstance* borrow_singleton();
 
     Error capture();
     void release();
+    iree_vm_instance_t* borrow_assured_vm_instance();
+    iree_hal_device_t* borrow_assured_hal_device();
+    iree_vm_module_t* borrow_assured_hal_module();
 
     bool is_valid() const;
-    iree_vm_instance_t* borrow_vm_instance() const;
-    iree_hal_device_t* borrow_hal_device() const;
-    iree_vm_module_t* borrow_hal_module() const;
 };
 
 #endif //IREE_INSTANCE_H

@@ -12,6 +12,7 @@
 #include <iree/vm/bytecode/module.h>
 
 #include "iree_instance.h"
+#include "iree_error.h"
 
 using namespace godot;
 
@@ -59,56 +60,51 @@ IREEModule::IREEModule(IREEModule&& p_module)
 IREEModule::~IREEModule() { unload(); }
 
 Error IREEModule::load(const String& p_path) {
-    // Initialize status.
-    iree_status_t status = iree_ok_status();
+    // Get instance.
+    iree_vm_instance_t* const instance = IREEInstance::borrow_singleton()->borrow_assured_vm_instance();
+    ERR_FAIL_NULL_V(instance, ERR_CANT_CREATE);
 
     // Get hal module.
-    iree_vm_module_t* const hal_module = IREEInstance::borrow_singleton()->borrow_hal_module();
+    iree_vm_module_t* const hal_module = IREEInstance::borrow_singleton()->borrow_assured_hal_module();
     ERR_FAIL_NULL_V(hal_module, ERR_CANT_CREATE);
-
-    // Get instance.
-    iree_vm_instance_t* const instance = IREEInstance::borrow_singleton()->borrow_vm_instance();
-    ERR_FAIL_NULL_V(instance, ERR_CANT_CREATE);
 
     // Unload old data.
     unload();
 
     // Read file content.
-    bytecode_data = FileAccess::get_file_as_bytes(p_path);
+    PackedByteArray new_bytecode_data;
+    new_bytecode_data = FileAccess::get_file_as_bytes(p_path);
+    ERR_FAIL_COND_V_MSG(new_bytecode_data.size() == 0, ERR_INVALID_DATA, "Empty bytecode is forbidden.");
+    bytecode_data = new_bytecode_data;
 
     // Create a module.
+    iree_const_byte_span_t byte_span = {0};
+    byte_span.data = bytecode_data.ptr();
+    byte_span.data_length = (iree_host_size_t) bytecode_data.size();
     iree_vm_module_t* new_bytecode = nullptr;
-    if((status = iree_vm_bytecode_module_create(
-        instance, iree_const_byte_span_t{
-            bytecode_data.ptr(), 
-            (iree_host_size_t)bytecode_data.size()
-        },
-        iree_allocator_null(), iree_allocator_system(), &new_bytecode))) 
-    {
-        Array format_array;
-        format_array.append(String(iree_status_code_string(iree_status_code(status))));
-        ERR_PRINT(String("Unable to load IREE module, IREE code: '{0}'.").format(format_array));
-        iree_status_fprint(stderr, status);
-        iree_status_free(status);
-        return ERR_CANT_CREATE;
-    }
+    IREE_ERR_V_MSG(
+        iree_vm_bytecode_module_create(
+            instance, byte_span,
+            iree_allocator_null(), 
+            iree_allocator_system(), 
+            &new_bytecode
+        ), 
+        ERR_CANT_CREATE, "Unable to load IREE module."
+    );
     bytecode = new_bytecode;
 
     // Create a context.
     iree_vm_context_t* new_context = nullptr;
     iree_vm_module_t* modules[2] = {hal_module, bytecode};
-    if((status = iree_vm_context_create_with_modules(
-        instance, IREE_VM_CONTEXT_FLAG_NONE,
-        IREE_ARRAYSIZE(modules), modules,
-        iree_allocator_system(), &new_context))) 
-    {
-        Array format_array;
-        format_array.append(String(iree_status_code_string(iree_status_code(status))));
-        ERR_PRINT(String("Unable to create IREE contxt, IREE code: '{0}'.").format(format_array));
-        iree_status_fprint(stderr, status);
-        iree_status_free(status);
-        return ERR_CANT_CREATE;
-    }
+
+    IREE_ERR_V_MSG(
+        iree_vm_context_create_with_modules(
+            instance, IREE_VM_CONTEXT_FLAG_NONE,
+            IREE_ARRAYSIZE(modules), modules,
+            iree_allocator_system(), &new_context
+        ), 
+        ERR_CANT_CREATE, "Unable to create IREE context."
+    );
     context = new_context;
 
     load_path = p_path;
@@ -139,20 +135,18 @@ Array IREEModule::call_module(const String& p_func_name, const Array& p_args) co
     PackedByteArray func_name = p_func_name.to_utf8_buffer();
     iree_vm_function_t func = {0};
 
-    iree_status_t status = nullptr;
 
     // Query function.
-    status = iree_vm_context_resolve_function(
-        context, iree_string_view_t{
-            .data = (const char*)func_name.ptr(), 
-            .size = (unsigned long)func_name.size()
-        }, 
-        &func
-    );
-    ERR_FAIL_COND_V_MSG(
-        status, 
+    IREE_ERR_V_MSG(
+        iree_vm_context_resolve_function(
+            context, iree_string_view_t{
+                .data = (const char*)func_name.ptr(), 
+                .size = (unsigned long)func_name.size()
+            }, 
+            &func
+        ),
         Array(), 
-        vformat("Unable to find function '%s' in module bytecode, error code: %s.", p_func_name, iree_status_code_string(iree_status_code(status)))
+        vformat("Unable to find function '%s' in module bytecode.", p_func_name)
     );
 
 
@@ -184,11 +178,14 @@ Array IREEModule::call_module(const String& p_func_name, const Array& p_args) co
     ERR_FAIL_COND_V(outputs.is_null(), Array());
 
     // Call.
-    status = iree_vm_invoke(
-        context, func, IREE_VM_INVOCATION_FLAG_NONE,
-        /*policy=*/ NULL, inputs.borrow_vm_list(), outputs.borrow_vm_list(), iree_allocator_system()
+    IREE_ERR_V_MSG(
+        iree_vm_invoke(
+            context, func, IREE_VM_INVOCATION_FLAG_NONE,
+            /*policy=*/ NULL, inputs.borrow_vm_list(), outputs.borrow_vm_list(), iree_allocator_system()
+        ),
+        Array(), 
+        vformat("Unable to call IREE function '%s'.", p_func_name)
     );
-    ERR_FAIL_COND_V_MSG(status, Array(), vformat("Unable to call IREE function '%s', error code: %s.", p_func_name, iree_status_code_string(iree_status_code(status))));
 
     return outputs.get_tensors();
 }

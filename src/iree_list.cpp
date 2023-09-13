@@ -4,6 +4,7 @@
 #include <godot_cpp/core/error_macros.hpp>
 
 #include "iree_tensor.h"
+#include "iree_error.h"
 
 using namespace godot;
 
@@ -64,7 +65,7 @@ iree_vm_list_t* IREEList::share_vm_list() {
 Error IREEList::capture(iree_host_size_t p_initial_capacity) {
     release();
     iree_vm_list_t* new_vm_list = nullptr;
-    ERR_FAIL_COND_V_MSG(iree_vm_list_create(
+    IREE_ERR_V_MSG(iree_vm_list_create(
         iree_vm_make_undefined_type_def(),
         p_initial_capacity, iree_allocator_system(), &new_vm_list
     ), ERR_CANT_CREATE, "Unable to create an IREE list.");
