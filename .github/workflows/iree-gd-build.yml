@@ -20,7 +20,7 @@ jobs:
             cmake_build_type: ""
           - os: windows-latest
             artifact_name: libiree-gd.windows.release.dll
-            artifact_path: build/lib/libiree-gd.windows.release.dll
+            artifact_path: build/bin/iree-gd.windows.release.dll  
             cmake_build_type: "-DCMAKE_BUILD_TYPE=Release"
 
     steps:
