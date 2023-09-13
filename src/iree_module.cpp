@@ -59,6 +59,9 @@ IREEModule::IREEModule(IREEModule&& p_module)
 IREEModule::~IREEModule() { unload(); }
 
 Error IREEModule::load(const String& p_path) {
+    // Initialize status.
+    iree_status_t status = iree_ok_status();
+
     // Get hal module.
     iree_vm_module_t* const hal_module = IREEInstance::borrow_singleton()->borrow_hal_module();
     ERR_FAIL_NULL_V(hal_module, ERR_CANT_CREATE);
@@ -75,23 +78,37 @@ Error IREEModule::load(const String& p_path) {
 
     // Create a module.
     iree_vm_module_t* new_bytecode = nullptr;
-    ERR_FAIL_COND_V_MSG(iree_vm_bytecode_module_create(
+    if((status = iree_vm_bytecode_module_create(
         instance, iree_const_byte_span_t{
             bytecode_data.ptr(), 
             (iree_host_size_t)bytecode_data.size()
         },
-        iree_allocator_null(), iree_allocator_system(), &new_bytecode
-    ), ERR_CANT_CREATE, "Unable to load IREE module.");
+        iree_allocator_null(), iree_allocator_system(), &new_bytecode))) 
+    {
+        Array format_array;
+        format_array.append(String(iree_status_code_string(iree_status_code(status))));
+        ERR_PRINT(String("Unable to load IREE module, IREE code: '{0}'.").format(format_array));
+        iree_status_fprint(stderr, status);
+        iree_status_free(status);
+        return ERR_CANT_CREATE;
+    }
     bytecode = new_bytecode;
 
     // Create a context.
     iree_vm_context_t* new_context = nullptr;
     iree_vm_module_t* modules[2] = {hal_module, bytecode};
-    ERR_FAIL_COND_V_MSG(iree_vm_context_create_with_modules(
+    if((status = iree_vm_context_create_with_modules(
         instance, IREE_VM_CONTEXT_FLAG_NONE,
         IREE_ARRAYSIZE(modules), modules,
-        iree_allocator_system(), &new_context
-    ) , ERR_CANT_CREATE, "Unable to create IREE context.");
+        iree_allocator_system(), &new_context))) 
+    {
+        Array format_array;
+        format_array.append(String(iree_status_code_string(iree_status_code(status))));
+        ERR_PRINT(String("Unable to create IREE contxt, IREE code: '{0}'.").format(format_array));
+        iree_status_fprint(stderr, status);
+        iree_status_free(status);
+        return ERR_CANT_CREATE;
+    }
     context = new_context;
 
     load_path = p_path;
