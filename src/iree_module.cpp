@@ -12,6 +12,7 @@
 #include <iree/vm/bytecode/module.h>
 
 #include "iree_instance.h"
+#include "iree_error.h"
 
 using namespace godot;
 
@@ -139,20 +140,18 @@ Array IREEModule::call_module(const String& p_func_name, const Array& p_args) co
     PackedByteArray func_name = p_func_name.to_utf8_buffer();
     iree_vm_function_t func = {0};
 
-    iree_status_t status = nullptr;
 
     // Query function.
-    status = iree_vm_context_resolve_function(
-        context, iree_string_view_t{
-            .data = (const char*)func_name.ptr(), 
-            .size = (unsigned long)func_name.size()
-        }, 
-        &func
-    );
-    ERR_FAIL_COND_V_MSG(
-        status, 
+    IREE_ERR_V_MSG(
+        iree_vm_context_resolve_function(
+            context, iree_string_view_t{
+                .data = (const char*)func_name.ptr(), 
+                .size = (unsigned long)func_name.size()
+            }, 
+            &func
+        ),
         Array(), 
-        vformat("Unable to find function '%s' in module bytecode, error code: %s.", p_func_name, iree_status_code_string(iree_status_code(status)))
+        vformat("Unable to find function '%s' in module bytecode.", p_func_name)
     );
 
 
@@ -184,11 +183,14 @@ Array IREEModule::call_module(const String& p_func_name, const Array& p_args) co
     ERR_FAIL_COND_V(outputs.is_null(), Array());
 
     // Call.
-    status = iree_vm_invoke(
-        context, func, IREE_VM_INVOCATION_FLAG_NONE,
-        /*policy=*/ NULL, inputs.borrow_vm_list(), outputs.borrow_vm_list(), iree_allocator_system()
+    IREE_ERR_V_MSG(
+        iree_vm_invoke(
+            context, func, IREE_VM_INVOCATION_FLAG_NONE,
+            /*policy=*/ NULL, inputs.borrow_vm_list(), outputs.borrow_vm_list(), iree_allocator_system()
+        ),
+        Array(), 
+        vformat("Unable to call IREE function '%s'.", p_func_name)
     );
-    ERR_FAIL_COND_V_MSG(status, Array(), vformat("Unable to call IREE function '%s', error code: %s.", p_func_name, iree_status_code_string(iree_status_code(status))));
 
     return outputs.get_tensors();
 }
