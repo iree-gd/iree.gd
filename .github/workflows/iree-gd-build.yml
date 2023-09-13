@@ -12,16 +12,26 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        name: [linux-x86_64, linux-x86_64-double, windows-x86_64, windows-x86_64-double]
         include:
-          - os: ubuntu-latest
+          - name: linux-x86_64
+            os: ubuntu-latest
             artifact_name: libiree-gd.linux.release.so
             artifact_path: build/lib/libiree-gd.linux.release.so
             cmake_build_type: ""
-          - os: windows-latest
+          - name: linux-x86_64-double
+            os: ubuntu-latest
+            artifact_name: libiree-gd.linux.release.so
+            artifact_path: build/lib/libiree-gd.linux.release.so
+            cmake_build_type: "-DFLOAT_PRECISION=double"
+          - name: windows-x86_64
             artifact_name: libiree-gd.windows.release.dll
             artifact_path: build/bin/iree-gd.windows.release.dll  
             cmake_build_type: "-DCMAKE_BUILD_TYPE=Release"
+          - name: windows-x86_64-double
+            artifact_name: libiree-gd.windows.release.dll
+            artifact_path: build/bin/iree-gd.windows.release.dll
+            cmake_build_type: "-DCMAKE_BUILD_TYPE=Release -DFLOAT_PRECISION=double"
 
     steps:
       - name: Check out code

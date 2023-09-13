@@ -61,6 +61,7 @@ endif(ENABLE_ASAN)
 #-------------------------------------------------------------------------------
 set(GODOT_COMPILE_FLAGS)
 set(GODOT_LINKER_FLAGS)
+set(FLOAT_PRECISION "double")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	# using Visual Studio C++
