@@ -184,9 +184,6 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
     } 
 
     else { // Godot is using vulkan, wrap vulkan.
-        // Setup volk.
-        //ERR_FAIL_COND_V_MSG(volkInitialize(), ERR_CANT_CREATE, "Unable to initialize volk.");
-
         iree_hal_vulkan_syms_t* syms = nullptr;
         iree_hal_vulkan_driver_options_t driver_options;
         iree_hal_vulkan_queue_set_t compute_queue_set;
@@ -204,18 +201,10 @@ Error IREEDevice::capture_vulkan(iree_vm_instance_t* p_instance) {
         driver_options.api_version = VK_API_VERSION_1_0;
         driver_options.requested_features = (iree_hal_vulkan_features_t)(IREE_HAL_VULKAN_FEATURE_ENABLE_DEBUG_UTILS);
 
-        //void* const vk_get_instance_proc_addr = (void*) vkGetInstanceProcAddr;
-
-        //ERR_FAIL_COND_V_MSG(
-            //iree_hal_vulkan_syms_create((void*)vk_get_instance_proc_addr, iree_allocator_system(), &syms),
-            //ERR_CANT_CREATE, "Unable to create Vulkan syms."
-        //);
-
         ERR_FAIL_COND_V_MSG(
             iree_hal_vulkan_syms_create_from_system_loader(iree_allocator_system(), &syms),
             ERR_CANT_CREATE, "Unable to create Vulkan syms."
         );
-          
 
         if(iree_hal_vulkan_wrap_device(
             identifier, &driver_options.device_options, syms, vk_instance, vk_physical_device, vk_device, &compute_queue_set,
