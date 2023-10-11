@@ -1,0 +1,37 @@
+name: Feature request or design proposal
+description: Share your ideas for enhancements or new features in iree.gd, specifically related to inferencing in the Godot engine.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: feature-description
+    attributes:  
+      label: Describe the proposed feature and its relevance to inferencing 
+      placeholder: Example - "Adding support for a new type of model could enhance the inferencing capabilities."
+    validations:  
+      required: true
+
+  - type: textarea
+    id: use-case
+    attributes:  
+      label: Context or use case 
+      description: Explain the problem or limitation you've encountered in the context of inferencing in the Godot engine. Try to articulate the problem as a question if possible.
+      placeholder: Example - "How can we improve the efficiency of model loading in iree.gd?"
+    validations:  
+      required: false
+
+  - type: textarea
+    id: proposed-solution
+    attributes:  
+      label: Proposed solution 
+      description: If you have an idea on how your proposal will work, please share it here. This could be code snippets, pseudo-code, diagrams, or any other form of explanation.
+      placeholder: Example - "Implementing a caching mechanism for models could speed up the loading process..."
+    validations:  
+      required: false
+
+  - type: textarea
+    id: additional-info
+    attributes:  
+      label: Additional information 
+      placeholder: Any other relevant details or thoughts you'd like to share.
+    validations:  
+      required: false
