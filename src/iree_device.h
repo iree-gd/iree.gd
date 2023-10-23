@@ -26,6 +26,7 @@ public:
 
     Error capture_vmvx(iree_vm_instance_t* p_instance);
     Error capture_vulkan(iree_vm_instance_t* p_instance);
+    Error capture_metal(iree_vm_instance_t* p_instance);
     void release();
 
     bool is_valid() const;

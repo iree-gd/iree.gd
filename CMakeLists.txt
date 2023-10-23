@@ -32,7 +32,6 @@ option(IREE_BUILD_TESTS "Builds IREE unit tests." OFF)
 option(IREE_BUILD_SAMPLES "Builds IREE sample projects." ON)
 option(IREE_BUILD_BUNDLED_LLVM "Builds the bundled llvm-project (vs using installed)" OFF)
 option(IREE_HAL_DRIVER_LOCAL_SYNC "Enables the 'local-sync' runtime HAL driver" ON)
-option(IREE_HAL_DRIVER_LOCAL_TASK "Enables the 'local-task' runtime HAL driver" ON)
 option(IREE_HAL_EXECUTABLE_LOADER_VMVX_MODULE "Enables the VMVX module loader for local HAL drivers" ON)
 option(IREE_ENABLE_THREADING "Enables threading for IREE." ON)
 option(IREE_HAL_DRIVER_VULKAN "Enables the 'vulkan' runtime HAL driver." ON)
@@ -173,8 +172,8 @@ target_link_libraries(
 	iree::vm
 	iree::vm::bytecode::module
 	iree::hal::drivers::local_task::task_driver
-	iree::task::api
 	iree::hal::drivers::vulkan::registration
+	iree::hal::drivers::metal::registration
 	godot-cpp
 )
 target_compile_options(
