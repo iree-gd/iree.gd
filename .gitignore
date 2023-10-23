@@ -12,3 +12,6 @@
 # Caches
 /.cache/
 /.ccls-cache/
+
+.DS_Store
+/**/.DS_Store

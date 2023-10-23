@@ -141,6 +141,6 @@ Array IREETensor::get_dimension() const {
     IREE_ERR_V_MSG(iree_hal_buffer_view_shape(buffer_view, MAX_SHAPE_RANK, shape, &shape_rank),
             Array(), "Dimension of IREETensor exceed maximum rank (" STRINGIFY_MACROS(MAX_SHAPE_RANK) ") to be acquired.");
     Array dimension;
-    for(iree_host_size_t i = 0; i < shape_rank; i++) dimension.push_back(shape[i]);
+    for(iree_host_size_t i = 0; i < shape_rank; i++) dimension.push_back((uint32_t)shape[i]);
     return dimension;
 }

@@ -5,8 +5,8 @@ compatibility_minimum = 4.1
 
 [libraries]
 
-macos.debug = "libiree-gd.macos.debug.so"
-macos.release = "libiree-gd.macos.release.so"
+macos.debug = "libiree-gd.darwin.release.dylib"
+macos.release = "libiree-gd.darwin.release.dylib"
 windows.debug.x86_32 = "libiree-gd.windows.debug.so"
 windows.release.x86_32 = "libiree-gd.windows.release.so"
 windows.debug.x86_64 = "libiree-gd.windows.debug.so"

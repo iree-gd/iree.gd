@@ -17,7 +17,9 @@ project(
 # System packages and programs
 #-------------------------------------------------------------------------------
 find_program(CCACHE_FOUND ccache)
-find_program(PYTHON_FOUND python REQUIRED)
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+set(Python_EXECUTABLE "${Python3_EXECUTABLE}")
+find_package(Python COMPONENTS Interpreter REQUIRED)
 
 #-------------------------------------------------------------------------------
 # Options
@@ -33,6 +35,7 @@ option(IREE_HAL_DRIVER_LOCAL_SYNC "Enables the 'local-sync' runtime HAL driver" 
 option(IREE_HAL_DRIVER_LOCAL_TASK "Enables the 'local-task' runtime HAL driver" ON)
 option(IREE_HAL_EXECUTABLE_LOADER_VMVX_MODULE "Enables the VMVX module loader for local HAL drivers" ON)
 option(IREE_ENABLE_THREADING "Enables threading for IREE." ON)
+option(IREE_HAL_DRIVER_VULKAN "Enables the 'vulkan' runtime HAL driver." ON)
 
 #-------------------------------------------------------------------------------
 # Project-wide properties
@@ -87,7 +90,9 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 else()
 
-	set(GODOT_LINKER_FLAGS "-static-libgcc -static-libstdc++ -Wl,-R,'$$ORIGIN'")
+	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+		set(GODOT_LINKER_FLAGS "-static-libgcc -static-libstdc++ -Wl,-R,'$$ORIGIN'")
+	endif() # TODO: Linking for other compilers.
 
 	set(GODOT_COMPILE_FLAGS "-fPIC -g -Wwrite-strings")
 	set(GODOT_COMPILE_FLAGS "${GODOT_COMPILE_FLAGS} -Wchar-subscripts -Wcomment -Wdisabled-optimization")
