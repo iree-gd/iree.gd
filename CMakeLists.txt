@@ -90,9 +90,10 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 
 else()
 
-	if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+	# It might not be a good idea to link statically with system library (https://developer.apple.com/library/archive/qa/qa1118/_index.html).
+	if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 		set(GODOT_LINKER_FLAGS "-static-libgcc -static-libstdc++ -Wl,-R,'$$ORIGIN'")
-	endif() # TODO: Linking for other compilers.
+	endif()
 
 	set(GODOT_COMPILE_FLAGS "-fPIC -g -Wwrite-strings")
 	set(GODOT_COMPILE_FLAGS "${GODOT_COMPILE_FLAGS} -Wchar-subscripts -Wcomment -Wdisabled-optimization")
