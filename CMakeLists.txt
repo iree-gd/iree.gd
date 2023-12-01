@@ -149,7 +149,12 @@ add_subdirectory(${3RD_PARTY_DIR}/godot-cpp)
 #-------------------------------------------------------------------------------
 # `iree.gd` library
 #-------------------------------------------------------------------------------
-set(LIB_NAME ${PROJECT_NAME}.${SYSTEM_NAME}.${BUILD_TYPE})
+set(ARCH ${CMAKE_SYSTEM_PROCESSOR})
+if(APPLE)
+	set(ARCH "universal")
+endif()
+
+set(LIB_NAME ${PROJECT_NAME}.${SYSTEM_NAME}.${BUILD_TYPE}.${ARCH})
 file(GLOB_RECURSE SRCS ${SRC_DIR}/*.c**)
 file(GLOB_RECURSE HEADERS ${SRC_DIR}/*.h**)
 
