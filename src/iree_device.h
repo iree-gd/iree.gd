@@ -21,12 +21,7 @@ public:
     IREEDevice(IREEDevice&& p_iree_device);
     ~IREEDevice();
 
-    static IREEDevice create_vmvx_device(iree_vm_instance_t* p_instance);
-    static IREEDevice create_vulkan_device(iree_vm_instance_t* p_instance);
-
-    Error capture_vmvx(iree_vm_instance_t* p_instance);
-    Error capture_vulkan(iree_vm_instance_t* p_instance);
-    Error capture_metal(iree_vm_instance_t* p_instance);
+    Error capture(iree_vm_instance_t* p_instance);
     void release();
 
     bool is_valid() const;

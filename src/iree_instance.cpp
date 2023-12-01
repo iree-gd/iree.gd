@@ -49,11 +49,7 @@ Error IREEInstance::assure_device_captured() {
     error = assure_vm_instance_captured();
     ERR_FAIL_COND_V(error != OK, error);
 
-#if __APPLE__
-    error = device.capture_metal(vm_instance);
-#else
-	error = device.capture_vulkan(vm_instance);
-#endif
+    error = device.capture(vm_instance);
     ERR_FAIL_COND_V(error != OK, error);
     return OK;
 }

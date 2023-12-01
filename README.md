@@ -4,6 +4,14 @@
 
 [IREE](https://github.com/openxla/iree) runtime in Godot through GDExtension, a mission to run machine learning model (e.g. Tensorflow lite) natively in Godot.
 
+## Supported Platforms
+
+| Platform                         | HAL Backend used |
+| -------------------------------- | ---------------- |
+| Apple products (macOS, IOS)      | `metal`          |
+| Desktops (Windows, Linux, \*BSD) | `vulkan`         |
+| The rest (Android, Web)          | `vmvx`           |
+
 ## Overview
 
 This GDExtension provides:
@@ -14,12 +22,7 @@ This GDExtension provides:
 ### Preparation
 
 You'll need to compile your models following this [guide](https://openxla.github.io/iree/guides/).
-Make sure the backends is supported by your compiled models:
-
-| Platform | HAL Backend used |
-| -------- | ---------------- |
-| Apple    | `metal`          |
-| The rest | `vulkan`         |
+Make sure the backends is supported by your compiled models, based on [supported platforms](#supported-platforms).
 
 Here we can know that:
 
