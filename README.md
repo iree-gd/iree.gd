@@ -5,26 +5,34 @@
 [IREE](https://github.com/openxla/iree) runtime in Godot through GDExtension, a mission to run machine learning model (e.g. Tensorflow lite) natively in Godot.
 
 ## Overview
+
 This GDExtension provides:
-* `IREETensor` - Hold data to be fed into or output by the model. 
-* `IREEModule` - Load model and run it.
+
+- `IREETensor` - Hold data to be fed into or output by the model.
+- `IREEModule` - Load model and run it.
 
 ### Preparation
-You'll need to generate `.vmfb` bytecode in vulkan format before using `iree.gd`. 
-Good thing is that there is are [scripts](./tools) helping you to generate those bytecodes! Use them well!
 
-But it might not 100% work, if this happens, you'll need to do it in a manual way following this [guide](https://openxla.github.io/iree/guides/).
-Make sure you are generating the bytecode in vulkan format and also identify the input/output type.
+You'll need to compile your models following this [guide](https://openxla.github.io/iree/guides/).
+Make sure the backends is supported by your compiled models:
 
-Here we can know that: 
-* The function name is `"module.main"`
-* The function takes one `1x50x50x3` float 32 `IREETensor` (`input_0`) as input.
-* The function takes one `1x200x200x3` float 32 `IREETensor` (`Identity`) as input.
+| Platform | HAL Backend used |
+| -------- | ---------------- |
+| Apple    | `metal`          |
+| The rest | `vulkan`         |
+
+Here we can know that:
+
+- The function name is `"module.main"`
+- The function takes one `1x50x50x3` float 32 `IREETensor` (`input_0`) as input.
+- The function takes one `1x200x200x3` float 32 `IREETensor` (`Identity`) as input.
 
 ### Using `iree.gd`
+
 After having your `.vmfb` bytecode ready, you could start using `iree.gd`.
 
 There are 4 steps:
+
 1. Load model with `IREEModule.load`.
 2. Prepare input by feeding data into `IREETensor` through `IREETensor.from_*` variant or `IREETensor.capture_*` variant.
 3. Send `IREETensor`s into loaded `IREEModule`.
@@ -39,10 +47,13 @@ for output in outputs:
 ```
 
 ## Sample project
+
 The sample project is in `sample` directory. You'll need to generate the bytecode before running them.
 
 ## Build from source
-Run these commands: 
+
+Run these commands:
+
 ```sh
 git clone https://github.com/RechieKho/iree.gd.git # clone this repo
 cd iree.gd
