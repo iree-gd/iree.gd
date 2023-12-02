@@ -21,6 +21,10 @@ jobs:
           - build_type: debug
             cmake_build_type_keyword: RelWithDebInfo
 
+          # Targeting Linux.
+          - os: ubuntu-latest
+            target: linux
+
           - os: ubuntu-latest
             target: linux
             arch: x86_64
@@ -37,6 +41,10 @@ jobs:
             target: linux
             arch: arm32
 
+          # Targeting Android.
+          - os: ubuntu-latest
+            target: android
+
           - os: ubuntu-latest
             target: android
             arch: x86_64
@@ -44,6 +52,10 @@ jobs:
           - os: ubuntu-latest
             target: android
             arch: arm64
+
+          # Targeting Windows.
+          - os: windows-latest
+            target: windows
 
           - os: windows-latest
             target: windows
@@ -53,9 +65,17 @@ jobs:
             target: windows
             arch: x86_32
 
+          # Targeting Macos.
+          - os: macos-latest
+            target: macos
+
           - os: macos-latest
             target: macos
             arch: universal
+
+          # Targeting IOS.
+          - os: macos-latest
+            target: ios
 
           - os: macos-latest
             target: ios
