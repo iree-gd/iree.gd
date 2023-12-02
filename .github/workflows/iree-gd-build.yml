@@ -22,28 +22,48 @@ jobs:
             cmake_build_type_keyword: RelWithDebInfo
 
           - os: ubuntu-latest
-            target: [linux, android]
+            target: linux
+            arch: x86_64
 
-          - target: linux
-            arch: [x86_64, x86_32, arm64, arm32]
+          - os: ubuntu-latest
+            target: linux
+            arch: x86_32
 
-          - target: android
-            arch: [x86_64, arm64]
+          - os: ubuntu-latest
+            target: linux
+            arch: arm64
+
+          - os: ubuntu-latest
+            target: linux
+            arch: arm32
+
+          - os: ubuntu-latest
+            target: android
+            arch: x86_64
+
+          - os: ubuntu-latest
+            target: android
+            arch: arm64
 
           - os: windows-latest
             target: windows
+            arch: x86_64
 
-          - target: windows
-            arch: [x86_64, x86_32]
+          - os: windows-latest
+            target: windows
+            arch: x86_32
 
           - os: macos-latest
-            target: [macos, ios]
-
-          - target: macos
+            target: macos
             arch: universal
 
-          - target: ios
-            arch: [arm64, x86_64]
+          - os: macos-latest
+            target: ios
+            arch: x86_64
+
+          - os: macos-latest
+            target: ios
+            arch: arm64
 
     steps:
       - name: Logging
