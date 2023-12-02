@@ -151,8 +151,8 @@ jobs:
       - name: Prepare cross-compiler for Linux
         if: matrix.target == 'linux'
         run: |
-          apt-get update
-          apt -y install ${{ matrix.dependencies }}
+          sudo apt update
+          sudo apt -y install ${{ matrix.dependencies }}
 
       - name: Prepare Vulkan SDK
         if: matrix.target == 'linux'
