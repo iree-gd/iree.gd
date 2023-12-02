@@ -47,11 +47,11 @@ jobs:
             arch: universal
 
           # Exclude arch unsupported by ios.
-          - target: android
+          - target: ios
             arch: x86_32
-          - target: android
+          - target: ios
             arch: arm32
-          - target: android
+          - target: ios
             arch: universal
         include:
           # Build type to cmake keyword.
