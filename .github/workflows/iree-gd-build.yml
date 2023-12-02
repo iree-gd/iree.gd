@@ -12,80 +12,58 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        target: [linux, macos, windows, android, ios]
+        arch: [x86_64, x86_32, arm64, arm32, universal]
         build_type: [release, debug]
-        target: []
-        arch: []
+        exclude:
+          # Exclude arch unsupported by linux.
+          - target: linux
+            arch: universal
+
+          # Exclude arch unsupported by macos.
+          - target: macos
+            arch: x86_64
+          - target: macos
+            arch: x86_32
+          - target: macos
+            arch: arm64
+          - target: macos
+            arch: arm32
+
+          # Exclude arch unsupported by windows.
+          - target: windows
+            arch: [arm64, arm32, universal]
+
+          # Exclude arch unsupported by android.
+          - target: android
+            arch: [x86_32, arm32, universal]
+
+          # Exclude arch unsupported by ios.
+          - target: android
+            arch: [x86_32, arm32, universal]
         include:
+          # Build type to cmake keyword.
           - build_type: release
             cmake_build_type_keyword: Release
 
           - build_type: debug
             cmake_build_type_keyword: RelWithDebInfo
 
-          # Targeting Linux.
+          # Define host for each target.
           - os: ubuntu-latest
             target: linux
 
-          - os: ubuntu-latest
-            target: linux
-            arch: x86_64
-
-          - os: ubuntu-latest
-            target: linux
-            arch: x86_32
-
-          - os: ubuntu-latest
-            target: linux
-            arch: arm64
-
-          - os: ubuntu-latest
-            target: linux
-            arch: arm32
-
-          # Targeting Android.
           - os: ubuntu-latest
             target: android
 
-          - os: ubuntu-latest
-            target: android
-            arch: x86_64
-
-          - os: ubuntu-latest
-            target: android
-            arch: arm64
-
-          # Targeting Windows.
           - os: windows-latest
             target: windows
 
-          - os: windows-latest
-            target: windows
-            arch: x86_64
-
-          - os: windows-latest
-            target: windows
-            arch: x86_32
-
-          # Targeting Macos.
           - os: macos-latest
             target: macos
 
           - os: macos-latest
-            target: macos
-            arch: universal
-
-          # Targeting IOS.
-          - os: macos-latest
             target: ios
-
-          - os: macos-latest
-            target: ios
-            arch: x86_64
-
-          - os: macos-latest
-            target: ios
-            arch: arm64
 
     steps:
       - name: Logging
