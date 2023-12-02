@@ -2,9 +2,9 @@ name: Build and Export Artifact
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
@@ -12,51 +12,81 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        build_type: [release, debug]
         include:
+          - build_type: release
+            cmake_build_type_keyword: Release
+
+          - build_type: debug
+            cmake_build_type_keyword: RelWithDebInfo
+
           - os: ubuntu-latest
-            artifact_name: libiree-gd.linux.release.so
-            artifact_path: build/lib/libiree-gd.linux.release.so
-            cmake_build_type: ""
+            target: [linux, android]
+
+          - target: linux
+            arch: [x86_64, x86_32, arm64, arm32]
+
+          - target: android
+            arch: [x86_64, arm64]
+
           - os: windows-latest
-            artifact_name: libiree-gd.windows.release.dll
-            artifact_path: build/bin/iree-gd.windows.release.dll  
-            cmake_build_type: "-DCMAKE_BUILD_TYPE=Release"
+            target: windows
+
+          - target: windows
+            arch: [x86_64, x86_32]
+
+          - os: macos-latest
+            target: [macos, ios]
+
+          - target: macos
+            arch: universal
+
+          - target: ios
+            arch: [arm64, x86_64]
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-      
-      - name: Prepare Vulkan SDK
-        if: matrix.os == 'ubuntu-latest'
-        uses: humbletim/setup-vulkan-sdk@v1.2.0
-        with:
-          vulkan-query-version: 1.3.204.0
-          vulkan-components: Vulkan-Headers, Vulkan-Loader
-          vulkan-use-cache: true
+      - name: Logging
+        run: |
+          echo "Host: ${{ matrix: os }}"
+          echo "target: ${{ matrix.target }}"
+          echo "arch: ${{ matrix.arch }}"
+          echo "build type: ${{ matrix.build_type }}"
+          echo "cmake build type keyword: ${{ matrix.cmake_build_type_keyword }}"
 
-      - name: Set up MSVC Dev Cmd
-        if: matrix.os == 'windows-latest'
-        uses: ilammy/msvc-dev-cmd@7315a94840631165970262a99c72cfb48a65d25d # v1.12.0
+      #- name: Check out code
+      #uses: actions/checkout@v2
+      #with:
+      #submodules: recursive
 
-      - uses: seanmiddleditch/gha-setup-ninja@master
+      #- name: Prepare Vulkan SDK
+      #if: matrix.os == 'ubuntu-latest'
+      #uses: humbletim/setup-vulkan-sdk@v1.2.0
+      #with:
+      #vulkan-query-version: 1.3.204.0
+      #vulkan-components: Vulkan-Headers, Vulkan-Loader
+      #vulkan-use-cache: true
 
-      - name: Set up CMake
-        shell: bash
-        run: | 
-          if [ ! -d build ]; then
-            mkdir build
-          fi
-          cd build
-          cmake .. -G Ninja ${{ matrix.cmake_build_type }}
+      #- name: Set up MSVC Dev Cmd
+      #if: matrix.os == 'windows-latest'
+      #uses: ilammy/msvc-dev-cmd@7315a94840631165970262a99c72cfb48a65d25d # v1.12.0
 
-      - name: Build project
-        run: ninja -C build
+      #- uses: seanmiddleditch/gha-setup-ninja@master
 
-      - name: Export artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ matrix.artifact_name }}
-          path: ${{ matrix.artifact_path }}
+      #- name: Set up CMake
+      #shell: bash
+      #run: |
+      #if [ ! -d build ]; then
+      #mkdir build
+      #fi
+      #cd build
+      #cmake .. -G Ninja ${{ matrix.cmake_build_type }}
+
+      #- name: Build project
+      #run: ninja -C build
+
+      #- name: Export artifact
+      #uses: actions/upload-artifact@v2
+      #with:
+      #name: ${{ matrix.artifact_name }}
+      #path: ${{ matrix.artifact_path }}
