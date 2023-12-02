@@ -114,15 +114,21 @@ jobs:
           branch: main
           owner: taka-no-me
           repository: android-cmake
+
+      - name: Find CMake Android Toolchain path
+        if: matrix.target == 'android'
         run: TOOLCHAIN='android-cmake/android.toolchain.cmake'
 
-      - name: Get CMake ios Toolchain
+      - name: Get CMake IOS Toolchain
         if: matrix.target == 'ios'
         uses: GuillaumeFalourd/clone-github-repo-action@v2.2
         with:
           branch: main
           owner: leetal
           repository: ios-cmake
+
+      - name: Find CMake IOS Toolchain path
+        if: matrix.target == 'ios'
         run: TOOLCHAIN='ios-cmake/ios.toolchain.cmake'
 
       - name: Set up CMake
@@ -132,7 +138,7 @@ jobs:
           mkdir build
           fi
           cd build
-          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} $([ -z ${var+foo} ] || echo "-DCMAKE_TOOLCHAIN_FILE=../$TOOLCHAIN")
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} $([ -v ${TOOLCHAIN} ] || echo "-DCMAKE_TOOLCHAIN_FILE=../${TOOLCHAIN}")
 
       - name: Build project
         run: ninja -C build
