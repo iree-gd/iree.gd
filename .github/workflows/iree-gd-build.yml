@@ -106,6 +106,8 @@ jobs:
       - name: Setup Android NDK
         if: matrix.target == 'android'
         uses: nttld/setup-ndk@v1.4.2
+        with:
+          ndk-version: r25c
 
       - name: Get CMake Android Toolchain
         if: matrix.target == 'android'
