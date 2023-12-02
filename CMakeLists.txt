@@ -24,7 +24,7 @@ find_package(Python COMPONENTS Interpreter REQUIRED)
 #-------------------------------------------------------------------------------
 # Options
 #-------------------------------------------------------------------------------
-option(ENABLE_ASAN "Sanitize address with ASan." OFF) # ASan might not work: https://github.com/google/sanitizers/issues/85
+option(IREE_ENABLE_ASAN "Sanitize address with ASan." OFF)
 
 # Update default value for options
 option(IREE_BUILD_COMPILER "Builds the IREE compiler." OFF)
@@ -52,11 +52,11 @@ if(CCACHE_FOUND)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
 endif(CCACHE_FOUND)
 
-if(ENABLE_ASAN)
-    set(IREE_ENABLE_ASAN ON)
+if(IREE_ENABLE_ASAN)
+    add_compile_options("$<IF:$<STREQUAL:${CMAKE_CXX_COMPILER_ID},MSVC>,/wd5211,-Wno-deprecated-declarations>") # This is because ASAN disable `sprintf` usage on MacOS but libyaml use it.
     add_compile_options("$<IF:$<STREQUAL:${CMAKE_CXX_COMPILER_ID},MSVC>,/fsanitize=address,-fsanitize=address>")
     add_link_options("$<IF:$<STREQUAL:${CMAKE_CXX_COMPILER_ID},MSVC>,/fsanitize=address,-fsanitize=address>")
-endif(ENABLE_ASAN)
+endif()
 
 #-------------------------------------------------------------------------------
 # `godot-cpp`
