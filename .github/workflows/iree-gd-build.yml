@@ -113,7 +113,7 @@ jobs:
         if: matrix.target == 'android'
         uses: GuillaumeFalourd/clone-github-repo-action@v2.2
         with:
-          branch: main
+          branch: master
           owner: taka-no-me
           repository: android-cmake
 
@@ -125,7 +125,7 @@ jobs:
         if: matrix.target == 'ios'
         uses: GuillaumeFalourd/clone-github-repo-action@v2.2
         with:
-          branch: main
+          branch: master
           owner: leetal
           repository: ios-cmake
 
