@@ -24,17 +24,10 @@ find_package(Python COMPONENTS Interpreter REQUIRED)
 #-------------------------------------------------------------------------------
 # Options
 #-------------------------------------------------------------------------------
-option(IREE_ENABLE_ASAN "Sanitize address with ASan." OFF)
 
 # Update default value for options
 option(IREE_BUILD_COMPILER "Builds the IREE compiler." OFF)
-option(IREE_BUILD_TESTS "Builds IREE unit tests." OFF)
-option(IREE_BUILD_SAMPLES "Builds IREE sample projects." ON)
 option(IREE_BUILD_BUNDLED_LLVM "Builds the bundled llvm-project (vs using installed)" OFF)
-option(IREE_HAL_DRIVER_LOCAL_SYNC "Enables the 'local-sync' runtime HAL driver" ON)
-option(IREE_HAL_EXECUTABLE_LOADER_VMVX_MODULE "Enables the VMVX module loader for local HAL drivers" ON)
-option(IREE_ENABLE_THREADING "Enables threading for IREE." ON)
-option(IREE_HAL_DRIVER_VULKAN "Enables the 'vulkan' runtime HAL driver." ON)
 
 #-------------------------------------------------------------------------------
 # Project-wide properties
@@ -56,6 +49,27 @@ if(IREE_ENABLE_ASAN)
     add_compile_options("$<IF:$<STREQUAL:${CMAKE_CXX_COMPILER_ID},MSVC>,/wd5211,-Wno-deprecated-declarations>") # This is because ASAN disable `sprintf` usage on MacOS but libyaml use it.
     add_compile_options("$<IF:$<STREQUAL:${CMAKE_CXX_COMPILER_ID},MSVC>,/fsanitize=address,-fsanitize=address>")
     add_link_options("$<IF:$<STREQUAL:${CMAKE_CXX_COMPILER_ID},MSVC>,/fsanitize=address,-fsanitize=address>")
+endif(IREE_ENABLE_ASAN)
+
+#-------------------------------------------------------------------------------
+# `iree`
+#-------------------------------------------------------------------------------
+
+# Here, we will force set the options so the build won't break.
+
+# Disable GPU backend by default as not all platform supports GPU backend.
+set(IREE_HAL_DRIVER_VULKAN OFF)
+set(IREE_HAL_DRIVER_METAL OFF)
+set(IREE_HAL_DRIVER_CUDA OFF)
+
+if(APPLE)
+	set(IREE_HAL_DRIVER_METAL ON)
+elseif(WIN32 OR LINUX OR BSD)
+	set(IREE_HAL_DRIVER_VULKAN ON)
+else()
+	set(IREE_HAL_DRIVER_LOCAL_SYNC ON)
+	set(IREE_HAL_DRIVER_LOCAL_TASK ON)
+	set(IREE_HAL_EXECUTABLE_LOADER_VMVX_MODULE ON)
 endif()
 
 #-------------------------------------------------------------------------------
@@ -159,28 +173,44 @@ file(GLOB_RECURSE SRCS ${SRC_DIR}/*.c**)
 file(GLOB_RECURSE HEADERS ${SRC_DIR}/*.h**)
 
 add_library(${LIB_NAME} SHARED ${SRCS} ${HEADERS})
+
 target_include_directories(
 	${LIB_NAME} 
 	PRIVATE 
 	${3RD_PARTY_DIR}/godot-cpp ${3RD_PARTY_DIR}/godot-cpp/gdextension 
 	${3RD_PARTY_DIR}/iree/runtime/src
 )
+
 target_link_libraries(
 	${LIB_NAME}
+	godot-cpp
 	iree::base
 	iree::hal
-	iree::hal::drivers::local_sync::sync_driver
 	iree::hal::local
-	iree::hal::local::loaders::embedded_elf_loader
-	iree::hal::local::loaders::vmvx_module_loader
 	iree::modules::hal
 	iree::vm
 	iree::vm::bytecode::module
-	iree::hal::drivers::local_task::task_driver
-	iree::hal::drivers::vulkan::registration
-	iree::hal::drivers::metal::registration
-	godot-cpp
 )
+if(APPLE)
+	target_link_libraries(
+		${LIB_NAME}
+		iree::hal::drivers::metal::registration
+	)
+elseif(WIN32 OR LINUX OR BSD)
+	target_link_libraries(
+		${LIB_NAME}
+		iree::hal::drivers::vulkan::registration
+	)
+else()
+	target_link_libraries(
+		${LIB_NAME}
+		iree::hal::drivers::local_sync::sync_driver
+		iree::hal::drivers::local_task::task_driver
+		iree::hal::local::loaders::embedded_elf_loader
+		iree::hal::local::loaders::vmvx_module_loader
+	)
+endif()
+
 target_compile_options(
     ${LIB_NAME}
     PRIVATE
