@@ -148,11 +148,12 @@ jobs:
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@master
 
-      - name: Prepare cross-compiler for Linux
-        if: matrix.target == 'linux'
-        run: |
-          sudo apt update
-          sudo apt -y install ${{ matrix.dependencies }}
+      # TODO: Save me from this suffocation and configure CMake to compile for multiple linux architecture.
+      #- name: Prepare cross-compiler for Linux
+      #  if: matrix.target == 'linux'
+      #  run: |
+      #    sudo apt update
+      #    sudo apt -y install ${{ matrix.dependencies }}
 
       - name: Prepare Vulkan SDK
         if: matrix.target == 'linux'
@@ -199,9 +200,9 @@ jobs:
           fi
           cd build
           cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
-            -DCMAKE_CXX_FLAGS="${{ matrix.cxxflags }}" \
-            -DCMAKE_C_COMPILER="${{ matrix.c_compiler }}" \
-            -DCMAKE_CXX_COMPILER="${{ matrix.cxx_compiler }}"
+      #      -DCMAKE_CXX_FLAGS="${{ matrix.cxxflags }}" \
+      #      -DCMAKE_C_COMPILER="${{ matrix.c_compiler }}" \
+      #      -DCMAKE_CXX_COMPILER="${{ matrix.cxx_compiler }}"
 
       - name: Set up CMake for Windows
         if: matrix.target == 'windows'
