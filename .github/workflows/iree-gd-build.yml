@@ -32,15 +32,27 @@ jobs:
 
           # Exclude arch unsupported by windows.
           - target: windows
-            arch: [arm64, arm32, universal]
+            arch: arm64
+          - target: windows
+            arch: arm32
+          - target: windows
+            arch: universal
 
           # Exclude arch unsupported by android.
           - target: android
-            arch: [x86_32, arm32, universal]
+            arch: x86_32
+          - target: android
+            arch: arm32
+          - target: android
+            arch: universal
 
           # Exclude arch unsupported by ios.
           - target: android
-            arch: [x86_32, arm32, universal]
+            arch: x86_32
+          - target: android
+            arch: arm32
+          - target: android
+            arch: universal
         include:
           # Build type to cmake keyword.
           - build_type: release
