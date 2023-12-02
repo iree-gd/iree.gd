@@ -2,7 +2,7 @@ name: Build and Export Artifact
 
 on:
   push:
-    branches: [main]
+    branches: [main, build-workflow] # Remember to remove `build-workflow`
   pull_request:
     branches: [main]
 
