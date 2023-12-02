@@ -7,16 +7,18 @@
 
 #include <iree/modules/hal/module.h>
 
+#if defined(__APPLE__)
+#include <iree/hal/drivers/metal/registration/driver_module.h>
+#include <iree/hal/drivers/metal/api.h>
+#elif defined(_WIN32) || defined(BSD) || defined(__linux__)
+#include <iree/hal/drivers/vulkan/registration/driver_module.h>
+#include <iree/hal/drivers/vulkan/api.h>
+#else
 #include <iree/hal/drivers/local_sync/sync_device.h>
 #include <iree/hal/local/executable_loader.h>
 #include <iree/hal/local/loaders/embedded_elf_loader.h>
 #include <iree/hal/local/loaders/vmvx_module_loader.h>
-
-#include <iree/hal/drivers/vulkan/registration/driver_module.h>
-#include <iree/hal/drivers/vulkan/api.h>
-
-#include <iree/hal/drivers/metal/registration/driver_module.h>
-#include <iree/hal/drivers/metal/api.h>
+#endif
 
 #include "iree_error.h"
 
