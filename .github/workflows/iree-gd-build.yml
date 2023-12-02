@@ -82,11 +82,77 @@ jobs:
             target: ios
             lib_suffix: dylib
 
+          # Define toolchain data.
+          - target: linux
+            arch: x86_64
+            dependencies: gcc-x86-64-linux-gnu g++-x86-64-linux-gnu
+            cxxflags: -m64
+            c_compiler: x86-64-linux-gnu-gcc
+            cxx_compiler: x86-64-linux-gnu-g++
+
+          - target: linux
+            arch: x86_32
+            dependencies: gcc-x86-64-linux-gnu g++-x86-64-linux-gnu
+            cxxflags: -m32
+            c_compiler: x86-64-linux-gnu-gcc
+            cxx_compiler: x86-64-linux-gnu-g++
+
+          - target: linux
+            arch: arm64
+            dependencies: gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+            cxxflags: ""
+            c_compiler: aarch64-linux-gnu-gcc
+            cxx_compiler: aarch64-linux-gnu-g++
+
+          - target: linux
+            arch: arm32
+            dependencies: gcc-arm-linux-gnueabi g++-arm-linux-gnueabi
+            cxxflags: ""
+            c_compiler: amr-linux-gnueabi-gcc
+            cxx_compiler: amr-linux-gnueabi-g++
+
+          - target: windows
+            arch: x86_64
+            cmake_arch_keyword: x64
+
+          - target: windows
+            arch: x86_32
+            cmake_arch_keyword: Win32
+
+          - target: android
+            arch: arm64
+            cmake_arch_keyword: arm64-v8a
+
+          - target: android
+            arch: x86_64
+            cmake_arch_keyword: x86_64
+
+          - target: macos
+            arch: universal
+            cmake_arch_keyword: x86_64;i386
+
+          - target: ios
+            arch: arm64
+            cmake_arch_keyword: OS64
+
+          - target: ios
+            arch: x86_64
+            cmake_arch_keyword: SIMULATOR64
+
     steps:
       - name: Check out code
         uses: actions/checkout@v2
         with:
           submodules: recursive
+
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Prepare cross-compiler for Linux
+        if: matrix.target == 'linux'
+        run: |
+          apt-get update
+          apt -y install ${{ matrix.dependencies }}
 
       - name: Prepare Vulkan SDK
         if: matrix.target == 'linux'
@@ -100,15 +166,13 @@ jobs:
         if: matrix.os == 'windows-latest'
         uses: ilammy/msvc-dev-cmd@7315a94840631165970262a99c72cfb48a65d25d # v1.12.0
 
-      - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@master
-
       - name: Setup Android NDK
         if: matrix.target == 'android'
         uses: nttld/setup-ndk@v1.4.2
         with:
           ndk-version: r25c
 
+      # Get Toolchains
       - name: Get CMake Android Toolchain
         if: matrix.target == 'android'
         uses: GuillaumeFalourd/clone-github-repo-action@v2.2
@@ -116,10 +180,6 @@ jobs:
           branch: master
           owner: taka-no-me
           repository: android-cmake
-
-      - name: Find CMake Android Toolchain path
-        if: matrix.target == 'android'
-        run: TOOLCHAIN='android-cmake/android.toolchain.cmake'
 
       - name: Get CMake IOS Toolchain
         if: matrix.target == 'ios'
@@ -129,18 +189,65 @@ jobs:
           owner: leetal
           repository: ios-cmake
 
-      - name: Find CMake IOS Toolchain path
-        if: matrix.target == 'ios'
-        run: TOOLCHAIN='ios-cmake/ios.toolchain.cmake'
-
-      - name: Set up CMake
+      # Setup CMake
+      - name: Set up CMake for Linux
+        if: matrix.target == 'linux'
         shell: bash
         run: |
           if [ ! -d build ]; then
-          mkdir build
+            mkdir build
           fi
           cd build
-          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} $([ -v ${TOOLCHAIN} ] || echo "-DCMAKE_TOOLCHAIN_FILE=../${TOOLCHAIN}")
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DCXXFLAGS="${{ matrix.cxxflags }}"
+            -DCMAKE_C_COMPILER="${{ matrix.c_compiler }}"
+            -DCMAKE_CXX_COMPILER="${{ matrix.cxx_compiler }}"
+
+      - name: Set up CMake for Windows
+        if: matrix.target == 'windows'
+        shell: bash
+        run: |
+          if [ ! -d build ]; then
+            mkdir build
+          fi
+          cd build
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -A ${{ matrix.cmake_arch_keyword }}
+
+      - name: Set up CMake for Android
+        if: matrix.target == 'android'
+        shell: bash
+        run: |
+          if [ ! -d build ]; then
+            mkdir build
+          fi
+          cd build
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DCMAKE_TOOLCHAIN_FILE=../android-cmake/android.toolchain.cmake \
+            -DANDROID_ABI=${{ matrix.cmake_arch_keyword }}
+
+      - name: Set up CMake for MacOS
+        if: matrix.target == 'macos'
+        shell: bash
+        run: |
+          if [ ! -d build ]; then
+            mkdir build
+          fi
+          cd build
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DCMAKE_OSX_ARCHITECTURES="${{ matrix.cmake_arch_keyword }}"
+
+      - name: Set up CMake for IOS
+        if: matrix.target == 'ios'
+        shell: bash
+        run: |
+          if [ ! -d build ]; then
+            mkdir build
+          fi
+          cd build
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DCMAKE_TOOLCHAIN_FILE=../ios-cmake/ios.toolchain.cmake \
+            -DPLATFORM=${{ matrix.cmake_arch_keyword }}
 
       - name: Build project
         run: ninja -C build
