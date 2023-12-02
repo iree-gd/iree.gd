@@ -89,7 +89,7 @@ jobs:
           submodules: recursive
 
       - name: Prepare Vulkan SDK
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.target == 'linux'
         uses: humbletim/setup-vulkan-sdk@v1.2.0
         with:
           vulkan-query-version: 1.3.204.0
@@ -103,6 +103,28 @@ jobs:
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@master
 
+      - name: Setup Android NDK
+        if: matrix.target == 'android'
+        uses: nttld/setup-ndk@v1.4.2
+
+      - name: Get CMake Android Toolchain
+        if: matrix.target == 'android'
+        uses: GuillaumeFalourd/clone-github-repo-action@v2.2
+        with:
+          branch: main
+          owner: taka-no-me
+          repository: android-cmake
+        run: TOOLCHAIN='android-cmake/android.toolchain.cmake'
+
+      - name: Get CMake ios Toolchain
+        if: matrix.target == 'ios'
+        uses: GuillaumeFalourd/clone-github-repo-action@v2.2
+        with:
+          branch: main
+          owner: leetal
+          repository: ios-cmake
+        run: TOOLCHAIN='ios-cmake/ios.toolchain.cmake'
+
       - name: Set up CMake
         shell: bash
         run: |
@@ -110,7 +132,7 @@ jobs:
           mkdir build
           fi
           cd build
-          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }}
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} $([ -z ${var+foo} ] || echo "-DCMAKE_TOOLCHAIN_FILE=../$TOOLCHAIN")
 
       - name: Build project
         run: ninja -C build
