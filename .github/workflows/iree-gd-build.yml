@@ -48,7 +48,7 @@ jobs:
     steps:
       - name: Logging
         run: |
-          echo "Host: ${{ matrix: os }}"
+          echo "Host: ${{ matrix.os }}"
           echo "target: ${{ matrix.target }}"
           echo "arch: ${{ matrix.arch }}"
           echo "build type: ${{ matrix.build_type }}"
