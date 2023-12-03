@@ -117,7 +117,7 @@ jobs:
 
           - target: windows
             arch: x86_32
-            cmake_arch_keyword: Win32
+            cmake_arch_keyword: x86
 
           - target: android
             arch: arm64
@@ -164,8 +164,10 @@ jobs:
           vulkan-use-cache: true
 
       - name: Set up MSVC Dev Cmd
-        if: matrix.os == 'windows-latest'
+        if: matrix.target == 'windows'
         uses: ilammy/msvc-dev-cmd@7315a94840631165970262a99c72cfb48a65d25d # v1.12.0
+        with:
+          arch: ${{ matrix.cmake_arch_keyword }}
 
       - name: Setup Android NDK
         id: android-ndk
@@ -205,8 +207,7 @@ jobs:
             mkdir build
           fi
           cd build
-          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
-            -A ${{ matrix.cmake_arch_keyword }}
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }}
 
       - name: Set up CMake for Android
         if: matrix.target == 'android'
