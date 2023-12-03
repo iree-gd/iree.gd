@@ -168,20 +168,13 @@ jobs:
         uses: ilammy/msvc-dev-cmd@7315a94840631165970262a99c72cfb48a65d25d # v1.12.0
 
       - name: Setup Android NDK
+        id: android-ndk
         if: matrix.target == 'android'
         uses: nttld/setup-ndk@v1.4.2
         with:
           ndk-version: r25c
 
       # Get Toolchains
-      - name: Get CMake Android Toolchain
-        if: matrix.target == 'android'
-        uses: GuillaumeFalourd/clone-github-repo-action@v2.2
-        with:
-          branch: master
-          owner: taka-no-me
-          repository: android-cmake
-
       - name: Get CMake IOS Toolchain
         if: matrix.target == 'ios'
         uses: GuillaumeFalourd/clone-github-repo-action@v2.2
@@ -224,7 +217,7 @@ jobs:
           fi
           cd build
           cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
-            -DCMAKE_TOOLCHAIN_FILE=../android-cmake/android.toolchain.cmake \
+            -DCMAKE_TOOLCHAIN_FILE="${{ steps.android-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=${{ matrix.cmake_arch_keyword }}
 
       - name: Set up CMake for MacOS
