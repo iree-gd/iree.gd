@@ -176,7 +176,26 @@ jobs:
         with:
           ndk-version: r25c
 
-      # Get Toolchains
+      - name: Prepare IREE host binaries
+        id: iree-host-bin
+        shell: bash
+        env:
+          IREE_BUILD_DIR: build_iree
+          IREE_HOST_BIN_DIR: iree_dist
+        run: |
+          if [ ! -d ${IREE_BUILD_DIR} ]; then
+            mkdir ${IREE_BUILD_DIR}
+          fi
+          cd ${IREE_BUILD_DIR}
+          cmake ../thirdparty/iree -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DIREE_BUILD_COMPILER=OFF \
+            -DIREE_BUILD_SAMPLES=OFF \
+            -DIREE_BUILD_BUNDLED_LLVM=OFF \
+            -DCMAKE_INSTALL_PREFIX="../${IREE_HOST_BIN_DIR}"
+          cmake --build .
+          cmake --build . --target install
+
       - name: Get CMake IOS Toolchain
         if: matrix.target == 'ios'
         uses: GuillaumeFalourd/clone-github-repo-action@v2.2
@@ -195,6 +214,7 @@ jobs:
           fi
           cd build
           cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DIREE_HOST_BIN_DIR="${{ steps.iree-host-bin.env.IREE_HOST_BIN_DIR }}" \
       #      -DCMAKE_CXX_FLAGS="${{ matrix.cxxflags }}" \
       #      -DCMAKE_C_COMPILER="${{ matrix.c_compiler }}" \
       #      -DCMAKE_CXX_COMPILER="${{ matrix.cxx_compiler }}"
@@ -207,7 +227,8 @@ jobs:
             mkdir build
           fi
           cd build
-          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }}
+          cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DIREE_HOST_BIN_DIR="${{ steps.iree-host-bin.env.IREE_HOST_BIN_DIR }}"
 
       - name: Set up CMake for Android
         if: matrix.target == 'android'
@@ -218,6 +239,7 @@ jobs:
           fi
           cd build
           cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DIREE_HOST_BIN_DIR="${{ steps.iree-host-bin.env.IREE_HOST_BIN_DIR }}" \
             -DCMAKE_TOOLCHAIN_FILE="${{ steps.android-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=${{ matrix.cmake_arch_keyword }}
 
@@ -230,6 +252,7 @@ jobs:
           fi
           cd build
           cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DIREE_HOST_BIN_DIR="${{ steps.iree-host-bin.env.IREE_HOST_BIN_DIR }}" \
             -DCMAKE_OSX_ARCHITECTURES="${{ matrix.cmake_arch_keyword }}"
 
       - name: Set up CMake for IOS
@@ -241,6 +264,7 @@ jobs:
           fi
           cd build
           cmake .. -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DIREE_HOST_BIN_DIR="${{ steps.iree-host-bin.env.IREE_HOST_BIN_DIR }}" \
             -DCMAKE_TOOLCHAIN_FILE=../ios-cmake/ios.toolchain.cmake \
             -DPLATFORM=${{ matrix.cmake_arch_keyword }}
 
