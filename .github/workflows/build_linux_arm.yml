@@ -73,6 +73,8 @@ jobs:
             -DIREE_BUILD_SAMPLES=OFF \
             -DIREE_BUILD_BUNDLED_LLVM=OFF \
             -DCMAKE_INSTALL_PREFIX="${IREE_HOST_BIN_DIR}"
+            -DLLVM_DIR="$(llvm-config -cmakedir)"
+            -DMLIR_DIR="$(llvm-config -cmakedir)"
           cmake --build .
           cmake --build . --target install
 
