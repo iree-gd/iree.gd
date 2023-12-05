@@ -36,12 +36,12 @@ jobs:
           # Define toolchain data.
           - target: windows
             arch: x86_64
-            cmake_arch_keyword: x64
+            cmake_arch_keyword: WIN64
             cmake_generator_keyword: Visual Studio 17 2022
 
           - target: windows
             arch: x86_32
-            cmake_arch_keyword: x86
+            cmake_arch_keyword: WIN32
             cmake_generator_keyword: Visual Studio 17 2022
 
     steps:
@@ -63,7 +63,8 @@ jobs:
             mkdir "${BUILD_DIR}"
           fi
           cd "${BUILD_DIR}"
-          cmake "${SOURCE_DIR}" -G "${{ matrix.cmake_generator_keyword }}" -A "${{ matrix.cmake_arch_keyword }}" -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}"
+          cmake "${SOURCE_DIR}" -G "${{ matrix.cmake_generator_keyword }}" -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
+            -DCMAKE_GENERATOR_PLATFORM="${{ matrix.cmake_arch_keyword }}"
 
       - name: Build project
         shell: bash
