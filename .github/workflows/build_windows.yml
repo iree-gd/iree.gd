@@ -36,7 +36,7 @@ jobs:
           # Define toolchain data.
           - target: windows
             arch: x86_64
-            cmake_arch_keyword: WIN64
+            cmake_arch_keyword: x64
             cmake_generator_keyword: Visual Studio 17 2022
 
           - target: windows
