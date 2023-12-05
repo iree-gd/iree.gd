@@ -66,8 +66,8 @@ jobs:
             mkdir "${BUILD_DIR}"
           fi
           cd "${BUILD_DIR}"
-          cmake "${SOURCE_DIR}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
-            -DCMAKE_GENERATOR_PLATFORM="${{ matrix.cmake_arch_keyword }}"
+          vcvarsall.bat ${{ matrix.cmake_arch_keyword }}
+          cmake "${SOURCE_DIR}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}"
 
       - name: Build project
         shell: bash
