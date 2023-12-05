@@ -7,6 +7,9 @@ on:
     branches: [main]
 
 env:
+  IREE_SOURCE_DIR: ${{ github.workspace }}/thirdparty/iree
+  IREE_BUILD_DIR: ${{ github.workspace }}/build_iree
+  IREE_HOST_BIN_DIR: ${{ github.workspace }}/iree_dist
   SOURCE_DIR: ${{ github.workspace }}
   BUILD_DIR: ${{ github.workspace }}/build
 
@@ -52,6 +55,21 @@ jobs:
           owner: leetal
           repository: ios-cmake
 
+      - name: Prepare IREE host binaries
+        shell: bash
+        run: |
+          if [ ! -d "${IREE_BUILD_DIR}" ]; then
+            mkdir "${IREE_BUILD_DIR}"
+          fi
+          cd "${IREE_BUILD_DIR}"
+          cmake "${IREE_SOURCE_DIR}" -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DIREE_BUILD_SAMPLES=OFF \
+            -DIREE_BUILD_BUNDLED_LLVM=OFF \
+            -DCMAKE_INSTALL_PREFIX="${IREE_HOST_BIN_DIR}"
+          cmake --build .
+          cmake --build . --target install
+
       # Setup CMake
       - name: Set up CMake for MacOS
         shell: bash
@@ -61,6 +79,7 @@ jobs:
           fi
           cd "${BUILD_DIR}"
           cmake "${SOURCE_DIR}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DIREE_HOST_BIN_DIR="${IREE_HOST_BIN_DIR}/bin" \
             -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/ios-cmake/ios.toolchain.cmake" \
             -DPLATFORM="${{ matrix.cmake_arch_keyword }}"
 
