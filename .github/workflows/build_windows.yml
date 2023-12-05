@@ -50,10 +50,10 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Set up MSVC Dev Cmd
-        uses: ilammy/msvc-dev-cmd@7315a94840631165970262a99c72cfb48a65d25d # v1.12.0
+      - name: setup-msbuild
+        uses: microsoft/setup-msbuild@v1.3.1
         with:
-          arch: ${{ matrix.cmake_arch_keyword }}
+          msbuild-architecture: ${{ matrix.cmake_arch_keyword }}
 
       # Setup CMake
       - name: Set up CMake for Windows
