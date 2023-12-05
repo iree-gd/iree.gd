@@ -7,6 +7,9 @@ on:
     branches: [main]
 
 env:
+  IREE_SOURCE_DIR: ${{ github.workspace }}/thirdparty/iree
+  IREE_BUILD_DIR: ${{ github.workspace }}/build_iree
+  IREE_HOST_BIN_DIR: ${{ github.workspace }}/iree_dist
   SOURCE_DIR: ${{ github.workspace }}
   BUILD_DIR: ${{ github.workspace }}/build
 
@@ -20,7 +23,6 @@ jobs:
         arch: [x86_64, x86_32]
         build_type: [release, debug]
         include:
-          - cmake_generator_keyword: Ninja
           # Build type to cmake keyword.
           - build_type: release
             cmake_build_type_keyword: Release
@@ -37,12 +39,10 @@ jobs:
           - target: windows
             arch: x86_64
             cmake_arch_keyword: x64
-            cmake_generator_keyword: Visual Studio 17 2022
 
           - target: windows
             arch: x86_32
             cmake_arch_keyword: WIN32
-            cmake_generator_keyword: Visual Studio 17 2022
 
     steps:
       - name: Check out code
@@ -50,10 +50,13 @@ jobs:
         with:
           submodules: recursive
 
-      - name: setup-msbuild
-        uses: microsoft/setup-msbuild@v1.3.1
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Set up MSVC Dev Cmd
+        uses: ilammy/msvc-dev-cmd@7315a94840631165970262a99c72cfb48a65d25d # v1.12.0
         with:
-          msbuild-architecture: ${{ matrix.cmake_arch_keyword }}
+          arch: ${{ matrix.cmake_arch_keyword }}
 
       # Setup CMake
       - name: Set up CMake for Windows
@@ -63,7 +66,7 @@ jobs:
             mkdir "${BUILD_DIR}"
           fi
           cd "${BUILD_DIR}"
-          cmake "${SOURCE_DIR}" -G "${{ matrix.cmake_generator_keyword }}" -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
+          cmake "${SOURCE_DIR}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
             -DCMAKE_GENERATOR_PLATFORM="${{ matrix.cmake_arch_keyword }}"
 
       - name: Build project
