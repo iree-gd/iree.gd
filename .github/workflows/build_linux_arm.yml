@@ -71,7 +71,6 @@ jobs:
           cmake --build . --target install
 
       - name: Prepare cross-compiler for Linux
-        if: ${{ (matrix.dependencies != "") }}
         run: |
           sudo apt update
           sudo apt -y install ${{ matrix.dependencies }}

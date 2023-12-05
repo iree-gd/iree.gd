@@ -58,11 +58,11 @@ jobs:
         with:
           arch: ${{ matrix.cmake_arch_keyword }}
 
+      # Setup CMake
       - name: Set up CMake Build Environment
         shell: cmd
         run: "${VCINSTALLDIR}\vcvarsall.bat" ${{ matrix.cmake_arch_keyword }}
 
-      # Setup CMake
       - name: Set up CMake for Windows
         shell: bash
         run: |
