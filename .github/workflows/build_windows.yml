@@ -63,7 +63,7 @@ jobs:
             mkdir "${BUILD_DIR}"
           fi
           cd "${BUILD_DIR}"
-          cmake "${SOURCE_DIR}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }}
+          cmake "${SOURCE_DIR}" -G Ninja -A "${{ matrix.cmake_arch_keyword }}" -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}"
 
       - name: Build project
         shell: bash
