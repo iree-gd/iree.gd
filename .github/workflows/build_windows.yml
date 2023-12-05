@@ -59,16 +59,12 @@ jobs:
           arch: ${{ matrix.cmake_arch_keyword }}
 
       # Setup CMake
-      - name: Set up CMake Build Environment
-        run: "${VCINSTALLDIR}\\vcvarsall.bat" ${{ matrix.cmake_arch_keyword }}
-
       - name: Set up CMake for Windows
-        shell: bash
+        shell: cmd
         run: |
-          if [ ! -d "${BUILD_DIR}" ]; then
-            mkdir "${BUILD_DIR}"
-          fi
+          if not exist "${BUILD_DIR}" mkdir "${BUILD_DIR}"
           cd "${BUILD_DIR}"
+          "${VCINSTALLDIR}\\vcvarsall.bat" "${{ matrix.cmake_arch_keyword }}"
           cmake "${SOURCE_DIR}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}"
 
       - name: Build project
