@@ -55,6 +55,12 @@ jobs:
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@master
 
+      - name: Install MLIR libraries
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install mlir-14-tools libmlir-14-dev
+
       - name: Prepare IREE host binaries
         shell: bash
         run: |
