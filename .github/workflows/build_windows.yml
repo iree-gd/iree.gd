@@ -20,6 +20,7 @@ jobs:
         arch: [x86_64, x86_32]
         build_type: [release, debug]
         include:
+          - cmake_generator_keyword: Ninja
           # Build type to cmake keyword.
           - build_type: release
             cmake_build_type_keyword: Release
@@ -36,21 +37,19 @@ jobs:
           - target: windows
             arch: x86_64
             cmake_arch_keyword: x64
+            cmake_generator_keyword: Visual Studio 16 2019
 
           - target: windows
             arch: x86_32
             cmake_arch_keyword: x86
+            cmake_generator_keyword: Visual Studio 16 2019
     steps:
       - name: Check out code
         uses: actions/checkout@v2
         with:
           submodules: recursive
 
-      - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@master
-
       - name: Set up MSVC Dev Cmd
-        if: matrix.target == 'windows'
         uses: ilammy/msvc-dev-cmd@7315a94840631165970262a99c72cfb48a65d25d # v1.12.0
         with:
           arch: ${{ matrix.cmake_arch_keyword }}
@@ -63,11 +62,11 @@ jobs:
             mkdir "${BUILD_DIR}"
           fi
           cd "${BUILD_DIR}"
-          cmake "${SOURCE_DIR}" -G Ninja -A "${{ matrix.cmake_arch_keyword }}" -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}"
+          cmake "${SOURCE_DIR}" -G "${{ matrix.cmake_generator_keyword }}" -A "${{ matrix.cmake_arch_keyword }}" -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}"
 
       - name: Build project
         shell: bash
-        run: ninja -C "${BUILD_DIR}"
+        run: cmake --build "${BUILD_DIR}"
 
       - name: Export artifact
         uses: actions/upload-artifact@v2
