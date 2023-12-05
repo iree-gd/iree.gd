@@ -1,0 +1,81 @@
+name: Build and Export Artifact for Linux
+
+on:
+  push:
+    branches: [main, build-workflow] # Remember to remove
+  pull_request:
+    branches: [main]
+
+env:
+  SOURCE_DIR: ${{ github.workspace }}
+  BUILD_DIR: ${{ github.workspace }}/build
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        target: [linux]
+        arch: [x86_64, x86_32]
+        build_type: [release, debug]
+        include:
+          # Build type to cmake keyword.
+          - build_type: release
+            cmake_build_type_keyword: Release
+
+          - build_type: debug
+            cmake_build_type_keyword: RelWithDebInfo
+
+          # Define host for each target.
+          - os: ubuntu-latest
+            target: linux
+            lib_suffix: so
+
+          # Define toolchain data.
+          - target: linux
+            arch: x86_64
+            dependencies: ""
+            cxxflags: -m64
+
+          - target: linux
+            arch: x86_32
+            dependencies: ""
+            cxxflags: -m32
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Prepare Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: 1.3.204.0
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
+
+      # Setup CMake
+      - name: Set up CMake for Linux
+        shell: bash
+        run: |
+          if [ ! -d "${BUILD_DIR}" ]; then
+            mkdir "${BUILD_DIR}"
+          fi
+          cd "${BUILD_DIR}"
+          cmake "${SOURCE_DIR}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
+            -DCMAKE_CXX_FLAGS="${{ matrix.cxxflags }}"
+
+      - name: Build project
+        shell: bash
+        run: ninja -C "${BUILD_DIR}"
+
+      - name: Export artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: "libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
+          path: "${BUILD_DIR}/lib/libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"

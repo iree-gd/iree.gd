@@ -1,0 +1,109 @@
+name: Build and Export Artifact for Linux ARM
+
+on:
+  push:
+    branches: [main, build-workflow] # Remember to remove
+  pull_request:
+    branches: [main]
+
+env:
+  IREE_SOURCE_DIR: ${{ github.workspace }}/thirdparty/iree
+  IREE_BUILD_DIR: ${{ github.workspace }}/build_iree
+  IREE_HOST_BIN_DIR: ${{ github.workspace }}/iree_dist
+  SOURCE_DIR: ${{ github.workspace }}
+  BUILD_DIR: ${{ github.workspace }}/build
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        target: [linux]
+        arch: [arm64, arm32]
+        build_type: [release, debug]
+        include:
+          # Build type to cmake keyword.
+          - build_type: release
+            cmake_build_type_keyword: Release
+
+          - build_type: debug
+            cmake_build_type_keyword: RelWithDebInfo
+
+          # Define host for each target.
+          - os: ubuntu-latest
+            target: linux
+            lib_suffix: so
+
+          # Define toolchain data.
+          - target: linux
+            arch: arm64
+            dependencies: gcc-aarch64-linux-gnu
+            cmake_toolchain_path: ${{ github.workspace }}/cmake/linux_arm64.toolchain.cmake
+
+          - target: linux
+            arch: arm32
+            dependencies: gcc-arm-linux-gnueabihf binutils-arm-linux-gnueabihf g++-arm-linux-gnueabihf
+            cmake_toolchain_path: ${{ github.workspace }}/cmake/linux_arm32.toolchain.cmake
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Prepare IREE host binaries
+        shell: bash
+        run: |
+          if [ ! -d "${IREE_BUILD_DIR}" ]; then
+            mkdir "${IREE_BUILD_DIR}"
+          fi
+          cd "${IREE_BUILD_DIR}"
+          cmake "${IREE_SOURCE_DIR}" -G Ninja \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DIREE_BUILD_SAMPLES=OFF \
+            -DIREE_BUILD_BUNDLED_LLVM=OFF \
+            -DCMAKE_INSTALL_PREFIX="${IREE_HOST_BIN_DIR}"
+          cmake --build .
+          cmake --build . --target install
+
+      - name: Prepare cross-compiler for Linux
+        if: ${{ (matrix.dependencies != "") }}
+        run: |
+          sudo apt update
+          sudo apt -y install ${{ matrix.dependencies }}
+
+      # TODO: Write stupid toolchain for each damn architecture
+      # Find all the damn dependencies for that architecture
+
+      - name: Prepare Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: 1.3.204.0
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
+
+      # Setup CMake
+      - name: Set up CMake for Linux
+        shell: bash
+        run: |
+          if [ ! -d "${BUILD_DIR}" ]; then
+            mkdir "${BUILD_DIR}"
+          fi
+          cd "${BUILD_DIR}"
+          cmake "${SOURCE_DIR}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
+            -DIREE_HOST_BIN_DIR="${IREE_HOST_BIN_DIR}/bin" \
+            -DCMAKE_TOOLCHAIN_FILE="${{ matrix.cmake_toolchain_file }}"
+
+      - name: Build project
+        shell: bash
+        run: ninja -C "${BUILD_DIR}"
+
+      - name: Export artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: "libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
+          path: "${BUILD_DIR}/lib/libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
