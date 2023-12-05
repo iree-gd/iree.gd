@@ -66,6 +66,7 @@ jobs:
           cmake "${SOURCE_DIR}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }}
 
       - name: Build project
+        shell: bash
         run: ninja -C "${BUILD_DIR}"
 
       - name: Export artifact
