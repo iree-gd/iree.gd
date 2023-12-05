@@ -62,10 +62,10 @@ jobs:
       - name: Set up CMake for Windows
         shell: cmd
         run: |
-          if not exist "${BUILD_DIR}" mkdir "${BUILD_DIR}"
-          cd "${BUILD_DIR}"
-          "${VCINSTALLDIR}\\vcvarsall.bat" "${{ matrix.cmake_arch_keyword }}"
-          cmake "${SOURCE_DIR}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}"
+          if not exist "%BUILD_DIR%" mkdir "%BUILD_DIR%"
+          cd "%BUILD_DIR%"
+          "%VCINSTALLDIR%\\vcvarsall.bat" "${{ matrix.cmake_arch_keyword }}"
+          cmake "%SOURCE_DIR%" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}"
 
       - name: Build project
         shell: bash
