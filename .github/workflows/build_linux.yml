@@ -59,6 +59,12 @@ jobs:
           vulkan-components: Vulkan-Headers, Vulkan-Loader
           vulkan-use-cache: true
 
+      - name: Setup Multilib for 32-bit
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install gcc-multilib g++-multilib
+
       # Setup CMake
       - name: Set up CMake for Linux
         shell: bash

@@ -60,7 +60,6 @@ jobs:
 
       # Setup CMake
       - name: Set up CMake Build Environment
-        shell: cmd
         run: "${VCINSTALLDIR}\vcvarsall.bat" ${{ matrix.cmake_arch_keyword }}
 
       - name: Set up CMake for Windows
