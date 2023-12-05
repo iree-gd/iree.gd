@@ -1,0 +1,75 @@
+name: Build and Export Artifact For Windows
+
+on:
+  push:
+    branches: [main, build-workflow] # Remember to remove
+  pull_request:
+    branches: [main]
+
+env:
+  SOURCE_DIR: ${{ github.workspace }}
+  BUILD_DIR: ${{ github.workspace }}/build
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        target: [windows]
+        arch: [x86_64, x86_32]
+        build_type: [release, debug]
+        include:
+          # Build type to cmake keyword.
+          - build_type: release
+            cmake_build_type_keyword: Release
+
+          - build_type: debug
+            cmake_build_type_keyword: RelWithDebInfo
+
+          # Define host for each target.
+          - os: windows-latest
+            target: windows
+            lib_suffix: dll
+
+          # Define toolchain data.
+          - target: windows
+            arch: x86_64
+            cmake_arch_keyword: x64
+
+          - target: windows
+            arch: x86_32
+            cmake_arch_keyword: x86
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Set up MSVC Dev Cmd
+        if: matrix.target == 'windows'
+        uses: ilammy/msvc-dev-cmd@7315a94840631165970262a99c72cfb48a65d25d # v1.12.0
+        with:
+          arch: ${{ matrix.cmake_arch_keyword }}
+
+      # Setup CMake
+      - name: Set up CMake for Windows
+        shell: bash
+        run: |
+          if [ ! -d "${BUILD_DIR}" ]; then
+            mkdir "${BUILD_DIR}"
+          fi
+          cd "${BUILD_DIR}"
+          cmake "${SOURCE_DIR}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }}
+
+      - name: Build project
+        run: ninja -C "${BUILD_DIR}"
+
+      - name: Export artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: "libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
+          path: "${BUILD_DIR}/lib/libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
