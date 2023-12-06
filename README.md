@@ -8,9 +8,9 @@
 
 | Platform                         | HAL Backend used |
 | -------------------------------- | ---------------- |
-| Apple products (macOS, IOS)      | `metal`          |
+| Apple products (macOS)           | `metal`          |
 | Desktops (Windows, Linux, \*BSD) | `vulkan`         |
-| The rest (Android, Web)          | `vmvx`           |
+| The rest (Android)               | `vmvx`           |
 
 ## Overview
 
