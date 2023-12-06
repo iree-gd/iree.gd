@@ -10,7 +10,7 @@
 #if defined(__APPLE__)
 #include <iree/hal/drivers/metal/registration/driver_module.h>
 #include <iree/hal/drivers/metal/api.h>
-#elif defined(_WIN32) || defined(BSD) || defined(__linux__)
+#elif defined(_WIN32) || defined(BSD) || (defined(__linux__) && !defined(__ANDROID__))
 #include <iree/hal/drivers/vulkan/registration/driver_module.h>
 #include <iree/hal/drivers/vulkan/api.h>
 #else
