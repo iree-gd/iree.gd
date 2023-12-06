@@ -2,7 +2,7 @@ name: Build and Export Artifact for Linux ARM
 
 on:
   push:
-    branches: [main, build-workflow] # Remember to remove
+    branches: [main]
   pull_request:
     branches: [main]
 
