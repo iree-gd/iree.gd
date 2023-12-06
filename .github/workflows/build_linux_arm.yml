@@ -57,6 +57,10 @@ jobs:
           filename: iree-dist-*-linux-x86_64.tar.xz
           extract: true
 
+      - name: Extract IREE Host tools
+        shell: bash
+        run: tar -xf ${{ fromJson(steps.iree-dist.outputs.downloaded_files)[0] }} -C ${{ github.workspace }}/iree-dist
+
       - name: Prepare cross-compiler for Linux
         run: |
           sudo apt update
@@ -78,7 +82,7 @@ jobs:
           fi
           cd "${{ github.workspace }}/build"
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
-            -DIREE_HOST_BIN_DIR="${{ fromJson(steps.iree-dist.outputs.downloaded_files)[0] }}/bin" \
+            -DIREE_HOST_BIN_DIR="${{ github.workspace }}/iree-dist/bin" \
             -DCMAKE_TOOLCHAIN_FILE="${{ matrix.cmake_toolchain_file }}"
 
       - name: Build project
