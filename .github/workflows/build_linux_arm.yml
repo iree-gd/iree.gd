@@ -63,7 +63,7 @@ jobs:
           if [ ! -d "${{ github.workspace }}/iree-dist" ]; then
             mkdir "${{ github.workspace }}/iree-dist"
           fi
-          tar -xf "${{ fromJson(steps.iree-dist.outputs.downloaded_files)[0] }}" -C "${{ github.workspace }}/iree-dist" --strip-components 1
+          tar -xf "${{ fromJson(steps.iree-dist.outputs.downloaded_files)[0] }}" -C "${{ github.workspace }}/iree-dist"
 
       - name: Prepare cross-compiler for Linux
         run: |
