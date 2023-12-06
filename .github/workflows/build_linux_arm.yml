@@ -59,7 +59,11 @@ jobs:
 
       - name: Extract IREE Host tools
         shell: bash
-        run: tar -xf ${{ fromJson(steps.iree-dist.outputs.downloaded_files)[0] }} -C ${{ github.workspace }}/iree-dist
+        run: |
+          if [ ! -d "${{ github.workspace }}/iree-dist" ]; then
+            mkdir "${{ github.workspace }}/iree-dist"
+          fi
+          tar -xf "${{ fromJson(steps.iree-dist.outputs.downloaded_files)[0] }}" -C "${{ github.workspace }}/iree-dist" --strip-components 1
 
       - name: Prepare cross-compiler for Linux
         run: |
