@@ -63,4 +63,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: "libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
-          path: "${{ github.workspace }}/build/lib/libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
+          path: "${{ github.workspace }}\\build\\lib\\libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
