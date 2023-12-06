@@ -6,13 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  IREE_SOURCE_DIR: ${{ github.workspace }}/thirdparty/iree
-  IREE_BUILD_DIR: ${{ github.workspace }}/build_iree
-  IREE_HOST_BIN_DIR: ${{ github.workspace }}/iree_dist
-  SOURCE_DIR: ${{ github.workspace }}
-  BUILD_DIR: ${{ github.workspace }}/build
-
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -58,16 +51,16 @@ jobs:
       - name: Set up CMake for Windows
         shell: cmd
         run: |
-          if not exist "%BUILD_DIR%" mkdir "%BUILD_DIR%"
-          cd "%BUILD_DIR%"
-          cmake "%SOURCE_DIR%" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}"
+          if not exist "${{ github.workspace }}\\build" mkdir "${{ github.workspace }}\\build"
+          cd "${{ github.workspace }}\\build"
+          cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}"
 
       - name: Build project
         shell: bash
-        run: cmake --build "${BUILD_DIR}"
+        run: cmake --build "${{ github.workspace }}/build"
 
       - name: Export artifact
         uses: actions/upload-artifact@v2
         with:
           name: "libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
-          path: "${BUILD_DIR}/lib/libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
+          path: "${{ github.workspace }}/build/lib/libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"

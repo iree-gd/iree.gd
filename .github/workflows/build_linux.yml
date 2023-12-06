@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  SOURCE_DIR: ${{ github.workspace }}
-  BUILD_DIR: ${{ github.workspace }}/build
-
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -58,19 +54,19 @@ jobs:
       - name: Set up CMake for Linux
         shell: bash
         run: |
-          if [ ! -d "${BUILD_DIR}" ]; then
-            mkdir "${BUILD_DIR}"
+          if [ ! -d "${{ github.workspace }}/build" ]; then
+            mkdir "${{ github.workspace }}/build"
           fi
-          cd "${BUILD_DIR}"
-          cmake "${SOURCE_DIR}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
+          cd "${{ github.workspace }}/build"
+          cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
             -DCMAKE_CXX_FLAGS="${{ matrix.cxxflags }}"
 
       - name: Build project
         shell: bash
-        run: ninja -C "${BUILD_DIR}"
+        run: ninja -C "${{ github.workspace }}/build"
 
       - name: Export artifact
         uses: actions/upload-artifact@v2
         with:
           name: "libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
-          path: "${BUILD_DIR}/lib/libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
+          path: "${{ github.workspace }}/build/lib/libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
