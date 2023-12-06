@@ -55,6 +55,10 @@ jobs:
           owner: leetal
           repository: ios-cmake
 
+      - name: Install LLVM
+        shell: bash
+        run: brew install llvm
+
       - name: Prepare IREE host binaries
         shell: bash
         run: |
