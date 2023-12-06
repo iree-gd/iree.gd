@@ -59,8 +59,7 @@ jobs:
         shell: bash
         run: |
           brew install llvm
-          echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
-          export PATH="/usr/local/opt/llvm/bin:$PATH"
+          echo '/usr/local/opt/llvm/bin' >> $GITHUB_PATH
 
       - name: Prepare IREE host binaries
         shell: bash
