@@ -7,9 +7,6 @@ on:
     branches: [main]
 
 env:
-  IREE_SOURCE_DIR: ${{ github.workspace }}/thirdparty/iree
-  IREE_BUILD_DIR: ${{ github.workspace }}/build_iree
-  IREE_HOST_BIN_DIR: ${{ github.workspace }}/iree_dist
   SOURCE_DIR: ${{ github.workspace }}
   BUILD_DIR: ${{ github.workspace }}/build
 
@@ -55,34 +52,19 @@ jobs:
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@master
 
-      - name: Install MLIR libraries
-        shell: bash
-        run: |
-          sudo apt update
-          sudo apt install mlir-14-tools libmlir-14-dev
-
-      - name: Prepare IREE host binaries
-        shell: bash
-        run: |
-          if [ ! -d "${IREE_BUILD_DIR}" ]; then
-            mkdir "${IREE_BUILD_DIR}"
-          fi
-          cd "${IREE_BUILD_DIR}"
-          cmake "${IREE_SOURCE_DIR}" -G Ninja \
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DIREE_BUILD_SAMPLES=OFF \
-            -DIREE_BUILD_BUNDLED_LLVM=ON \
-            -DCMAKE_INSTALL_PREFIX="${IREE_HOST_BIN_DIR}"
-          cmake --build .
-          cmake --build . --target install
-
+        - name: Download IREE Host tools
+          id: iree-dist
+          uses: robinraju/release-downloader@v1.8
+          with:
+            repository: openxla/iree
+            latest: true
+            filename: iree-dist-*-linux-x86_64.tar.xz
+            extract: true
+      
       - name: Prepare cross-compiler for Linux
         run: |
           sudo apt update
           sudo apt -y install ${{ matrix.dependencies }}
-
-      # TODO: Write stupid toolchain for each damn architecture
-      # Find all the damn dependencies for that architecture
 
       - name: Prepare Vulkan SDK
         uses: humbletim/setup-vulkan-sdk@v1.2.0
@@ -100,7 +82,7 @@ jobs:
           fi
           cd "${BUILD_DIR}"
           cmake "${SOURCE_DIR}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
-            -DIREE_HOST_BIN_DIR="${IREE_HOST_BIN_DIR}/bin" \
+            -DIREE_HOST_BIN_DIR="${{ fromJson(steps.iree-dist.outputs.downloaded_files)[0] }}/bin" \
             -DCMAKE_TOOLCHAIN_FILE="${{ matrix.cmake_toolchain_file }}"
 
       - name: Build project
