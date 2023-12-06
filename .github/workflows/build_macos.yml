@@ -57,7 +57,10 @@ jobs:
 
       - name: Install LLVM
         shell: bash
-        run: brew install llvm
+        run: |
+          brew install llvm
+          echo 'export PATH="/usr/local/opt/llvm/bin:$PATH"' >> /Users/runner/.bash_profile
+          export PATH="/usr/local/opt/llvm/bin:$PATH"
 
       - name: Prepare IREE host binaries
         shell: bash
@@ -95,6 +98,6 @@ jobs:
       - name: Export artifact
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ matrix.target }}_lib"
+          name: "${{ matrix.target }}_${{ matrix.arch }}_lib"
           path: "${{ github.workspace }}/build/lib/*"
           if-no-files-found: error
