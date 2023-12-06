@@ -30,7 +30,7 @@ jobs:
           # Define toolchain data.
           - target: linux
             arch: arm64
-            dependencies: gcc-aarch64-linux-gnu
+            dependencies: gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu g++-aarch64-linux-gnu
             cmake_toolchain_file: linux_arm64.toolchain.cmake
 
           - target: linux
