@@ -2,7 +2,7 @@ name: Build and Export Artifact For Android
 
 on:
   push:
-    branches: [main, build-workflow] # Remember to remove
+    branches: [main]
   pull_request:
     branches: [main]
 
