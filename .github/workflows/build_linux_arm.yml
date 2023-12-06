@@ -48,15 +48,15 @@ jobs:
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@master
 
-        - name: Download IREE Host tools
-          id: iree-dist
-          uses: robinraju/release-downloader@v1.8
-          with:
-            repository: openxla/iree
-            latest: true
-            filename: iree-dist-*-linux-x86_64.tar.xz
-            extract: true
-      
+      - name: Download IREE Host tools
+        id: iree-dist
+        uses: robinraju/release-downloader@v1.8
+        with:
+          repository: openxla/iree
+          latest: true
+          filename: iree-dist-*-linux-x86_64.tar.xz
+          extract: true
+
       - name: Prepare cross-compiler for Linux
         run: |
           sudo apt update
