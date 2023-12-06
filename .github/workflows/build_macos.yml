@@ -58,7 +58,7 @@ jobs:
       - name: Install LLVM
         shell: bash
         run: |
-          brew install llvm
+          brew install --HEAD llvm
           echo '/usr/local/opt/llvm/bin' >> $GITHUB_PATH
 
       - name: Prepare IREE host binaries
