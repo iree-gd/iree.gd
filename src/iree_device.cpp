@@ -117,7 +117,7 @@ Error IREEDevice::capture(iree_vm_instance_t* p_instance) {
     return error;
 
 // Vulkan (Windows, Linux, *BSD)
-#elif defined(_WIN32) || defined(BSD) || defined(__linux__)
+#elif defined(_WIN32) || defined(BSD) || (defined(__linux__) && !defined(__ANDROID__))
     Error error = OK;
     iree_status_t iree_status = iree_ok_status();
     iree_hal_device_t* new_hal_device = nullptr;
