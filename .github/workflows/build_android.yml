@@ -1,10 +1,9 @@
-name: Build and Export Artifact For Android
+name: Build For Android
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - "main"
 
 jobs:
   build:

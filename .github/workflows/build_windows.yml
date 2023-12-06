@@ -1,10 +1,9 @@
-name: Build and Export Artifact For Windows
+name: Build For Windows
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - "main"
 
 jobs:
   build:

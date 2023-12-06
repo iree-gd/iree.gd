@@ -1,0 +1,45 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ${{ github.workspace }}/sample/extensions/iree-gd
+
+      - name: Copy Files
+        shell: bash
+        run: |
+          cp ${{ github.workspace }}/CHANGELOG.md ${{ github.workspace }}/sample/extensions/iree-gd
+          cp ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/extensions/iree-gd
+          cp ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/extensions/iree-gd
+
+      - name: Install zip utilities
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install zip
+
+      - name: Pack
+        shell: bash
+        run: |
+          zip -r "${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip" ${{ github.workspace }}/sample/extensions/iree-gd
+          zip -r "${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip" ${{ github.workspace }}/sample
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: ${{ github.workspace }}/CHANGELOG.md
+          files: |
+            ${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip
+            ${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip

@@ -1,10 +1,9 @@
-name: Build and Export Artifact for Mac OS
+name: Build For Mac OS
 
 on:
   push:
-    branches: [main, build-workflow] # Remember to remove
-  pull_request:
-    branches: [main]
+    branches:
+      - "main"
 
 jobs:
   build:

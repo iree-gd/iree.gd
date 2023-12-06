@@ -1,10 +1,9 @@
-name: Build and Export Artifact for Linux ARM
+name: Build For Linux ARM
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches:
+      - "main"
 
 jobs:
   build:
@@ -87,7 +86,7 @@ jobs:
           cd "${{ github.workspace }}/build"
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
             -DIREE_HOST_BIN_DIR="${{ github.workspace }}/iree-dist/bin" \
-            -DCMAKE_TOOLCHAIN_FILE="${{ matrix.cmake_toolchain_file }}"
+            -DCMAKE_TOOLCHAIN_FILE="${{ matrix.cmake_toolchain_path }}"
 
       - name: Build project
         shell: bash
