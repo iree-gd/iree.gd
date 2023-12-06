@@ -45,16 +45,16 @@ jobs:
       - name: Set up CMake for MacOS
         shell: bash
         run: |
-          if [ ! -d "${BUILD_DIR}" ]; then
-            mkdir "${BUILD_DIR}"
+          if [ ! -d "${{ github.workspace }}/build" ]; then
+            mkdir "${{ github.workspace }}/build"
           fi
-          cd "${BUILD_DIR}"
-          cmake "${SOURCE_DIR}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+          cd "${{ github.workspace }}/build"
+          cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
             -DPLATFORM="${{ matrix.cmake_arch_keyword }}"
 
       - name: Build project
         shell: bash
-        run: ninja -C "${BUILD_DIR}"
+        run: ninja -C "${{ github.workspace }}/build"
 
       - name: Export artifact
         uses: actions/upload-artifact@v2
