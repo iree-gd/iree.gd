@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         target: [linux]
-        arch: [x86_64, x86_32]
+        arch: [x86_64]
         build_type: [release, debug]
         include:
           # Build type to cmake keyword.
@@ -38,11 +38,6 @@ jobs:
             dependencies: ""
             cxxflags: -m64
 
-          - target: linux
-            arch: x86_32
-            dependencies: ""
-            cxxflags: -m32
-
     steps:
       - name: Check out code
         uses: actions/checkout@v2
@@ -58,12 +53,6 @@ jobs:
           vulkan-query-version: 1.3.204.0
           vulkan-components: Vulkan-Headers, Vulkan-Loader
           vulkan-use-cache: true
-
-      - name: Setup Multilib for 32-bit
-        shell: bash
-        run: |
-          sudo apt update
-          sudo apt install gcc-multilib g++-multilib
 
       # Setup CMake
       - name: Set up CMake for Linux
