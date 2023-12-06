@@ -1,0 +1,94 @@
+name: Build and Export Artifact For Android
+
+on:
+  push:
+    branches: [main, build-workflow] # Remember to remove
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        target: [android]
+        arch: [x86_64, arm64]
+        build_type: [release, debug]
+        include:
+          # Build type to cmake keyword.
+          - build_type: release
+            cmake_build_type_keyword: Release
+
+          - build_type: debug
+            cmake_build_type_keyword: RelWithDebInfo
+
+          # Define host for each target.
+          - os: ubuntu-latest
+            target: android
+            lib_suffix: so
+
+          # Define toolchain data.
+          - target: android
+            arch: arm64
+            cmake_arch_keyword: arm64-v8a
+
+          - target: android
+            arch: x86_64
+            cmake_arch_keyword: x86_64
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Download IREE Host tools
+        id: iree-dist
+        uses: robinraju/release-downloader@v1.8
+        with:
+          repository: openxla/iree
+          latest: true
+          filename: iree-dist-*-linux-x86_64.tar.xz
+          extract: true
+
+      - name: Extract IREE Host tools
+        shell: bash
+        run: |
+          if [ ! -d "${{ github.workspace }}/iree-dist" ]; then
+            mkdir "${{ github.workspace }}/iree-dist"
+          fi
+          tar -xf "${{ fromJson(steps.iree-dist.outputs.downloaded_files)[0] }}" -C "${{ github.workspace }}/iree-dist"
+
+      - name: Setup Android NDK
+        id: android-ndk
+        uses: nttld/setup-ndk@v1.4.2
+        with:
+          ndk-version: r25c
+
+      - name: Set up CMake for Android
+        if: matrix.target == 'android'
+        shell: bash
+        run: |
+          if [ ! -d "${{ github.workspace }}/build" ]; then
+            mkdir "${{ github.workspace }}/build"
+          fi
+          cd "${{ github.workspace }}/build"
+          cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DIREE_HOST_BIN_DIR="${{ github.workspace }}/iree-dist/bin" \
+            -DCMAKE_TOOLCHAIN_FILE="${{ steps.android-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=${{ matrix.cmake_arch_keyword }}
+
+      - name: Build project
+        shell: bash
+        run: ninja -C "${{ github.workspace }}/build"
+
+      - name: Export artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: "libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
+          path: "${{ github.workspace }}/build/lib/*"
+          if-no-files-found: error
