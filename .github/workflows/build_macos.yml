@@ -30,7 +30,7 @@ jobs:
           - build_type: debug
             cmake_build_type_keyword: RelWithDebInfo
 
-          - os: macos-2022
+          - os: macos-latest
             target: macos
             lib_suffix: dylib
 
@@ -66,7 +66,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DIREE_BUILD_SAMPLES=OFF \
             -DIREE_BUILD_BUNDLED_LLVM=OFF \
-            -DLLVM_DIR="$(brew --prefix llvm)/14.0.0/lib/cmake" \
+            -DLLVM_DIR="$(llvm-config -cmakedir)" \
             -DCMAKE_INSTALL_PREFIX="${IREE_HOST_BIN_DIR}"
           cmake --build .
           cmake --build . --target install
