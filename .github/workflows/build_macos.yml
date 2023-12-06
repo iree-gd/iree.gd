@@ -72,7 +72,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DIREE_BUILD_SAMPLES=OFF \
             -DIREE_BUILD_BUNDLED_LLVM=OFF \
-            -DLLVM_DIR="$(llvm-config -cmakedir)" \
+            -DLLVM_DIR="$(llvm-config --cmakedir)" \
             -DCMAKE_INSTALL_PREFIX="${IREE_HOST_BIN_DIR}"
           cmake --build .
           cmake --build . --target install
