@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         target: [windows]
-        arch: [x86_64, x86_32]
+        arch: [x86_64]
         build_type: [release, debug]
         include:
           # Build type to cmake keyword.
@@ -31,7 +31,7 @@ jobs:
             cmake_build_type_keyword: RelWithDebInfo
 
           # Define host for each target.
-          - os: windows-2022
+          - os: windows-latest
             target: windows
             lib_suffix: dll
 
@@ -39,10 +39,6 @@ jobs:
           - target: windows
             arch: x86_64
             cmake_arch_keyword: x64
-
-          - target: windows
-            arch: x86_32
-            cmake_arch_keyword: WIN32
 
     steps:
       - name: Check out code
@@ -64,7 +60,6 @@ jobs:
         run: |
           if not exist "%BUILD_DIR%" mkdir "%BUILD_DIR%"
           cd "%BUILD_DIR%"
-          "%VCINSTALLDIR%\\vcvarsall.bat" "${{ matrix.cmake_arch_keyword }}"
           cmake "%SOURCE_DIR%" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}"
 
       - name: Build project
