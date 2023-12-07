@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "main"
+      - "*-workflow"
 
 jobs:
   build:
@@ -49,10 +50,10 @@ jobs:
         id: iree-dist
         uses: robinraju/release-downloader@v1.8
         with:
+          filename: iree-dist-*-linux-x86_64.tar.xz
           repository: openxla/iree
           latest: true
-          filename: iree-dist-*-linux-x86_64.tar.xz
-          extract: true
+          extract: false
 
       - name: Extract IREE Host tools
         shell: bash

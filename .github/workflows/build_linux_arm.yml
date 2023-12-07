@@ -2,6 +2,9 @@ name: Build For Linux ARM
 
 on:
   push:
+    branches:
+      - "main"
+      - "*-workflow"
 
 jobs:
   build:
