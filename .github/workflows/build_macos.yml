@@ -54,7 +54,7 @@ jobs:
           fi
           cd "${{ github.workspace }}/build"
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
-            -DPLATFORM="${{ matrix.cmake_arch_keyword }}"
+            -CMAKE_OSX_ARCHITECTURES="${{ matrix.cmake_arch_keyword }}"
 
       - name: Build project
         shell: bash
