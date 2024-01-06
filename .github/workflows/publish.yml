@@ -19,6 +19,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
+          pattern: "libiree-gd*"
           path: ${{ github.workspace }}/sample/extensions/iree-gd
 
       - name: Copy Files
@@ -37,8 +38,8 @@ jobs:
       - name: Pack
         shell: bash
         run: |
-          zip -r "${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip" ${{ github.workspace }}/sample/extensions/iree-gd
-          zip -r "${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip" ${{ github.workspace }}/sample
+          zip -r "${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip" ${{ github.workspace }}/sample/extensions/iree-gd --junk-paths
+          zip -r "${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip" ${{ github.workspace }}/sample --junk-paths
 
       - name: Release
         uses: softprops/action-gh-release@v1
