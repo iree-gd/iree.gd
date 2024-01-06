@@ -16,10 +16,39 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
+      - name: Download artifacts from Linux workflow
+        uses: dawidd6/action-download-artifact@v3
         with:
-          pattern: "libiree-gd*"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build_linux.yml
+          path: ${{ github.workspace }}/sample/extensions/iree-gd
+
+      - name: Download artifacts from Windows workflow
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build_windows.yml
+          path: ${{ github.workspace }}/sample/extensions/iree-gd
+
+      - name: Download artifacts from MacOS workflow
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build_macos.yml
+          path: ${{ github.workspace }}/sample/extensions/iree-gd
+
+      - name: Download artifacts from Android workflow
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build_android.yml
+          path: ${{ github.workspace }}/sample/extensions/iree-gd
+
+      - name: Download artifacts from Linux ARM workflow
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build_linux_arm.yml
           path: ${{ github.workspace }}/sample/extensions/iree-gd
 
       - name: Copy Files
