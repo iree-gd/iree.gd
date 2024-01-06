@@ -5,6 +5,10 @@ on:
     tags:
       - "v*.*.*"
 
+permissions:
+  contents: read
+  deployments: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -12,9 +16,39 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
+      - name: Download artifacts from Linux workflow
+        uses: dawidd6/action-download-artifact@v3
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build_linux.yml
+          path: ${{ github.workspace }}/sample/extensions/iree-gd
+
+      - name: Download artifacts from Windows workflow
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build_windows.yml
+          path: ${{ github.workspace }}/sample/extensions/iree-gd
+
+      - name: Download artifacts from MacOS workflow
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build_macos.yml
+          path: ${{ github.workspace }}/sample/extensions/iree-gd
+
+      - name: Download artifacts from Android workflow
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build_android.yml
+          path: ${{ github.workspace }}/sample/extensions/iree-gd
+
+      - name: Download artifacts from Linux ARM workflow
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build_linux_arm.yml
           path: ${{ github.workspace }}/sample/extensions/iree-gd
 
       - name: Copy Files
@@ -33,13 +67,16 @@ jobs:
       - name: Pack
         shell: bash
         run: |
-          zip -r "${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip" ${{ github.workspace }}/sample/extensions/iree-gd
-          zip -r "${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip" ${{ github.workspace }}/sample
+          cd "${{ github.workspace }}/sample/extensions"
+          zip -r "${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip" iree-gd
+          cd "${{ github.workspace }}"
+          zip -r "${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip" sample
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           body_path: ${{ github.workspace }}/CHANGELOG.md
+          token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             ${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip
             ${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip
