@@ -5,10 +5,6 @@ on:
     tags:
       - "v*.*.*"
 
-permissions:
-  contents: read
-  deployments: write
-
 jobs:
   release:
     runs-on: ubuntu-latest
