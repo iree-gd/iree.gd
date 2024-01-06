@@ -149,9 +149,11 @@ endif()
 string(TOLOWER ${CMAKE_SYSTEM_NAME} SYSTEM_NAME)
 string(TOLOWER ${GODOT_CPP_BUILD_TYPE} BUILD_TYPE)
 
-if(ANDROID)
-	# Added the android abi after system name
-	set(SYSTEM_NAME ${SYSTEM_NAME}.${ANDROID_ABI})
+string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} ARCH)
+if("${ARCH}" MATCHES aarch64)
+	set(ARCH arm64)
+elseif("${ARCH}" MATCHES amd64)
+	set(ARCH x86_64)
 endif()
 
 #-------------------------------------------------------------------------------
@@ -163,7 +165,6 @@ add_subdirectory(${3RD_PARTY_DIR}/godot-cpp)
 #-------------------------------------------------------------------------------
 # `iree.gd` library
 #-------------------------------------------------------------------------------
-set(ARCH ${CMAKE_SYSTEM_PROCESSOR})
 
 set(LIB_NAME ${PROJECT_NAME}.${SYSTEM_NAME}.${BUILD_TYPE}.${ARCH})
 file(GLOB_RECURSE SRCS ${SRC_DIR}/*.c**)
