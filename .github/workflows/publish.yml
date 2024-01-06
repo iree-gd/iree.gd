@@ -5,6 +5,10 @@ on:
     tags:
       - "v*.*.*"
 
+permissions:
+  contents: read
+  deployments: write
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -40,6 +44,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           body_path: ${{ github.workspace }}/CHANGELOG.md
+          token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             ${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip
             ${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip
