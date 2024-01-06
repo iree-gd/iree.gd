@@ -26,7 +26,7 @@ jobs:
           # Define host for each target.
           - os: windows-latest
             target: windows
-            lib_suffix: dll
+            lib_suffix: lib
 
           # Define toolchain data.
           - target: windows
@@ -63,5 +63,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: "libiree-gd.${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}.${{ matrix.lib_suffix }}"
-          path: "${{ github.workspace }}\\build\\lib\\iree-gd*"
+          path: "${{ github.workspace }}\\build\\lib\\*iree-gd*.${{ matrix.lib_suffix}}"
           if-no-files-found: error
