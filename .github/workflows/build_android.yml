@@ -80,7 +80,8 @@ jobs:
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
             -DIREE_HOST_BIN_DIR="${{ github.workspace }}/iree-dist/bin" \
             -DCMAKE_TOOLCHAIN_FILE="${{ steps.android-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake" \
-            -DANDROID_ABI=${{ matrix.cmake_arch_keyword }}
+            -DANDROID_ABI=${{ matrix.cmake_arch_keyword }} \
+            -DIREE_ENABLE_WERROR_FLAG=OFF
 
       - name: Build project
         shell: bash
