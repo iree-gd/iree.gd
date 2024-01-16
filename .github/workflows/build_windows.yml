@@ -39,6 +39,9 @@ jobs:
         with:
           submodules: recursive
 
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
       - name: Set up MSVC Dev Cmd
         uses: ilammy/msvc-dev-cmd@7315a94840631165970262a99c72cfb48a65d25d # v1.12.0
         with:
@@ -50,7 +53,7 @@ jobs:
         run: |
           if not exist "${{ github.workspace }}\\build" mkdir "${{ github.workspace }}\\build"
           cd "${{ github.workspace }}\\build"
-          cmake "${{ github.workspace }}" -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}"
+          cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}"
 
       - name: Build project
         shell: bash
