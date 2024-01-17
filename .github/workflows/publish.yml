@@ -51,7 +51,7 @@ jobs:
         shell: sh
         run: |
           cd ${{ github.workspace }}/sample/extensions/iree-gd
-          find . -mindepth 1 -type f -exec sh -c 'exec mv "$@" .' sh {} +
+          find . -mindepth 2 -type f -exec sh -c 'exec mv "$@" .' sh {} +
           find . -mindepth 1 -type d -exec sh -c 'exec rm -rf "$@"' sh {} +
 
       - name: Copy Files
