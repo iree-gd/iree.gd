@@ -14,7 +14,7 @@
 
 > [!WARNING]
 > Currently, only Windows, Linux, \*BSD are able to build via github workflow.
-> The rest will be available for publishing in the future,
+> The rest will be available in future releases,
 > thus you need to compile them on your own for individuals who want to try it out.
 
 ## Overview
