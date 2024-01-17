@@ -4,13 +4,16 @@
 
 This is the change log of `iree.gd`.
 
-## [v0.0.1] The very beginning
+## [v0.0.1-alpha1] Windows build fix
+
+### Changed
+
+- Export `.dll` instead of `lib` for windows build.
+
+## [v0.0.1-alpha0] The very beginning
 
 ### Added
 
 - Add `IREETensor` and `IREEModule` for executing machine learning models.
 - Add a sample for people to try out.
-
-### Changed
-
-### Fixed
+- Add builds for Android, Linux and Windows.
