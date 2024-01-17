@@ -19,26 +19,21 @@ using namespace godot;
 void IREEModule::_bind_methods() {
     ClassDB::bind_method(D_METHOD("load", "path"), &IREEModule::load);
     ClassDB::bind_method(D_METHOD("unload"), &IREEModule::unload);
-    ClassDB::bind_method(D_METHOD("get_load_path"), &IREEModule::get_load_path);
     ClassDB::bind_method(D_METHOD("call_module", "func_name", "args"), &IREEModule::call_module);
-    
-    ADD_PROPERTY(PropertyInfo(Variant::STRING, "load_path", PROPERTY_HINT_FILE, "*.vmfb"), "load", "get_load_path");
 }
 
 IREEModule::IREEModule()
 :
     bytecode_data(),
     bytecode(nullptr),
-    context(nullptr),
-    load_path("")
+    context(nullptr)
 {}
 
 IREEModule::IREEModule(IREEModule& p_module)
 :
     bytecode_data(p_module.bytecode_data),
     bytecode(p_module.bytecode),
-    context(p_module.context),
-    load_path(p_module.load_path)
+    context(p_module.context)
 {
     iree_vm_module_retain(p_module.bytecode);
     iree_vm_context_retain(p_module.context);
@@ -48,13 +43,11 @@ IREEModule::IREEModule(IREEModule&& p_module)
 :
     bytecode_data(p_module.bytecode_data),
     bytecode(p_module.bytecode),
-    context(p_module.context),
-    load_path(p_module.load_path)
+    context(p_module.context)
 {
     p_module.bytecode_data.clear();
     p_module.bytecode = nullptr;
     p_module.context = nullptr;
-    p_module.load_path = "";
 }
 
 IREEModule::~IREEModule() { unload(); }
@@ -107,8 +100,6 @@ Error IREEModule::load(const String& p_path) {
     );
     context = new_context;
 
-    load_path = p_path;
-
     notify_property_list_changed();
     emit_changed();
     return OK;
@@ -118,15 +109,10 @@ void IREEModule::unload() {
 	if(context != nullptr) {iree_vm_context_release(context); context = nullptr;}
 	if(bytecode != nullptr) {iree_vm_module_release(bytecode);  bytecode = nullptr;}
     bytecode_data.clear(); //I don't know why but this causes crash.
-    load_path = "";
 }
 
 bool IREEModule::is_loaded() const {
     return bytecode && context;
-}
-
-String IREEModule::get_load_path() const {
-    return load_path;
 }
 
 Array IREEModule::call_module(const String& p_func_name, const Array& p_args) const {
