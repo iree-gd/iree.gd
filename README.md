@@ -8,9 +8,14 @@
 
 | Platform                         | HAL Backend used |
 | -------------------------------- | ---------------- |
-| Apple products (macOS)           | `metal`          |
+| Apple products (macOS, IOS)      | `metal`          |
 | Desktops (Windows, Linux, \*BSD) | `vulkan`         |
 | The rest (Android)               | `vmvx`           |
+
+> [!WARNING]
+> Currently, only Windows, Linux, \*BSD are able to build via github workflow.
+> The rest will be available in future releases,
+> thus you need to compile them on your own for individuals who want to try it out.
 
 ## Overview
 
