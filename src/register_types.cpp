@@ -20,10 +20,11 @@ void initialize_iree_gd_module(ModuleInitializationLevel p_level) {
 		return;
 	}
 
+	GDREGISTER_CLASS(IREEModule);
+	GDREGISTER_CLASS(IREETensor);
+	GDREGISTER_CLASS(ResourceFormatLoaderIREEModule);
 	resource_loader_iree_module.instantiate();
 	ResourceLoader::get_singleton()->add_resource_format_loader(resource_loader_iree_module);
-	ClassDB::register_class<IREETensor>();
-	ClassDB::register_class<IREEModule>();
 }
 
 void uninitialize_iree_gd_module(ModuleInitializationLevel p_level) {

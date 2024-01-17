@@ -31,7 +31,6 @@ private:
     PackedByteArray bytecode_data;
     iree_vm_module_t* bytecode;
 	iree_vm_context_t* context;
-    String load_path;
 
 protected:
     static void _bind_methods();
@@ -46,7 +45,6 @@ public:
     void unload();
 
     bool is_loaded() const;
-    String get_load_path() const;
     Array call_module(const String& p_func_name, const Array& p_args) const;
 };
 
