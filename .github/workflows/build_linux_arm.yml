@@ -89,8 +89,9 @@ jobs:
             -DIREE_HOST_BIN_DIR="${{ github.workspace }}/iree-dist/bin" \
             -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/cmake/${{ matrix.cmake_toolchain_file }}" \
             -DIREE_ENABLE_WERROR_FLAG=OFF \
-            -DCMAKE_CXX_FLAGS="-Wno-psabi" \
-            -DIREE_ENABLE_CPUINFO=OFF
+            -DIREE_ENABLE_CPUINFO=OFF \
+            -DIREE_BUILD_SAMPLES=OFF \
+            -DCMAKE_CXX_FLAGS="-Wno-psabi"
 
       - name: Build project
         shell: bash
