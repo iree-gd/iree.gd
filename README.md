@@ -13,9 +13,9 @@
 | The rest (Android)               | `vmvx`           |
 
 > [!WARNING]
-> Currently, only Windows, Linux, \*BSD are able to build via github workflow.
-> The rest will be available in future releases,
-> thus you need to compile them on your own for individuals who want to try it out.
+> Apple products won't be included in the release,
+> [due to some technical issues](https://github.com/RechieKho/iree.gd/discussions/57).
+> It is still supported, but you'll need to compile them by yourself.
 
 ## Overview
 
