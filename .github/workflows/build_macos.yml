@@ -64,6 +64,7 @@ jobs:
             -DCMAKE_OSX_ARCHITECTURES="${{ matrix.cmake_arch_keyword }}" \
             -DIREE_ENABLE_WERROR_FLAG=OFF \
             -DHAVE_STD_REGEX=ON -DRUN_HAVE_STD_REGEX=ON \
+            -DIREE_BUILD_SAMPLES=OFF
 
       - name: Build project
         shell: bash
