@@ -25,7 +25,7 @@ jobs:
           - build_type: debug
             cmake_build_type_keyword: RelWithDebInfo
 
-          - os: macos-13
+          - os: macos-latest
             target: macos
             lib_suffix: dylib
 
