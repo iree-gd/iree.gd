@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         target: [macos]
-        arch: [universal]
+        arch: [x86_64, arm64]
         build_type: [release, debug]
         include:
           # Build type to cmake keyword.
@@ -31,8 +31,12 @@ jobs:
 
           # Define toolchain data.
           - target: macos
-            arch: universal
-            cmake_arch_keyword: arm64;x86_64
+            arch: x86_64
+            cmake_arch_keyword: x86_64
+
+          - target: macos
+            arch: arm64
+            cmake_arch_keyword: arm64
 
     steps:
       - name: Check out code
