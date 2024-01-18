@@ -88,7 +88,8 @@ jobs:
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
             -DIREE_HOST_BIN_DIR="${{ github.workspace }}/iree-dist/bin" \
             -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/cmake/${{ matrix.cmake_toolchain_file }}" \
-            -DIREE_ENABLE_WERROR_FLAG=OFF
+            -DIREE_ENABLE_WERROR_FLAG=OFF \
+            -DCMAKE_CXX_FLAGS="-Wno-psabi"
 
       - name: Build project
         shell: bash
