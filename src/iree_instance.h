@@ -7,28 +7,35 @@
 
 #include "iree_device.h"
 
-class IREEInstance {
-private:
-    static IREEInstance* singleton;
+namespace godot
+{
 
-    iree_vm_instance_t* vm_instance;
-    IREEDevice device;
+    class IREEInstance
+    {
+    private:
+        static IREEInstance *singleton;
 
-    IREEInstance();
-    ~IREEInstance();
+        iree_vm_instance_t *vm_instance;
+        IREEDevice device;
 
-    Error assure_vm_instance_captured();
-    Error assure_device_captured();
-public:
-    static IREEInstance* borrow_singleton();
+        IREEInstance();
+        ~IREEInstance();
 
-    Error capture();
-    void release();
-    iree_vm_instance_t* borrow_assured_vm_instance();
-    iree_hal_device_t* borrow_assured_hal_device();
-    iree_vm_module_t* borrow_assured_hal_module();
+        Error assure_vm_instance_captured();
+        Error assure_device_captured();
 
-    bool is_valid() const;
-};
+    public:
+        static IREEInstance *borrow_singleton();
 
-#endif //IREE_INSTANCE_H
+        Error capture();
+        void release();
+        iree_vm_instance_t *borrow_assured_vm_instance();
+        iree_hal_device_t *borrow_assured_hal_device();
+        iree_vm_module_t *borrow_assured_hal_module();
+
+        bool is_valid() const;
+    };
+
+} // namespace godot
+
+#endif // IREE_INSTANCE_H

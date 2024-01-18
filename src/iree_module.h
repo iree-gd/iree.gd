@@ -22,30 +22,34 @@
 #include "iree_tensor.h"
 #include "iree_list.h"
 
-using namespace godot;
+namespace godot
+{
 
-class IREEModule : public Resource {
-    GDCLASS(IREEModule, Resource)
+    class IREEModule : public Resource
+    {
+        GDCLASS(IREEModule, Resource)
 
-private:
-    PackedByteArray bytecode_data;
-    iree_vm_module_t* bytecode;
-	iree_vm_context_t* context;
+    private:
+        PackedByteArray bytecode_data;
+        iree_vm_module_t *bytecode;
+        iree_vm_context_t *context;
 
-protected:
-    static void _bind_methods();
+    protected:
+        static void _bind_methods();
 
-public:
-    IREEModule();
-    IREEModule(IREEModule& p_module);
-    IREEModule(IREEModule&& p_module);
-    ~IREEModule();
+    public:
+        IREEModule();
+        IREEModule(IREEModule &p_module);
+        IREEModule(IREEModule &&p_module);
+        ~IREEModule();
 
-    Error load(const String& p_path);
-    void unload();
+        Error load(const String &p_path);
+        void unload();
 
-    bool is_loaded() const;
-    Array call_module(const String& p_func_name, const Array& p_args) const;
-};
+        bool is_loaded() const;
+        Array call_module(const String &p_func_name, const Array &p_args) const;
+    };
 
-#endif //IREE_MODULE_H
+} // namespace godot
+
+#endif // IREE_MODULE_H

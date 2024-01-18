@@ -7,26 +7,30 @@
 
 #include <godot_cpp/classes/global_constants.hpp>
 
-using namespace godot;
+namespace godot
+{
 
-/* Simple structure that yield and manage device information. */
-class IREEDevice {
-private:
-    iree_hal_device_t* hal_device;
-    iree_vm_module_t* hal_module;
+    /* Simple structure that yield and manage device information. */
+    class IREEDevice
+    {
+    private:
+        iree_hal_device_t *hal_device;
+        iree_vm_module_t *hal_module;
 
-public:
-    IREEDevice();
-    IREEDevice(IREEDevice& p_iree_device);
-    IREEDevice(IREEDevice&& p_iree_device);
-    ~IREEDevice();
+    public:
+        IREEDevice();
+        IREEDevice(IREEDevice &p_iree_device);
+        IREEDevice(IREEDevice &&p_iree_device);
+        ~IREEDevice();
 
-    Error capture(iree_vm_instance_t* p_instance);
-    void release();
+        Error capture(iree_vm_instance_t *p_instance);
+        void release();
 
-    bool is_valid() const;
-    iree_hal_device_t* borrow_hal_device() const;
-    iree_vm_module_t* borrow_hal_module() const;
-};
+        bool is_valid() const;
+        iree_hal_device_t *borrow_hal_device() const;
+        iree_vm_module_t *borrow_hal_module() const;
+    };
+
+} // namespace godot
 
 #endif // IREE_DEVICE_H
