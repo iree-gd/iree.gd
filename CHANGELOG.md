@@ -4,6 +4,11 @@
 
 This is the change log of `iree.gd`.
 
+## [v0.0.1-alpha3] Quick import `.vmfb` files
+
+- Import `.vmfb` files directly. (Thanks to [Dragos Daian](https://github.com/Ughuuu))
+- Fix Linux ARM build.
+
 ## [v0.0.1-alpha2] Update sample bytecodes
 
 - Improve logging `IREE` error.
