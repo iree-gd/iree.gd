@@ -139,7 +139,7 @@ Array IREEModule::call_module(const String &p_func_name, const Array &p_args) co
     // Convert inputs.
     IREEList inputs;
     inputs.capture(10);
-    ERR_FAIL_COND_V(inputs.is_null(), Array());
+    ERR_FAIL_COND_V(!inputs.is_captured(), Array());
 
     for (int64_t i = 0; i < p_args.size(); i++)
     {
@@ -157,14 +157,14 @@ Array IREEModule::call_module(const String &p_func_name, const Array &p_args) co
         }
         Ref<IREETensor> tensor = (Ref<IREETensor>)obj;
         ERR_FAIL_COND_V_MSG(tensor.is_null(), Array(), "Given IREE tensor is null.");
-        ERR_FAIL_COND_V_MSG(tensor->is_null(), Array(), "Given IREE tensor is null.");
+        ERR_FAIL_COND_V_MSG(!tensor->is_captured(), Array(), "Given IREE tensor is null.");
         inputs.append(*tensor.ptr());
     }
 
     // Create a new iree list for outputs.
     IREEList outputs;
     outputs.capture(10);
-    ERR_FAIL_COND_V(outputs.is_null(), Array());
+    ERR_FAIL_COND_V(!outputs.is_captured(), Array());
 
     // Call.
     IREE_ERR_V_MSG(

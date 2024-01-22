@@ -33,7 +33,7 @@ namespace godot
         iree_hal_device_t *borrow_assured_hal_device();
         iree_vm_module_t *borrow_assured_hal_module();
 
-        bool is_valid() const;
+        bool is_captured() const;
     };
 
 } // namespace godot

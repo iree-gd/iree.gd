@@ -329,7 +329,7 @@ void IREEDevice::release()
     }
 }
 
-bool IREEDevice::is_valid() const
+bool IREEDevice::is_captured() const
 {
     return hal_device != nullptr && hal_module != nullptr;
 }

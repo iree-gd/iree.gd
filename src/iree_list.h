@@ -32,7 +32,7 @@ namespace godot
         void release();
 
         iree_vm_list_t *borrow_vm_list() const;
-        bool is_null() const;
+        bool is_captured() const;
         Array get_tensors() const;
     };
 

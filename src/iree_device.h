@@ -26,7 +26,7 @@ namespace godot
         Error capture(iree_vm_instance_t *p_instance);
         void release();
 
-        bool is_valid() const;
+        bool is_captured() const;
         iree_hal_device_t *borrow_hal_device() const;
         iree_vm_module_t *borrow_hal_module() const;
     };

@@ -49,7 +49,7 @@ namespace godot
         iree_hal_buffer_view_t *share_buffer_view();
         void release();
 
-        bool is_null() const;
+        bool is_captured() const;
         iree_hal_buffer_view_t *borrow_buffer_view() const;
         PackedByteArray get_data() const;
         Array get_dimension() const;
