@@ -1,14 +1,6 @@
 #ifndef IREE_MODULE_H
 #define IREE_MODULE_H
 
-// We don't need windows.h in this example plugin but many others do, and it can
-// lead to annoying situations due to the ton of macros it defines.
-// So we include it and make sure CI warns us if we use something that conflicts
-// with a Windows define.
-#ifdef WIN32
-#include <windows.h>
-#endif
-
 #include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/classes/wrapped.hpp>
