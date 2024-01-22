@@ -1,6 +1,8 @@
 extends TextureRect
 
-@export var module: IREEModule
+@export var metal_module: IREEModule
+@export var vulkan_module: IREEModule
+@export var vmvx_module: IREEModule
 
 signal on_upscaling_start()
 signal on_upscaling_step(percentage)
@@ -53,6 +55,16 @@ func upscale():
 				clean_input_data,
 				[1, 50, 50, 3]
 			)
+			var module : IREEModule = null
+			match OS.get_name():
+				"Windows", "Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD":
+					module = vulkan_module
+				"macOS", "iOS":
+					module = metal_module
+				"Android":
+					module = vmvx_module
+				_:
+					assert(false, "Unsupported platform.")
 			var output_tensor := module.call_module("module.main", [input_tensor]).front() as IREETensor
 			var raw_output_data := output_tensor.get_data().to_float32_array()
 			var clean_output_data := PackedByteArray()
