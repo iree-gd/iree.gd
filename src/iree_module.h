@@ -26,6 +26,11 @@ namespace godot
         iree_vm_module_t *bytecode_module;
         iree_vm_context_t *context;
 
+        Error capture();
+        void release();
+
+        bool is_captured() const;
+
     protected:
         static void _bind_methods();
 
@@ -37,8 +42,7 @@ namespace godot
 
         Error load(const String &p_path);
         void unload();
-
-        Array call_module(const String &p_func_name, const Array &p_args) const;
+        Array call_module(const String &p_func_name, const Array &p_args);
     };
 
 } // namespace godot

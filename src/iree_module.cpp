@@ -16,6 +16,68 @@
 
 using namespace godot;
 
+Error IREEModule::capture()
+{
+    ERR_FAIL_COND_V_MSG(bytecode_data.size() == 0, ERR_INVALID_DATA, "Empty bytecode is forbidden.");
+
+    // Get instance.
+    iree_vm_instance_t *const instance = IREEInstance::borrow_singleton()->borrow_assured_vm_instance();
+    ERR_FAIL_NULL_V(instance, ERR_CANT_CREATE);
+
+    // Get hal module.
+    iree_vm_module_t *const hal_module = IREEInstance::borrow_singleton()->borrow_assured_hal_module();
+    ERR_FAIL_NULL_V(hal_module, ERR_CANT_CREATE);
+
+    release();
+
+    // Create a module.
+    iree_const_byte_span_t byte_span = {0};
+    byte_span.data = bytecode_data.ptr();
+    byte_span.data_length = (iree_host_size_t)bytecode_data.size();
+    iree_vm_module_t *new_bytecode_module = nullptr;
+    IREE_ERR_V_MSG(
+        iree_vm_bytecode_module_create(
+            instance, byte_span,
+            iree_allocator_null(),
+            iree_allocator_system(),
+            &new_bytecode_module),
+        ERR_CANT_CREATE, "Unable to load IREE module.");
+    bytecode_module = new_bytecode_module;
+
+    // Create a context.
+    iree_vm_context_t *new_context = nullptr;
+    iree_vm_module_t *modules[2] = {hal_module, bytecode_module};
+
+    IREE_ERR_V_MSG(
+        iree_vm_context_create_with_modules(
+            instance, IREE_VM_CONTEXT_FLAG_NONE,
+            IREE_ARRAYSIZE(modules), modules,
+            iree_allocator_system(), &new_context),
+        ERR_CANT_CREATE, "Unable to create IREE context.");
+    context = new_context;
+
+    return OK;
+}
+
+void IREEModule::release()
+{
+    if (context != nullptr)
+    {
+        iree_vm_context_release(context);
+        context = nullptr;
+    }
+    if (bytecode_module != nullptr)
+    {
+        iree_vm_module_release(bytecode_module);
+        bytecode_module = nullptr;
+    }
+}
+
+bool IREEModule::is_captured() const
+{
+    return bytecode_module && context;
+}
+
 void IREEModule::_bind_methods()
 {
     ClassDB::bind_method(D_METHOD("load", "path"), &IREEModule::load);
@@ -53,14 +115,6 @@ IREEModule::~IREEModule() { unload(); }
 
 Error IREEModule::load(const String &p_path)
 {
-    // Get instance.
-    iree_vm_instance_t *const instance = IREEInstance::borrow_singleton()->borrow_assured_vm_instance();
-    ERR_FAIL_NULL_V(instance, ERR_CANT_CREATE);
-
-    // Get hal module.
-    iree_vm_module_t *const hal_module = IREEInstance::borrow_singleton()->borrow_assured_hal_module();
-    ERR_FAIL_NULL_V(hal_module, ERR_CANT_CREATE);
-
     // Unload old data.
     unload();
 
@@ -70,32 +124,6 @@ Error IREEModule::load(const String &p_path)
     ERR_FAIL_COND_V_MSG(new_bytecode_data.size() == 0, ERR_INVALID_DATA, "Empty bytecode is forbidden.");
     bytecode_data = new_bytecode_data;
 
-    // Create a module.
-    iree_const_byte_span_t byte_span = {0};
-    byte_span.data = bytecode_data.ptr();
-    byte_span.data_length = (iree_host_size_t)bytecode_data.size();
-    iree_vm_module_t *new_bytecode_module = nullptr;
-    IREE_ERR_V_MSG(
-        iree_vm_bytecode_module_create(
-            instance, byte_span,
-            iree_allocator_null(),
-            iree_allocator_system(),
-            &new_bytecode_module),
-        ERR_CANT_CREATE, "Unable to load IREE module.");
-    bytecode_module = new_bytecode_module;
-
-    // Create a context.
-    iree_vm_context_t *new_context = nullptr;
-    iree_vm_module_t *modules[2] = {hal_module, bytecode_module};
-
-    IREE_ERR_V_MSG(
-        iree_vm_context_create_with_modules(
-            instance, IREE_VM_CONTEXT_FLAG_NONE,
-            IREE_ARRAYSIZE(modules), modules,
-            iree_allocator_system(), &new_context),
-        ERR_CANT_CREATE, "Unable to create IREE context.");
-    context = new_context;
-
     notify_property_list_changed();
     emit_changed();
     return OK;
@@ -103,21 +131,19 @@ Error IREEModule::load(const String &p_path)
 
 void IREEModule::unload()
 {
-    if (context != nullptr)
-    {
-        iree_vm_context_release(context);
-        context = nullptr;
-    }
-    if (bytecode_module != nullptr)
-    {
-        iree_vm_module_release(bytecode_module);
-        bytecode_module = nullptr;
-    }
+    release();
     bytecode_data.clear();
 }
 
-Array IREEModule::call_module(const String &p_func_name, const Array &p_args) const
+Array IREEModule::call_module(const String &p_func_name, const Array &p_args)
 {
+    if (!is_captured())
+    {
+        Error status = capture();
+        if (status != OK)
+            return Array();
+    }
+
     ERR_FAIL_COND_V_MSG(!(bytecode_module && context), Array(), "IREE Module is not loaded.");
 
     PackedByteArray func_name = p_func_name.to_utf8_buffer();
