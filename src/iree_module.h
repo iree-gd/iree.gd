@@ -23,7 +23,7 @@ namespace godot
 
     private:
         PackedByteArray bytecode_data;
-        iree_vm_module_t *bytecode;
+        iree_vm_module_t *bytecode_module;
         iree_vm_context_t *context;
 
     protected:
