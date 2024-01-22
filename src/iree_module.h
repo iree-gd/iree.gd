@@ -46,7 +46,6 @@ namespace godot
         Error load(const String &p_path);
         void unload();
 
-        bool is_loaded() const;
         Array call_module(const String &p_func_name, const Array &p_args) const;
     };
 

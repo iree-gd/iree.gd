@@ -116,14 +116,9 @@ void IREEModule::unload()
     bytecode_data.clear();
 }
 
-bool IREEModule::is_loaded() const
-{
-    return bytecode && context;
-}
-
 Array IREEModule::call_module(const String &p_func_name, const Array &p_args) const
 {
-    ERR_FAIL_COND_V_MSG(!is_loaded(), Array(), "IREE Module is not loaded.");
+    ERR_FAIL_COND_V_MSG(!(bytecode && context), Array(), "IREE Module is not loaded.");
 
     PackedByteArray func_name = p_func_name.to_utf8_buffer();
     iree_vm_function_t func = {0};
