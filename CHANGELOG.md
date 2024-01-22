@@ -8,6 +8,7 @@ This is the change log of `iree.gd`.
 
 - Defer context initialization to raise error only on `IREEModule::run_module`.
 - Detect platform to use the correct bytecode.
+- Set sample's main scene.
 
 ## [v0.0.1-alpha3] Quick import `.vmfb` files
 
