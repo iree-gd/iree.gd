@@ -225,6 +225,7 @@ void IREEModule::unload()
 
 Ref<IREEModule> IREEModule::bind(const String &p_func_name, const Array &p_args)
 {
+    ERR_FAIL_COND_V_MSG(thread->is_alive(), this, "IREE Module is running asynchronously in the background.");
     func_name = p_func_name;
     args = p_args;
     return this;
