@@ -52,7 +52,23 @@ jobs:
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@master
 
-      # Setup CMake
+      - name: Set up CMake for Host tools
+        shell: bash
+        run: |
+          if [ ! -d "${{ github.workspace }}/host-tools-build" ]; then
+            mkdir "${{ github.workspace }}/host-tools-build"
+          fi
+          cd "${{ github.workspace }}/host-tools-build"
+          cmake "${{ github.workspace }}/thirdparty/iree" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/host-tools-build/install" \
+            -DHAVE_STD_REGEX=ON -DRUN_HAVE_STD_REGEX=ON \
+            -DIREE_ENABLE_WERROR_FLAG=OFF \
+            -DIREE_BUILD_COMPILER=OFF
+
+      - name: Build Host tools
+        shell: bash
+        run: cmake --build ${{ github.workspace }}/host-tools-build --target install
+
       - name: Set up CMake for MacOS
         shell: bash
         run: |
@@ -61,9 +77,10 @@ jobs:
           fi
           cd "${{ github.workspace }}/build"
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DIREE_HOST_BIN_DIR="${{ github.workspace }}/host-tools-build/install/bin" \
             -DCMAKE_OSX_ARCHITECTURES="${{ matrix.cmake_arch_keyword }}" \
-            -DIREE_ENABLE_WERROR_FLAG=OFF \
             -DHAVE_STD_REGEX=ON -DRUN_HAVE_STD_REGEX=ON \
+            -DIREE_ENABLE_WERROR_FLAG=OFF \
             -DIREE_BUILD_SAMPLES=OFF
 
       - name: Build project
