@@ -13,9 +13,7 @@
 | The rest (Android)               | `vmvx`           |
 
 > [!WARNING]
-> Apple products won't be included in the release,
-> [due to some technical issues](https://github.com/RechieKho/iree.gd/discussions/57).
-> It is still supported, but you'll need to compile them by yourself.
+> iOS build is under development and thus won't be included in the release.
 
 ## Overview
 

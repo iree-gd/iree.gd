@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         target: [macos]
-        arch: [universal]
+        arch: [x86_64, arm64]
         build_type: [release, debug]
         include:
           # Build type to cmake keyword.
@@ -25,14 +25,18 @@ jobs:
           - build_type: debug
             cmake_build_type_keyword: RelWithDebInfo
 
-          - os: macos-13
+          - os: macos-latest
             target: macos
             lib_suffix: dylib
 
           # Define toolchain data.
           - target: macos
-            arch: universal
-            cmake_arch_keyword: arm64;x86_64
+            arch: x86_64
+            cmake_arch_keyword: x86_64
+
+          - target: macos
+            arch: arm64
+            cmake_arch_keyword: arm64
 
     steps:
       - name: Check out code
@@ -48,7 +52,23 @@ jobs:
       - name: Setup ninja
         uses: seanmiddleditch/gha-setup-ninja@master
 
-      # Setup CMake
+      - name: Set up CMake for Host tools
+        shell: bash
+        run: |
+          if [ ! -d "${{ github.workspace }}/host-tools-build" ]; then
+            mkdir "${{ github.workspace }}/host-tools-build"
+          fi
+          cd "${{ github.workspace }}/host-tools-build"
+          cmake "${{ github.workspace }}/thirdparty/iree" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/host-tools-build/install" \
+            -DHAVE_STD_REGEX=ON -DRUN_HAVE_STD_REGEX=ON \
+            -DIREE_ENABLE_WERROR_FLAG=OFF \
+            -DIREE_BUILD_COMPILER=OFF
+
+      - name: Build Host tools
+        shell: bash
+        run: cmake --build ${{ github.workspace }}/host-tools-build --target install
+
       - name: Set up CMake for MacOS
         shell: bash
         run: |
@@ -57,12 +77,17 @@ jobs:
           fi
           cd "${{ github.workspace }}/build"
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DIREE_HOST_BIN_DIR="${{ github.workspace }}/host-tools-build/install/bin" \
             -DCMAKE_OSX_ARCHITECTURES="${{ matrix.cmake_arch_keyword }}" \
-            -DIREE_ENABLE_WERROR_FLAG=OFF
+            -DHAVE_STD_REGEX=ON -DRUN_HAVE_STD_REGEX=ON \
+            -DIREE_ENABLE_WERROR_FLAG=OFF \
+            -DIREE_BUILD_COMPILER=OFF \
+            -DIREE_BUILD_SAMPLES=OFF \
+            -DIREE_BUILD_TESTS=OFF
 
       - name: Build project
         shell: bash
-        run: ninja -C "${{ github.workspace }}/build"
+        run: cmake --build "${{ github.workspace }}/build"
 
       - name: Export artifact
         uses: actions/upload-artifact@v2
