@@ -49,8 +49,8 @@ jobs:
         with:
           xcode-version: latest
 
-      - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@master
+      - name: Setup CMake and Ninja
+        uses: lukka/get-cmake@latest
 
       - name: Set up CMake for Host tools
         shell: bash
