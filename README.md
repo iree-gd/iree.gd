@@ -12,9 +12,6 @@
 | Desktops (Windows, Linux, \*BSD) | `vulkan`         |
 | The rest (Android)               | `vmvx`           |
 
-> [!WARNING]
-> iOS build is under development and thus won't be included in the release.
-
 ## Overview
 
 This GDExtension provides:
@@ -27,11 +24,21 @@ This GDExtension provides:
 You'll need to compile your models following this [guide](https://openxla.github.io/iree/guides/).
 Make sure the backends is supported by your compiled models, based on [supported platforms](#supported-platforms).
 
+You can use `iree-dump-module` from IREE's tools to inspect the byte code.
+Here is an important section of the dump of esrgan:
+
+```
+Exported Functions:
+  [  0] main(!vm.ref<?>) -> (!vm.ref<?>)
+        iree.abi.declaration: sync func @main(%input0: tensor<1x50x50x3xf32> {ml_program.identifier = "input_0"}) -> (%output0: tensor<1x200x200x3xf32> {ml_program.identifier = "Identity"})
+  [  1] __init() -> ()
+```
+
 Here we can know that:
 
-- The function name is `"module.main"`
+- The function name is `"main"`.
 - The function takes one `1x50x50x3` float 32 `IREETensor` (`input_0`) as input.
-- The function takes one `1x200x200x3` float 32 `IREETensor` (`Identity`) as input.
+- The function takes one `1x200x200x3` float 32 `IREETensor` (`Identity`) as output.
 
 ### Using `iree.gd`
 
@@ -53,9 +60,14 @@ for output in outputs:
     pass # Do something with the `output`.
 ```
 
+> [!NOTE]
+>
+> You need to prefix `module.` in front of the function you want to call when passing into `IREEModule`.
+> In this case, the function is `main` so you pass `module.main` as function name.
+
 ## Sample project
 
-The sample project is in `sample` directory. You'll need to generate the bytecode before running them.
+The sample project is in `sample` directory, it demonstrate running esrgan using `iree.gd`.
 
 ## Build from source
 
@@ -76,4 +88,4 @@ cmake --build . # Building the project, this will take a while, add `-j` flag to
 If you would like to compile LLVM from source, you'll need to set `IREE_BUILD_BUNDLED_LLVM` to `ON` when generating build files with cmake.
 
 After compilation, the library will be in `build/lib` directory.
-It will also update the library in the sample.
+It will also install the library into the sample.
