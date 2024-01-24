@@ -160,6 +160,9 @@ elseif("${ARCH}" MATCHES amd64)
 	set(ARCH x86_64)
 endif()
 
+message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
+message(STATUS "ARCH: ${ARCH}")
+
 #-------------------------------------------------------------------------------
 # Third-party dependencies
 #-------------------------------------------------------------------------------
