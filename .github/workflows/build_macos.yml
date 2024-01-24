@@ -80,6 +80,8 @@ jobs:
             -DIREE_HOST_BIN_DIR="${{ github.workspace }}/host-tools-build/install/bin" \
             -DCMAKE_OSX_ARCHITECTURES="${{ matrix.cmake_arch_keyword }}" \
             -DCMAKE_SYSTEM_PROCESSOR="${{ matrix.cmake_arch_keyword }}" \
+            -DCMAKE_OSX_SYSROOT=$(xcodebuild -version -sdk macosx Path) \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
             -DIREE_ENABLE_WERROR_FLAG=OFF \
             -DIREE_BUILD_COMPILER=OFF \
             -DIREE_BUILD_SAMPLES=OFF \
