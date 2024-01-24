@@ -1,0 +1,98 @@
+name: Build For iOS
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - "main"
+      - "*-workflow"
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        target: [ios]
+        arch: [arm64]
+        build_type: [release, debug]
+        include:
+          # Build type to cmake keyword.
+          - build_type: release
+            cmake_build_type_keyword: Release
+
+          - build_type: debug
+            cmake_build_type_keyword: RelWithDebInfo
+
+          - os: macos-latest
+            target: ios
+            lib_suffix: dylib
+
+          # Define toolchain data.
+          - target: ios
+            arch: arm64
+            cmake_arch_keyword: arm64
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1.6.0
+        with:
+          xcode-version: latest
+
+      - name: Setup ninja
+        uses: seanmiddleditch/gha-setup-ninja@master
+
+      - name: Set up CMake for Host tools
+        shell: bash
+        run: |
+          if [ ! -d "${{ github.workspace }}/host-tools-build" ]; then
+            mkdir "${{ github.workspace }}/host-tools-build"
+          fi
+          cd "${{ github.workspace }}/host-tools-build"
+          cmake "${{ github.workspace }}/thirdparty/iree" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/host-tools-build/install" \
+            -DHAVE_STD_REGEX=ON -DRUN_HAVE_STD_REGEX=ON \
+            -DIREE_ENABLE_WERROR_FLAG=OFF \
+            -DIREE_BUILD_COMPILER=OFF
+
+      - name: Build Host tools
+        shell: bash
+        run: cmake --build ${{ github.workspace }}/host-tools-build --target install
+
+      - name: Set up CMake for iOS
+        shell: bash
+        run: |
+          if [ ! -d "${{ github.workspace }}/build" ]; then
+            mkdir "${{ github.workspace }}/build"
+          fi
+          cd "${{ github.workspace }}/build"
+          cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DIREE_HOST_BIN_DIR="${{ github.workspace }}/host-tools-build/install/bin" \
+            -DCMAKE_OSX_SYSROOT=$(xcodebuild -version -sdk iphoneos Path) \
+            -DCMAKE_OSX_ARCHITECTURES="${{ matrix.cmake_arch_keyword }}" \
+            -DCMAKE_SYSTEM_PROCESSOR="${{ matrix.cmake_arch_keyword }}" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -DCMAKE_IOS_INSTALLED_COMBINED=YES \
+            -DHAVE_STD_REGEX=ON -DRUN_HAVE_STD_REGEX=ON \
+            -DIREE_ENABLE_WERROR_FLAG=OFF \
+            -DIREE_BUILD_COMPILER=OFF \
+            -DIREE_BUILD_SAMPLES=OFF \
+            -DIREE_BUILD_TESTS=OFF \
+            -DCMAKE_SYSTEM_NAME="iOS"
+
+      - name: Build project
+        shell: bash
+        run: cmake --build "${{ github.workspace }}/build"
+
+      - name: Export artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: "${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}"
+          path: "${{ github.workspace }}/build/lib/*iree-gd*.${{ matrix.lib_suffix }}"
+          if-no-files-found: error
