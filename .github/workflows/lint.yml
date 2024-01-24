@@ -1,0 +1,19 @@
+name: Lint
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - "main"
+      - "*-workflow"
+
+jobs:
+  build:
+    runs-on: ubuntu
+
+    steps:
+        - name: Run clang-format
+          shell: bash
+          run: |
+            clang-format src/** --dry-run --Werror
