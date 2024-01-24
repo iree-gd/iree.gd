@@ -73,69 +73,7 @@ void IREEModule::release()
     }
 }
 
-bool IREEModule::is_captured() const
-{
-    return bytecode_module && context;
-}
-
-void IREEModule::_bind_methods()
-{
-    ClassDB::bind_method(D_METHOD("load", "path"), &IREEModule::load);
-    ClassDB::bind_method(D_METHOD("unload"), &IREEModule::unload);
-    ClassDB::bind_method(D_METHOD("call_module", "func_name", "args"), &IREEModule::call_module);
-}
-
-IREEModule::IREEModule()
-    : bytecode_data(),
-      bytecode_module(nullptr),
-      context(nullptr)
-{
-}
-
-IREEModule::IREEModule(IREEModule &p_module)
-    : bytecode_data(p_module.bytecode_data),
-      bytecode_module(p_module.bytecode_module),
-      context(p_module.context)
-{
-    iree_vm_module_retain(p_module.bytecode_module);
-    iree_vm_context_retain(p_module.context);
-}
-
-IREEModule::IREEModule(IREEModule &&p_module)
-    : bytecode_data(p_module.bytecode_data),
-      bytecode_module(p_module.bytecode_module),
-      context(p_module.context)
-{
-    p_module.bytecode_data.clear();
-    p_module.bytecode_module = nullptr;
-    p_module.context = nullptr;
-}
-
-IREEModule::~IREEModule() { unload(); }
-
-Error IREEModule::load(const String &p_path)
-{
-    // Unload old data.
-    unload();
-
-    // Read file content.
-    PackedByteArray new_bytecode_data;
-    new_bytecode_data = FileAccess::get_file_as_bytes(p_path);
-    ERR_FAIL_COND_V_MSG(new_bytecode_data.size() == 0, ERR_INVALID_DATA, "Empty bytecode is forbidden.");
-    bytecode_data = new_bytecode_data;
-
-    notify_property_list_changed();
-    emit_changed();
-    return OK;
-}
-
-void IREEModule::unload()
-{
-    release();
-    bytecode_data.clear();
-}
-
-Array IREEModule::call_module(const String &p_func_name, const Array &p_args)
+Array IREEModule::process()
 {
     if (!is_captured())
     {
@@ -146,25 +84,25 @@ Array IREEModule::call_module(const String &p_func_name, const Array &p_args)
 
     ERR_FAIL_COND_V_MSG(!(bytecode_module && context), Array(), "IREE Module is not loaded.");
 
-    PackedByteArray func_name = p_func_name.to_utf8_buffer();
+    PackedByteArray raw_func_name = func_name.to_utf8_buffer();
     iree_vm_function_t func = {0};
 
     // Query function.
     IREE_ERR_V_MSG(
         iree_vm_context_resolve_function(
-            context, iree_string_view_t{.data = (const char *)func_name.ptr(), .size = (unsigned long)func_name.size()},
+            context, iree_string_view_t{.data = (const char *)raw_func_name.ptr(), .size = (unsigned long)raw_func_name.size()},
             &func),
         Array(),
-        vformat("Unable to find function '%s' in module bytecode.", p_func_name));
+        vformat("Unable to find function '%s' in module bytecode.", func_name));
 
     // Convert inputs.
     IREEList inputs;
     inputs.capture(10);
     ERR_FAIL_COND_V(!inputs.is_captured(), Array());
 
-    for (int64_t i = 0; i < p_args.size(); i++)
+    for (int64_t i = 0; i < args.size(); i++)
     {
-        Variant arg = p_args[i];
+        Variant arg = args[i];
         if (arg.get_type() != Variant::Type::OBJECT)
         {
             ERR_PRINT("Expecting only IREE Tensors as arguments.");
@@ -193,7 +131,114 @@ Array IREEModule::call_module(const String &p_func_name, const Array &p_args)
             context, func, IREE_VM_INVOCATION_FLAG_NONE,
             /*policy=*/NULL, inputs.borrow_vm_list(), outputs.borrow_vm_list(), iree_allocator_system()),
         Array(),
-        vformat("Unable to call IREE function '%s'.", p_func_name));
+        vformat("Unable to call IREE function '%s'.", func_name));
 
     return outputs.get_tensors();
+}
+
+void IREEModule::process_via_signal()
+{
+    Array output = process();
+    call_deferred("emit_signal", "completed", output);
+}
+
+void IREEModule::on_process_completed(const Array &p_result)
+{
+    thread->wait_to_finish();
+}
+
+bool IREEModule::is_captured() const
+{
+    return bytecode_module && context;
+}
+
+void IREEModule::_bind_methods()
+{
+    ClassDB::bind_method(D_METHOD("load", "path"), &IREEModule::load);
+    ClassDB::bind_method(D_METHOD("unload"), &IREEModule::unload);
+    ClassDB::bind_method(D_METHOD("bind", "func_name", "args"), &IREEModule::bind);
+    ClassDB::bind_method(D_METHOD("call_module"), &IREEModule::call_module);
+    ClassDB::bind_method(D_METHOD("call_module_async"), &IREEModule::call_module_async);
+
+    ADD_SIGNAL(MethodInfo("completed", PropertyInfo(Variant::ARRAY, "result", PROPERTY_HINT_ARRAY_TYPE)));
+}
+
+IREEModule::IREEModule()
+    : bytecode_data(),
+      bytecode_module(nullptr),
+      context(nullptr),
+      func_name(),
+      args(),
+      thread()
+{
+    thread.instantiate();
+    call_deferred("connect", "completed", callable_mp(this, &IREEModule::on_process_completed));
+}
+
+IREEModule::IREEModule(IREEModule &&p_module)
+    : bytecode_data(p_module.bytecode_data),
+      bytecode_module(p_module.bytecode_module),
+      context(p_module.context),
+      func_name(p_module.func_name),
+      args(p_module.args),
+      thread(p_module.thread)
+{
+    p_module.bytecode_data.clear();
+    p_module.bytecode_module = nullptr;
+    p_module.context = nullptr;
+    p_module.func_name = "";
+    p_module.args.clear();
+    p_module.thread.unref();
+    p_module.call_deferred("disconnect", "completed", callable_mp(this, &IREEModule::on_process_completed));
+
+    call_deferred("connect", "completed", callable_mp(this, &IREEModule::on_process_completed));
+}
+
+IREEModule::~IREEModule()
+{
+    if (thread->is_alive())
+        thread->wait_to_finish();
+    unload();
+}
+
+Error IREEModule::load(const String &p_path)
+{
+    // Unload old data.
+    unload();
+
+    // Read file content.
+    PackedByteArray new_bytecode_data;
+    new_bytecode_data = FileAccess::get_file_as_bytes(p_path);
+    ERR_FAIL_COND_V_MSG(new_bytecode_data.size() == 0, ERR_INVALID_DATA, "Empty bytecode is forbidden.");
+    bytecode_data = new_bytecode_data;
+
+    notify_property_list_changed();
+    emit_changed();
+    return OK;
+}
+
+void IREEModule::unload()
+{
+    release();
+    bytecode_data.clear();
+}
+
+Ref<IREEModule> IREEModule::bind(const String &p_func_name, const Array &p_args)
+{
+    func_name = p_func_name;
+    args = p_args;
+    return this;
+}
+
+Ref<IREEModule> IREEModule::call_module_async()
+{
+    ERR_FAIL_COND_V_MSG(thread->is_alive(), this, "IREE Module is running asynchronously in the background.");
+    thread->start(callable_mp(this, &IREEModule::process_via_signal));
+    return this;
+}
+
+Array IREEModule::call_module()
+{
+    ERR_FAIL_COND_V_MSG(thread->is_alive(), Array(), "IREE Module is running asynchronously in the background.");
+    return process();
 }
