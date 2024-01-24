@@ -8,7 +8,7 @@ This is the change log of `iree.gd`.
 
 - Add asynchronous execution.
 - Update IREE to `candidate-20240123.779`.
-- Add CI/CD for Mac OS.
+- Add CI/CD for Mac OS and iOS.
 
 ## [v0.0.1-alpha4] Improve demo ease of use
 
