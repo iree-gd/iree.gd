@@ -84,7 +84,7 @@ jobs:
             -DIREE_BUILD_COMPILER=OFF \
             -DIREE_BUILD_SAMPLES=OFF \
             -DIREE_BUILD_TESTS=OFF \
-            -DCMAKE_SYSTEM_NAME="${{ matrix.target }}"
+            -DCMAKE_SYSTEM_NAME="iOS"
 
       - name: Build project
         shell: bash
