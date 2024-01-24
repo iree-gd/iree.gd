@@ -4,6 +4,10 @@
 
 This is the change log of `iree.gd`.
 
+## [v0.0.1-alpha4] Add asynchronous execution
+
+- Add asynchronous execution.
+
 ## [v0.0.1-alpha4] Improve demo ease of use
 
 - Defer context initialization to raise error only on `IREEModule::run_module`.
