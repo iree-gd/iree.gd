@@ -49,7 +49,8 @@ There are 4 steps:
 ```swift
 var module := IREEModule.load("res://model.vmfb")
 var input := IREETensor.from_bytes(image.get_data(), [1, 50, 50, 3]) # Remember to consider the input type.
-var outputs := module.run_module("module.main", [input])
+# var outputs := module.bind("module.main", [input]).call_module() # Synchronous execution.
+var outputs := await module.bind("module.main", [input]).call_module_async().completed # Asynchronous execution.
 for output in outputs:
     pass # Do something with the `output`.
 ```
