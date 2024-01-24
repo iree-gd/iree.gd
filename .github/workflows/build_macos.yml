@@ -78,9 +78,7 @@ jobs:
           cd "${{ github.workspace }}/build"
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
             -DIREE_HOST_BIN_DIR="${{ github.workspace }}/host-tools-build/install/bin" \
-            -DCMAKE_APPLE_SILICON_PROCESSOR="${{ matrix.cmake_arch_keyword }}" \
             -DCMAKE_OSX_ARCHITECTURES="${{ matrix.cmake_arch_keyword }}" \
-            -DCMAKE_SYSTEM_PROCESSOR="${{ matrix.cmake_arch_keyword }}" \
             -DCMAKE_OSX_SYSROOT=$(xcodebuild -version -sdk macosx Path) \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
             -DIREE_ENABLE_WERROR_FLAG=OFF \

@@ -152,16 +152,18 @@ endif()
 
 string(TOLOWER ${CMAKE_SYSTEM_NAME} SYSTEM_NAME)
 string(TOLOWER ${GODOT_CPP_BUILD_TYPE} BUILD_TYPE)
-
 string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} ARCH)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+	string(TOLOWER ${CMAKE_OSX_ARCHITECTURES} ARCH)
+endif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+
 if("${ARCH}" MATCHES aarch64)
 	set(ARCH arm64)
 elseif("${ARCH}" MATCHES amd64)
 	set(ARCH x86_64)
 endif()
 
-message(STATUS "CMAKE_SYSTEM_PROCESSOR: ${CMAKE_SYSTEM_PROCESSOR}")
-message(STATUS "ARCH: ${ARCH}")
 
 #-------------------------------------------------------------------------------
 # Third-party dependencies
