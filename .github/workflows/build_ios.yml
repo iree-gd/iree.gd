@@ -15,7 +15,7 @@ jobs:
     strategy:
       matrix:
         target: [ios]
-        arch: [arm64]
+        arch: [arm64, x86_64]
         build_type: [release, debug]
         include:
           # Build type to cmake keyword.
@@ -33,6 +33,12 @@ jobs:
           - target: ios
             arch: arm64
             cmake_arch_keyword: arm64
+            cmake_sdk_keyword: iphoneos
+
+          - target: ios
+            arch: x86_64
+            cmake_arch_keyword: x86_64
+            cmake_sdk_keyword: iphonesimulator
 
     steps:
       - name: Check out code
@@ -74,7 +80,7 @@ jobs:
           cd "${{ github.workspace }}/build"
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
             -DIREE_HOST_BIN_DIR="${{ github.workspace }}/host-tools-build/install/bin" \
-            -DCMAKE_OSX_SYSROOT=$(xcodebuild -version -sdk iphoneos Path) \
+            -DCMAKE_OSX_SYSROOT=$(xcodebuild -version -sdk ${{ matrix.cmake_sdk_keyword }} Path) \
             -DCMAKE_OSX_ARCHITECTURES="${{ matrix.cmake_arch_keyword }}" \
             -DCMAKE_SYSTEM_PROCESSOR="${{ matrix.cmake_arch_keyword }}" \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
