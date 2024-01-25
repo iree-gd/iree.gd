@@ -4,6 +4,8 @@
 
 [IREE](https://github.com/openxla/iree) runtime in Godot through GDExtension, a mission to run machine learning model (e.g. Tensorflow lite) natively in Godot.
 
+Authored by [Richie Kho](https://github.com/RechieKho/iree.gd), published by [V-Sekai](https://github.com/V-Sekai/IREE.gd).
+
 ## Supported Platforms
 
 | Platform                         | HAL Backend used |
