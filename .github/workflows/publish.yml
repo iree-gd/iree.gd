@@ -47,6 +47,13 @@ jobs:
           workflow: build_linux_arm.yml
           path: ${{ github.workspace }}/sample/extensions/iree-gd
 
+      - name: Download artifacts from iOS workflow
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: build_ios.yml
+          path: ${{ github.workspace }}/sample/extensions/iree-gd
+
       - name: Flatten directory
         shell: sh
         run: |
