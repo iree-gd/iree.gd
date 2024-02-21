@@ -2,11 +2,7 @@ name: Build For Android
 
 on:
   workflow_dispatch:
-  pull_request:
-  push:
-    branches:
-      - "main"
-      - "*-workflow"
+  workflow_call:
 
 jobs:
   build:
@@ -14,6 +10,7 @@ jobs:
 
     strategy:
       matrix:
+        float_precision: [single,double]
         target: [android]
         arch: [x86_64, arm64]
         build_type: [release, debug]
@@ -28,7 +25,6 @@ jobs:
           # Define host for each target.
           - os: ubuntu-latest
             target: android
-            lib_suffix: so
 
           # Define toolchain data.
           - target: android
@@ -72,7 +68,6 @@ jobs:
           ndk-version: r25c
 
       - name: Set up CMake for Android
-        if: matrix.target == 'android'
         shell: bash
         run: |
           if [ ! -d "${{ github.workspace }}/build" ]; then
@@ -83,15 +78,23 @@ jobs:
             -DIREE_HOST_BIN_DIR="${{ github.workspace }}/iree-dist/bin" \
             -DCMAKE_TOOLCHAIN_FILE="${{ steps.android-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=${{ matrix.cmake_arch_keyword }} \
-            -DIREE_ENABLE_WERROR_FLAG=OFF
+            -DIREE_ENABLE_WERROR_FLAG=OFF \
+            -DFLOAT_PRECISION=${{ matrix.float_precision }}
 
       - name: Build project
         shell: bash
         run: ninja -C "${{ github.workspace }}/build"
-
+   
+      - name: Show build files
+        shell: bash
+        working-directory: build
+        run: ls -lR
+  
       - name: Export artifact
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}"
-          path: "${{ github.workspace }}/build/lib/*iree-gd*.${{ matrix.lib_suffix }}"
+          name: iree.gd
+          path: |
+            sample/**/*.so
+            sample/**/*.gdextension
           if-no-files-found: error

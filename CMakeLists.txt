@@ -175,7 +175,7 @@ add_subdirectory(${3RD_PARTY_DIR}/godot-cpp)
 # `iree.gd` library
 #-------------------------------------------------------------------------------
 
-set(LIB_NAME ${PROJECT_NAME}.${SYSTEM_NAME}.${BUILD_TYPE}.${ARCH})
+set(LIB_NAME ${PROJECT_NAME}.${SYSTEM_NAME}.${BUILD_TYPE}.${FLOAT_PRECISION}.${ARCH})
 file(GLOB_RECURSE SRCS ${SRC_DIR}/*.c**)
 file(GLOB_RECURSE HEADERS ${SRC_DIR}/*.h**)
 
@@ -247,5 +247,5 @@ add_custom_command(
     TARGET ${LIB_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy 
             $<TARGET_FILE:${LIB_NAME}> 
-            ${SAMPLE_DIR}/extensions/iree-gd/$<TARGET_FILE_NAME:${LIB_NAME}>
+            ${SAMPLE_DIR}/addons/iree-gd/$<TARGET_FILE_NAME:${LIB_NAME}>
 )

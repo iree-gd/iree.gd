@@ -1,0 +1,38 @@
+name: Builds
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - "main"
+      - "*-workflow"
+
+jobs:
+  lint:
+    uses: ./.github/workflows/lint.yml
+  build_android:
+    needs: [lint]
+    uses: ./.github/workflows/build_android.yml
+  build_ios:
+    needs: [lint]
+    uses: ./.github/workflows/build_ios.yml
+  build_linux_arm:
+    needs: [lint]
+    uses: ./.github/workflows/build_linux_arm.yml
+  build_linux:
+    needs: [lint]
+    uses: ./.github/workflows/build_linux.yml
+  build_macos:
+    needs: [lint]
+    uses: ./.github/workflows/build_macos.yml
+    secrets:
+      APPLE_CERT_BASE64: ${{ secrets.APPLE_CERT_BASE64 }}
+      APPLE_CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
+      APPLE_DEV_PASSWORD: ${{ secrets.APPLE_DEV_PASSWORD }}
+      APPLE_DEV_ID: ${{ secrets.APPLE_DEV_ID }}
+      APPLE_DEV_TEAM_ID: ${{ secrets.APPLE_DEV_TEAM_ID }}
+      APPLE_DEV_APP_ID: ${{ secrets.APPLE_DEV_APP_ID }}
+  build_windows:
+    needs: [lint]
+    uses: ./.github/workflows/build_windows.yml

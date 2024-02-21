@@ -2,11 +2,7 @@ name: Build For Linux ARM
 
 on:
   workflow_dispatch:
-  pull_request:
-  push:
-    branches:
-      - "main"
-      - "*-workflow"
+  workflow_call:
 
 jobs:
   build:
@@ -14,6 +10,7 @@ jobs:
 
     strategy:
       matrix:
+        float_precision: [single,double]
         target: [linux]
         arch: [arm64, arm32]
         build_type: [release, debug]
@@ -28,16 +25,17 @@ jobs:
           # Define host for each target.
           - os: ubuntu-latest
             target: linux
-            lib_suffix: so
 
           # Define toolchain data.
           - target: linux
             arch: arm64
+            artifact_extension: arm64
             dependencies: gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu g++-aarch64-linux-gnu
             cmake_toolchain_file: linux_arm64.toolchain.cmake
 
           - target: linux
             arch: arm32
+            artifact_extension: arm
             dependencies: gcc-arm-linux-gnueabihf binutils-arm-linux-gnueabihf g++-arm-linux-gnueabihf
             cmake_toolchain_file: linux_arm32.toolchain.cmake
 
@@ -92,16 +90,25 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}/cmake/${{ matrix.cmake_toolchain_file }}" \
             -DIREE_ENABLE_WERROR_FLAG=OFF \
             -DIREE_ENABLE_CPUINFO=OFF \
+            -DCMAKE_SYSTEM_PROCESSOR="${{ matrix.arch }}" \
             -DIREE_BUILD_SAMPLES=OFF \
-            -DCMAKE_CXX_FLAGS="-Wno-psabi"
+            -DCMAKE_CXX_FLAGS="-Wno-psabi" \
+            -DFLOAT_PRECISION=${{ matrix.float_precision }}
 
       - name: Build project
         shell: bash
         run: ninja -C "${{ github.workspace }}/build"
 
+      - name: Show build files
+        shell: bash
+        working-directory: build
+        run: ls -lR
+
       - name: Export artifact
         uses: actions/upload-artifact@v2
         with:
-          name: "${{ matrix.target }}.${{ matrix.build_type }}.${{ matrix.arch }}"
-          path: "${{ github.workspace }}/build/lib/*iree-gd*.${{ matrix.lib_suffix }}"
+          name: iree.gd
+          path: |
+            sample/**/*.so
+            sample/**/*.gdextension
           if-no-files-found: error
