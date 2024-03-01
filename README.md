@@ -76,7 +76,7 @@ The sample project is in `sample` directory, it demonstrate running esrgan using
 Run these commands:
 
 ```sh
-git clone https://github.com/RechieKho/iree.gd.git # clone this repo
+git clone https://github.com/V-Sekai/iree.gd.git # clone this repo
 cd iree.gd
 git submodule init thirdparty # initialize all the thirdparty
 git submodule deinit thirdparty/iree/third_party/llvm-project # Deinitialize llvm, we are not compiling the compiler.
