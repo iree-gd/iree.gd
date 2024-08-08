@@ -128,10 +128,11 @@ jobs:
 
       - name: Make Universal lib
         shell: bash
-        run: lipo -create -output \
-          "${{ github.workspace }}/sample/addons/iree-gd/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.framework/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.dylib" \
+        run: lipo \
           "${{ github.workspace }}/build_arm64/lib/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.arm64.dylib" \
-          "${{ github.workspace }}/build_x86_64/lib/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.x86_64.dylib"
+          "${{ github.workspace }}/build_x86_64/lib/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.x86_64.dylib" \
+          -create -output \
+          "${{ github.workspace }}/sample/addons/iree-gd/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.framework/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.dylib"
 
       - name: Mac Sign
         uses: ughuuu/godot-cpp-template/.github/actions/sign@add-more-stuff/options-to-build
