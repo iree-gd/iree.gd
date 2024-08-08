@@ -2,7 +2,7 @@ extends TextureRect
 
 @export var metal_module: IREEModule
 @export var vulkan_module: IREEModule
-@export var vmvx_module: IREEModule
+@export var llvm_module: IREEModule
 
 signal on_upscaling_start()
 signal on_upscaling_step(percentage)
@@ -10,7 +10,7 @@ signal on_upscaling_stop()
 
 func downscale():
 	var image := texture.get_image()
-	image.resize(int(image.get_width() / 4), int(image.get_height() / 4))
+	image.resize(int(float(image.get_width()) / 4), int(float(image.get_height()) / 4))
 	texture = ImageTexture.create_from_image(image)
 
 func upscale():
@@ -62,7 +62,7 @@ func upscale():
 				"macOS", "iOS":
 					module = metal_module
 				"Android":
-					module = vmvx_module
+					module = llvm_module
 				_:
 					assert(false, "Unsupported platform.")
 			# Synchronous execution

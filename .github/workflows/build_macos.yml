@@ -86,7 +86,8 @@ jobs:
             -DIREE_BUILD_SAMPLES=OFF \
             -DIREE_BUILD_TESTS=OFF \
             -DHAVE_STD_REGEX=ON \
-            -DFLOAT_PRECISION=${{ matrix.float_precision }}
+            -DFLOAT_PRECISION=${{ matrix.float_precision }} \
+            -DCOPY_LIBS_TO_SAMPLE=OFF
 
       - name: Build project x86_64
         shell: bash
@@ -109,7 +110,8 @@ jobs:
             -DIREE_BUILD_SAMPLES=OFF \
             -DIREE_BUILD_TESTS=OFF \
             -DHAVE_STD_REGEX=ON \
-            -DFLOAT_PRECISION=${{ matrix.float_precision }}
+            -DFLOAT_PRECISION=${{ matrix.float_precision }} \
+            -DCOPY_LIBS_TO_SAMPLE=OFF
 
       - name: Build project arm64
         shell: bash
@@ -125,19 +127,12 @@ jobs:
         working-directory: build_x86_64
         run: ls -lR
 
-      - name: Make directories
-        shell: bash
-        run: mkdir -p build/lib/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.framework
-
       - name: Make Universal lib
         shell: bash
-        run: lipo -create -output sample/addons/iree-gd/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.framework/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.dylib build_arm64/lib/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.arm64.dylib build_x86_64/lib/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.x86_64.dylib
-      
-      - name: Remove extra libs
-        shell: bash
-        run: |
-          rm build_arm64/lib/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.arm64.dylib
-          rm build_x86_64/lib/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.x86_64.dylib
+        run: lipo -create -output \
+          sample/addons/iree-gd/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.framework/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.dylib \
+          build_arm64/lib/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.arm64.dylib \
+          build_x86_64/lib/libiree-gd.darwin.${{ matrix.build_type }}.${{ matrix.float_precision }}.x86_64.dylib
 
       - name: Mac Sign
         uses: ughuuu/godot-cpp-template/.github/actions/sign@add-more-stuff/options-to-build

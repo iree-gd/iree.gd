@@ -1,11 +1,10 @@
-[gd_scene load_steps=8 format=3 uid="uid://cb8sex5bn677y"]
+[gd_scene load_steps=7 format=3 uid="uid://cb8sex5bn677y"]
 
 [ext_resource type="Texture2D" uid="uid://caejptg3bfd7y" path="res://assets/example_images/baboon.png" id="1_ja3q5"]
 [ext_resource type="Theme" uid="uid://c4hif364nxikg" path="res://resources/themes/default_themes.tres" id="2_hskai"]
 [ext_resource type="IREEModule" path="res://bytecodes/esrgan/esrgan.metal.vmfb" id="3_dijj6"]
 [ext_resource type="Script" path="res://scenes/main/esrgan_texture.gd" id="3_ujyfa"]
 [ext_resource type="IREEModule" path="res://bytecodes/esrgan/esrgan.vulkan.vmfb" id="4_4eqss"]
-[ext_resource type="IREEModule" path="res://bytecodes/esrgan/esrgan.vmvx.vmfb" id="5_5klm3"]
 [ext_resource type="Script" path="res://scenes/main/progress.gd" id="8_0ch1m"]
 
 [node name="Main" type="Node2D"]
@@ -31,7 +30,6 @@ stretch_mode = 5
 script = ExtResource("3_ujyfa")
 metal_module = ExtResource("3_dijj6")
 vulkan_module = ExtResource("4_4eqss")
-vmvx_module = ExtResource("5_5klm3")
 
 [node name="Container" type="HBoxContainer" parent="UI"]
 anchors_preset = 12

@@ -27,7 +27,8 @@ find_package(Python COMPONENTS Interpreter REQUIRED)
 
 # Update default value for options
 option(IREE_BUILD_COMPILER "Builds the IREE compiler." OFF)
-option(IREE_BUILD_BUNDLED_LLVM "Builds the bundled llvm-project (vs using installed)" OFF)
+option(IREE_BUILD_BUNDLED_LLVM "Builds the bundled llvm-project (vs using installed)." OFF)
+option(COPY_LIBS_TO_SAMPLE "Copy the resulting library to sample directory." ON)
 
 #-------------------------------------------------------------------------------
 # Project-wide properties
@@ -154,12 +155,10 @@ string(TOLOWER ${CMAKE_SYSTEM_NAME} SYSTEM_NAME)
 string(TOLOWER ${GODOT_CPP_BUILD_TYPE} BUILD_TYPE)
 string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} ARCH)
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-	string(TOLOWER ${CMAKE_OSX_ARCHITECTURES} ARCH)
-endif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-
 if("${ARCH}" MATCHES aarch64)
 	set(ARCH arm64)
+elseif("${ARCH}" MATCHES arm)
+    set(ARCH arm64)
 elseif("${ARCH}" MATCHES amd64)
 	set(ARCH x86_64)
 endif()
@@ -214,7 +213,7 @@ else()
 		iree::hal::drivers::local_sync::sync_driver
 		iree::hal::drivers::local_task::task_driver
 		iree::hal::local::loaders::embedded_elf_loader
-		iree::hal::local::loaders::vmvx_module_loader
+        iree::hal::local::loaders::vmvx_module_loader
 	)
 endif()
 
@@ -242,10 +241,12 @@ set_target_properties(
 	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib
 )
 
-# Copy the libraries into `sample/` folder
-add_custom_command(
-    TARGET ${LIB_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy 
-            $<TARGET_FILE:${LIB_NAME}> 
-            ${SAMPLE_DIR}/addons/iree-gd/$<TARGET_FILE_NAME:${LIB_NAME}>
-)
+if(COPY_LIBS_TO_SAMPLE)
+    # Copy the libraries into `sample/` folder
+    add_custom_command(
+        TARGET ${LIB_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy 
+                $<TARGET_FILE:${LIB_NAME}> 
+                ${SAMPLE_DIR}/addons/iree-gd/$<TARGET_FILE_NAME:${LIB_NAME}>
+    )
+endif(COPY_LIBS_TO_SAMPLE)

@@ -1,0 +1,94 @@
+//===--------------------------------------------------------------------------------------------------------------===//
+// @module : version 0
+//===--------------------------------------------------------------------------------------------------------------===//
+
+Required Types:
+  [  0] i32
+  [  1] i64
+  [  2] !hal.allocator
+  [  3] !hal.buffer
+  [  4] !hal.buffer_view
+  [  5] !hal.command_buffer
+  [  6] !hal.descriptor_set_layout
+  [  7] !hal.device
+  [  8] !hal.executable
+  [  9] !hal.fence
+  [ 10] !hal.file
+  [ 11] !hal.pipeline_layout
+  [ 12] !vm.buffer
+
+Module Dependencies:
+  hal, version >= 3, required
+
+Imported Functions:
+  [  0] hal.ex.file.from_memory(!vm.ref<?>, i64, i32, !vm.ref<?>, i64, i64, i32) -> (!vm.ref<?>)
+  [  1] hal.allocator.allocate(!vm.ref<?>, i64, i32, i32, i64) -> (!vm.ref<?>)
+  [  2] hal.allocator.import(!vm.ref<?>, i32, i64, i32, i32, !vm.ref<?>, i64, i64) -> (!vm.ref<?>)
+  [  3] hal.buffer.assert(!vm.ref<?>, !vm.ref<?>, !vm.ref<?>, i64, i32, i32) -> ()
+  [  4] hal.buffer_view.create(!vm.ref<?>, i64, i64, i32, i32, tuple<i64>...) -> (!vm.ref<?>)
+  [  5] hal.buffer_view.assert(!vm.ref<?>, !vm.ref<?>, i32, i32, tuple<i64>...) -> ()
+  [  6] hal.buffer_view.buffer(!vm.ref<?>) -> (!vm.ref<?>)
+  [  7] hal.command_buffer.create(!vm.ref<?>, i32, i32, i64, i32) -> (!vm.ref<?>)
+  [  8] hal.command_buffer.finalize(!vm.ref<?>) -> ()
+  [  9] hal.command_buffer.execution_barrier(!vm.ref<?>, i32, i32, i32) -> ()
+  [ 10] hal.command_buffer.fill_buffer(!vm.ref<?>, !vm.ref<?>, i64, i64, i32, i32, i32) -> ()
+  [ 11] hal.command_buffer.copy_buffer(!vm.ref<?>, i32, i32, !vm.ref<?>, i64, !vm.ref<?>, i64, i64) -> ()
+  [ 12] hal.command_buffer.push_constants(!vm.ref<?>, !vm.ref<?>, i32, tuple<i32>...) -> ()
+  [ 13] hal.command_buffer.push_descriptor_set(!vm.ref<?>, !vm.ref<?>, i32, tuple<i32, i32, !vm.ref<?>, i64, i64>...) -> ()
+  [ 14] hal.command_buffer.dispatch(!vm.ref<?>, !vm.ref<?>, i32, i32, i32, i32, i64) -> ()
+  [ 15] hal.descriptor_set_layout.create(!vm.ref<?>, i32, tuple<i32, i32, i32>...) -> (!vm.ref<?>)
+  [ 16] hal.device.allocator(!vm.ref<?>) -> (!vm.ref<?>)
+  [ 17] hal.device.query.i64(!vm.ref<?>, !vm.ref<?>, !vm.ref<?>) -> (i32, i64)
+  [ 18] hal.device.queue.alloca(!vm.ref<?>, i64, !vm.ref<?>, !vm.ref<?>, i32, i32, i32, i64) -> (!vm.ref<?>)
+  [ 19] hal.device.queue.dealloca(!vm.ref<?>, i64, !vm.ref<?>, !vm.ref<?>, !vm.ref<?>) -> ()
+  [ 20] hal.device.queue.read(!vm.ref<?>, i64, !vm.ref<?>, !vm.ref<?>, !vm.ref<?>, i64, !vm.ref<?>, i64, i64, i32) -> ()
+  [ 21] hal.device.queue.execute(!vm.ref<?>, i64, !vm.ref<?>, !vm.ref<?>, tuple<!vm.ref<?>>...) -> ()
+  [ 22] hal.devices.count() -> (i32)
+  [ 23] hal.devices.get(i32) -> (!vm.ref<?>)
+  [ 24] hal.executable.create(!vm.ref<?>, !vm.ref<?>, !vm.ref<?>, !vm.ref<?>, tuple<!vm.ref<?>>...) -> (!vm.ref<?>)
+  [ 25] hal.fence.create(!vm.ref<?>, i32) -> (!vm.ref<?>)
+  [ 26] hal.fence.join(tuple<!vm.ref<?>>...) -> (!vm.ref<?>)
+  [ 27] hal.fence.await(i32, tuple<!vm.ref<?>>...) -> (i32)
+  [ 28] hal.pipeline_layout.create(!vm.ref<?>, i32, tuple<!vm.ref<?>>...) -> (!vm.ref<?>)
+
+Exported Functions:
+  [  0] main(!vm.ref<?>) -> (!vm.ref<?>)
+        iree.abi.declaration: sync func @main(%input0: tensor<1x256x256x3xi8> {ml_program.identifier = "serving_default_input:0", tf_saved_model.index_path = ["input"]}) -> (%output0: tensor<1x1x17x3xf32> {ml_program.identifier = "StatefulPartitionedCall:0", tf_saved_model.index_path = ["output_0"]})
+  [  1] __init() -> ()
+
+//===--------------------------------------------------------------------------------------------------------------===//
+// Sections
+//===--------------------------------------------------------------------------------------------------------------===//
+
+Module State:
+  0 bytes, 17 refs, ~272 bytes total
+
+FlatBuffer: 59580 bytes
+  Bytecode: 17856 bytes
+  .rodata[  0] embedded       13 bytes `hal.device.id`
+  .rodata[  1] embedded        6 bytes `local*`
+  .rodata[  2] embedded       21 bytes `hal.executable.format`
+  .rodata[  3] embedded       19 bytes `embedded-elf-arm_64`
+  .rodata[  4] external   647976 bytes (offset 112 / 70h to 9E398h)
+  .rodata[  5] external  6618048 bytes (offset 648192 / 9E400h to 6EDFC0h)
+  .rodata[  6] embedded        6 bytes `input0`
+  .rodata[  7] embedded        6 bytes `tensor`
+
+External .rodata: ~7266024 bytes
+
+//===--------------------------------------------------------------------------------------------------------------===//
+// Bytecode : version 0
+//===--------------------------------------------------------------------------------------------------------------===//
+
+  # | Offset   |   Length | Blocks | i32 # | ref # | Requirements | Aliases
+----+----------+----------+--------+-------+-------+--------------+-----------------------------------------------------
+  0 | 00000000 |    15649 |      3 |   292 |    21 |              | main
+  1 | 00003D28 |     2196 |     12 |    30 |    19 |              | __init
+
+//===--------------------------------------------------------------------------------------------------------------===//
+// Debug Information
+//===--------------------------------------------------------------------------------------------------------------===//
+// NOTE: debug databases are large and should be stripped in deployed artifacts.
+
+Locations: 283
+

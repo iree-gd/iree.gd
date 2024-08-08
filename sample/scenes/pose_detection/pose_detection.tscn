@@ -1,0 +1,14 @@
+[gd_scene load_steps=6 format=3 uid="uid://esilr30p0hrl"]
+
+[ext_resource type="Script" path="res://scenes/pose_detection/pose_detection.gd" id="1_mu1vh"]
+[ext_resource type="IREEModule" path="res://bytecodes/singlepose_lightning_int8/pose_lightning_int8.vulkan.vmfb" id="2_jpd33"]
+[ext_resource type="IREEModule" path="res://bytecodes/singlepose_lightning_int8/pose_lightning_int8.metal.vmfb" id="2_v2frc"]
+[ext_resource type="IREEModule" path="res://bytecodes/singlepose_lightning_int8/pose_lightning_int8.llvm.vmfb" id="4_anw7p"]
+[ext_resource type="Texture2D" uid="uid://cnlokftq3gcr6" path="res://assets/example_images/pose.png" id="5_qymln"]
+
+[node name="Test" type="Node2D"]
+script = ExtResource("1_mu1vh")
+vulkan_module = ExtResource("2_jpd33")
+metal_module = ExtResource("2_v2frc")
+llvm_module = ExtResource("4_anw7p")
+texture = ExtResource("5_qymln")

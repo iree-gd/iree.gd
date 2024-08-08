@@ -1,0 +1,211 @@
+//===--------------------------------------------------------------------------------------------------------------===//
+// @module : version 0
+//===--------------------------------------------------------------------------------------------------------------===//
+
+Required Types:
+  [  0] i32
+  [  1] i64
+  [  2] !hal.allocator
+  [  3] !hal.buffer
+  [  4] !hal.buffer_view
+  [  5] !hal.command_buffer
+  [  6] !hal.descriptor_set_layout
+  [  7] !hal.device
+  [  8] !hal.executable
+  [  9] !hal.fence
+  [ 10] !hal.file
+  [ 11] !hal.pipeline_layout
+  [ 12] !vm.buffer
+
+Module Dependencies:
+  hal, version >= 3, required
+
+Imported Functions:
+  [  0] hal.ex.file.from_memory(!vm.ref<?>, i64, i32, !vm.ref<?>, i64, i64, i32) -> (!vm.ref<?>)
+  [  1] hal.allocator.allocate(!vm.ref<?>, i64, i32, i32, i64) -> (!vm.ref<?>)
+  [  2] hal.allocator.import(!vm.ref<?>, i32, i64, i32, i32, !vm.ref<?>, i64, i64) -> (!vm.ref<?>)
+  [  3] hal.buffer.assert(!vm.ref<?>, !vm.ref<?>, !vm.ref<?>, i64, i32, i32) -> ()
+  [  4] hal.buffer_view.create(!vm.ref<?>, i64, i64, i32, i32, tuple<i64>...) -> (!vm.ref<?>)
+  [  5] hal.buffer_view.assert(!vm.ref<?>, !vm.ref<?>, i32, i32, tuple<i64>...) -> ()
+  [  6] hal.buffer_view.buffer(!vm.ref<?>) -> (!vm.ref<?>)
+  [  7] hal.command_buffer.create(!vm.ref<?>, i32, i32, i64, i32) -> (!vm.ref<?>)
+  [  8] hal.command_buffer.finalize(!vm.ref<?>) -> ()
+  [  9] hal.command_buffer.execution_barrier(!vm.ref<?>, i32, i32, i32) -> ()
+  [ 10] hal.command_buffer.fill_buffer(!vm.ref<?>, !vm.ref<?>, i64, i64, i32, i32, i32) -> ()
+  [ 11] hal.command_buffer.copy_buffer(!vm.ref<?>, i32, i32, !vm.ref<?>, i64, !vm.ref<?>, i64, i64) -> ()
+  [ 12] hal.command_buffer.push_constants(!vm.ref<?>, !vm.ref<?>, i32, tuple<i32>...) -> ()
+  [ 13] hal.command_buffer.push_descriptor_set(!vm.ref<?>, !vm.ref<?>, i32, tuple<i32, i32, !vm.ref<?>, i64, i64>...) -> ()
+  [ 14] hal.command_buffer.dispatch(!vm.ref<?>, !vm.ref<?>, i32, i32, i32, i32, i64) -> ()
+  [ 15] hal.descriptor_set_layout.create(!vm.ref<?>, i32, tuple<i32, i32, i32>...) -> (!vm.ref<?>)
+  [ 16] hal.device.allocator(!vm.ref<?>) -> (!vm.ref<?>)
+  [ 17] hal.device.query.i64(!vm.ref<?>, !vm.ref<?>, !vm.ref<?>) -> (i32, i64)
+  [ 18] hal.device.queue.alloca(!vm.ref<?>, i64, !vm.ref<?>, !vm.ref<?>, i32, i32, i32, i64) -> (!vm.ref<?>)
+  [ 19] hal.device.queue.dealloca(!vm.ref<?>, i64, !vm.ref<?>, !vm.ref<?>, !vm.ref<?>) -> ()
+  [ 20] hal.device.queue.read(!vm.ref<?>, i64, !vm.ref<?>, !vm.ref<?>, !vm.ref<?>, i64, !vm.ref<?>, i64, i64, i32) -> ()
+  [ 21] hal.device.queue.execute(!vm.ref<?>, i64, !vm.ref<?>, !vm.ref<?>, tuple<!vm.ref<?>>...) -> ()
+  [ 22] hal.devices.count() -> (i32)
+  [ 23] hal.devices.get(i32) -> (!vm.ref<?>)
+  [ 24] hal.executable.create(!vm.ref<?>, !vm.ref<?>, !vm.ref<?>, !vm.ref<?>, tuple<!vm.ref<?>>...) -> (!vm.ref<?>)
+  [ 25] hal.fence.create(!vm.ref<?>, i32) -> (!vm.ref<?>)
+  [ 26] hal.fence.join(tuple<!vm.ref<?>>...) -> (!vm.ref<?>)
+  [ 27] hal.fence.await(i32, tuple<!vm.ref<?>>...) -> (i32)
+  [ 28] hal.pipeline_layout.create(!vm.ref<?>, i32, tuple<!vm.ref<?>>...) -> (!vm.ref<?>)
+
+Exported Functions:
+  [  0] main(!vm.ref<?>) -> (!vm.ref<?>)
+        iree.abi.declaration: sync func @main(%input0: tensor<1x256x256x3xi8> {ml_program.identifier = "serving_default_input:0", tf_saved_model.index_path = ["input"]}) -> (%output0: tensor<1x1x17x3xf32> {ml_program.identifier = "StatefulPartitionedCall:0", tf_saved_model.index_path = ["output_0"]})
+  [  1] __init() -> ()
+
+//===--------------------------------------------------------------------------------------------------------------===//
+// Sections
+//===--------------------------------------------------------------------------------------------------------------===//
+
+Module State:
+  0 bytes, 134 refs, ~2144 bytes total
+
+FlatBuffer: 91388 bytes
+  Bytecode: 41488 bytes
+  .rodata[  0] embedded       13 bytes `hal.device.id`
+  .rodata[  1] embedded        6 bytes `vulkan`
+  .rodata[  2] embedded       21 bytes `hal.executable.format`
+  .rodata[  3] embedded       15 bytes `vulkan-spirv-fb`
+  .rodata[  4] external     5564 bytes (offset 96 / 60h to 161Ch)
+  .rodata[  5] external     1884 bytes (offset 5760 / 1680h to 1DDCh)
+  .rodata[  6] external     7668 bytes (offset 7744 / 1E40h to 3C34h)
+  .rodata[  7] external     7596 bytes (offset 15504 / 3C90h to 5A3Ch)
+  .rodata[  8] external     1872 bytes (offset 23200 / 5AA0h to 61F0h)
+  .rodata[  9] external     3940 bytes (offset 25168 / 6250h to 71B4h)
+  .rodata[ 10] external     7488 bytes (offset 29200 / 7210h to 8F50h)
+  .rodata[ 11] external    29132 bytes (offset 36784 / 8FB0h to 1017Ch)
+  .rodata[ 12] external    26968 bytes (offset 66016 / 101E0h to 16B38h)
+  .rodata[ 13] external     1756 bytes (offset 93072 / 16B90h to 1726Ch)
+  .rodata[ 14] external     5280 bytes (offset 94928 / 172D0h to 18770h)
+  .rodata[ 15] external     4524 bytes (offset 100304 / 187D0h to 1997Ch)
+  .rodata[ 16] external     8228 bytes (offset 104928 / 199E0h to 1BA04h)
+  .rodata[ 17] external    27192 bytes (offset 113248 / 1BA60h to 22498h)
+  .rodata[ 18] external     1900 bytes (offset 140544 / 22500h to 22C6Ch)
+  .rodata[ 19] external     5184 bytes (offset 142544 / 22CD0h to 24110h)
+  .rodata[ 20] external     4720 bytes (offset 147824 / 24170h to 253E0h)
+  .rodata[ 21] external    10080 bytes (offset 152640 / 25440h to 27BA0h)
+  .rodata[ 22] external    27192 bytes (offset 162816 / 27C00h to 2E638h)
+  .rodata[ 23] external     1804 bytes (offset 190112 / 2E6A0h to 2EDACh)
+  .rodata[ 24] external     5148 bytes (offset 192016 / 2EE10h to 3022Ch)
+  .rodata[ 25] external     4668 bytes (offset 197264 / 30290h to 314CCh)
+  .rodata[ 26] external     9236 bytes (offset 202032 / 31530h to 33944h)
+  .rodata[ 27] external    25480 bytes (offset 211360 / 339A0h to 39D28h)
+  .rodata[ 28] external     2156 bytes (offset 236944 / 39D90h to 3A5FCh)
+  .rodata[ 29] external     5644 bytes (offset 239200 / 3A660h to 3BC6Ch)
+  .rodata[ 30] external     4296 bytes (offset 244944 / 3BCD0h to 3CD98h)
+  .rodata[ 31] external    11088 bytes (offset 249344 / 3CE00h to 3F950h)
+  .rodata[ 32] external    25496 bytes (offset 260528 / 3F9B0h to 45D48h)
+  .rodata[ 33] external    11056 bytes (offset 286128 / 45DB0h to 488E0h)
+  .rodata[ 34] external    24940 bytes (offset 297280 / 48940h to 4EAACh)
+  .rodata[ 35] external     1804 bytes (offset 322320 / 4EB10h to 4F21Ch)
+  .rodata[ 36] external     5148 bytes (offset 324224 / 4F280h to 5069Ch)
+  .rodata[ 37] external     3184 bytes (offset 329472 / 50700h to 51370h)
+  .rodata[ 38] external    26500 bytes (offset 332752 / 513D0h to 57B54h)
+  .rodata[ 39] external    25464 bytes (offset 359344 / 57BB0h to 5DF28h)
+  .rodata[ 40] external     2080 bytes (offset 384912 / 5DF90h to 5E7B0h)
+  .rodata[ 41] external     4332 bytes (offset 387088 / 5E810h to 5F8FCh)
+  .rodata[ 42] external     4312 bytes (offset 391520 / 5F960h to 60A38h)
+  .rodata[ 43] external    47412 bytes (offset 395936 / 60AA0h to 6C3D4h)
+  .rodata[ 44] external    25496 bytes (offset 443440 / 6C430h to 727C8h)
+  .rodata[ 45] external    47384 bytes (offset 469040 / 72830h to 7E148h)
+  .rodata[ 46] external    25452 bytes (offset 516528 / 7E1B0h to 8451Ch)
+  .rodata[ 47] external    47340 bytes (offset 542080 / 84580h to 8FE6Ch)
+  .rodata[ 48] external    25452 bytes (offset 589520 / 8FED0h to 9623Ch)
+  .rodata[ 49] external     5788 bytes (offset 615072 / 962A0h to 9793Ch)
+  .rodata[ 50] external    25400 bytes (offset 620960 / 979A0h to 9DCD8h)
+  .rodata[ 51] external     1900 bytes (offset 646464 / 9DD40h to 9E4ACh)
+  .rodata[ 52] external     5524 bytes (offset 648464 / 9E510h to 9FAA4h)
+  .rodata[ 53] external     4016 bytes (offset 654080 / 9FB00h to A0AB0h)
+  .rodata[ 54] external     7708 bytes (offset 658192 / A0B10h to A292Ch)
+  .rodata[ 55] external    25400 bytes (offset 666000 / A2990h to A8CC8h)
+  .rodata[ 56] external     7692 bytes (offset 691504 / A8D30h to AAB3Ch)
+  .rodata[ 57] external    25400 bytes (offset 699296 / AABA0h to B0ED8h)
+  .rodata[ 58] external     1840 bytes (offset 724800 / B0F40h to B1670h)
+  .rodata[ 59] external     5052 bytes (offset 726736 / B16D0h to B2A8Ch)
+  .rodata[ 60] external     3332 bytes (offset 731888 / B2AF0h to B37F4h)
+  .rodata[ 61] external     4656 bytes (offset 735312 / B3850h to B4A80h)
+  .rodata[ 62] external    13208 bytes (offset 740064 / B4AE0h to B7E78h)
+  .rodata[ 63] external     2156 bytes (offset 753376 / B7EE0h to B874Ch)
+  .rodata[ 64] external     5664 bytes (offset 755632 / B87B0h to B9DD0h)
+  .rodata[ 65] external     4464 bytes (offset 761392 / B9E30h to BAFA0h)
+  .rodata[ 66] external     6480 bytes (offset 765952 / BB000h to BC950h)
+  .rodata[ 67] external     6524 bytes (offset 772528 / BC9B0h to BE32Ch)
+  .rodata[ 68] external    12268 bytes (offset 779152 / BE390h to C137Ch)
+  .rodata[ 69] external    12216 bytes (offset 791520 / C13E0h to C4398h)
+  .rodata[ 70] external    25512 bytes (offset 803840 / C4400h to CA7A8h)
+  .rodata[ 71] external    31060 bytes (offset 829456 / CA810h to D2164h)
+  .rodata[ 72] external   123540 bytes (offset 860608 / D21C0h to F0454h)
+  .rodata[ 73] external     1676 bytes (offset 984240 / F04B0h to F0B3Ch)
+  .rodata[ 74] external     5032 bytes (offset 986016 / F0BA0h to F1F48h)
+  .rodata[ 75] external     6428 bytes (offset 991152 / F1FB0h to F38CCh)
+  .rodata[ 76] external    29224 bytes (offset 997680 / F3930h to FAB58h)
+  .rodata[ 77] external   119880 bytes (offset 1027008 / FABC0h to 118008h)
+  .rodata[ 78] external     1752 bytes (offset 1146992 / 118070h to 118748h)
+  .rodata[ 79] external     3824 bytes (offset 1148848 / 1187B0h to 1196A0h)
+  .rodata[ 80] external     5108 bytes (offset 1152768 / 119700h to 11AAF4h)
+  .rodata[ 81] external     7172 bytes (offset 1157968 / 11AB50h to 11C754h)
+  .rodata[ 82] external    10928 bytes (offset 1165232 / 11C7B0h to 11F260h)
+  .rodata[ 83] external     2124 bytes (offset 1176256 / 11F2C0h to 11FB0Ch)
+  .rodata[ 84] external     6924 bytes (offset 1178480 / 11FB70h to 12167Ch)
+  .rodata[ 85] external     4920 bytes (offset 1185504 / 1216E0h to 122A18h)
+  .rodata[ 86] external     7140 bytes (offset 1190528 / 122A80h to 124664h)
+  .rodata[ 87] external     7244 bytes (offset 1197760 / 1246C0h to 12630Ch)
+  .rodata[ 88] external     4860 bytes (offset 1205104 / 126370h to 12766Ch)
+  .rodata[ 89] external    26616 bytes (offset 1210064 / 1276D0h to 12DEC8h)
+  .rodata[ 90] external     5552 bytes (offset 1236784 / 12DF30h to 12F4E0h)
+  .rodata[ 91] external     5112 bytes (offset 1242432 / 12F540h to 130938h)
+  .rodata[ 92] external     1756 bytes (offset 1247648 / 1309A0h to 13107Ch)
+  .rodata[ 93] external     1056 bytes (offset 1249504 / 1310E0h to 131500h)
+  .rodata[ 94] external     6860 bytes (offset 1250656 / 131560h to 13302Ch)
+  .rodata[ 95] external     4896 bytes (offset 1257616 / 133090h to 1343B0h)
+  .rodata[ 96] external    26652 bytes (offset 1262608 / 134410h to 13AC2Ch)
+  .rodata[ 97] external     7732 bytes (offset 1289360 / 13AC90h to 13CAC4h)
+  .rodata[ 98] external     7292 bytes (offset 1297184 / 13CB20h to 13E79Ch)
+  .rodata[ 99] external     4912 bytes (offset 1304576 / 13E800h to 13FB30h)
+  .rodata[100] external    26652 bytes (offset 1309584 / 13FB90h to 1463ACh)
+  .rodata[101] external     6252 bytes (offset 1336336 / 146410h to 147C7Ch)
+  .rodata[102] external     7148 bytes (offset 1342688 / 147CE0h to 1498CCh)
+  .rodata[103] external     4944 bytes (offset 1349936 / 149930h to 14AC80h)
+  .rodata[104] external    26668 bytes (offset 1354976 / 14ACE0h to 15150Ch)
+  .rodata[105] external     6300 bytes (offset 1381744 / 151570h to 152E0Ch)
+  .rodata[106] external     1284 bytes (offset 1388144 / 152E70h to 153374h)
+  .rodata[107] external     2008 bytes (offset 1389520 / 1533D0h to 153BA8h)
+  .rodata[108] external    15400 bytes (offset 1391632 / 153C10h to 157838h)
+  .rodata[109] external     3000 bytes (offset 1407136 / 1578A0h to 158458h)
+  .rodata[110] external     1336 bytes (offset 1410240 / 1584C0h to 1589F8h)
+  .rodata[111] external     2896 bytes (offset 1411680 / 158A60h to 1595B0h)
+  .rodata[112] external     2164 bytes (offset 1414672 / 159610h to 159E84h)
+  .rodata[113] external     4660 bytes (offset 1416928 / 159EE0h to 15B114h)
+  .rodata[114] external     4696 bytes (offset 1421680 / 15B170h to 15C3C8h)
+  .rodata[115] external     1328 bytes (offset 1426480 / 15C430h to 15C960h)
+  .rodata[116] external     1404 bytes (offset 1427904 / 15C9C0h to 15CF3Ch)
+  .rodata[117] external     2596 bytes (offset 1429408 / 15CFA0h to 15D9C4h)
+  .rodata[118] external     2548 bytes (offset 1432096 / 15DA20h to 15E414h)
+  .rodata[119] external     1712 bytes (offset 1434736 / 15E470h to 15EB20h)
+  .rodata[120] external     1524 bytes (offset 1436544 / 15EB80h to 15F174h)
+  .rodata[121] external     1520 bytes (offset 1438160 / 15F1D0h to 15F7C0h)
+  .rodata[122] external  6618048 bytes (offset 1439744 / 15F800h to 7AF3C0h)
+  .rodata[123] embedded        6 bytes `input0`
+  .rodata[124] embedded        6 bytes `tensor`
+
+External .rodata: ~8046100 bytes
+
+//===--------------------------------------------------------------------------------------------------------------===//
+// Bytecode : version 0
+//===--------------------------------------------------------------------------------------------------------------===//
+
+  # | Offset   |   Length | Blocks | i32 # | ref # | Requirements | Aliases
+----+----------+----------+--------+-------+-------+--------------+-----------------------------------------------------
+  0 | 00000000 |    16265 |      3 |   196 |   138 |              | main
+  1 | 00003F90 |    25210 |    246 |    30 |   136 |              | __init
+
+//===--------------------------------------------------------------------------------------------------------------===//
+// Debug Information
+//===--------------------------------------------------------------------------------------------------------------===//
+// NOTE: debug databases are large and should be stripped in deployed artifacts.
+
+Locations: 283
+
