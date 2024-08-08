@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        float_precision: [single,double]
+        float_precision: [single, double]
         target: [android]
         arch: [x86_64, arm64]
         build_type: [release, debug]
@@ -49,8 +49,8 @@ jobs:
         uses: robinraju/release-downloader@v1.8
         with:
           filename: iree-dist-*-linux-x86_64.tar.xz
-          repository: openxla/iree
-          latest: true
+          repository: iree-org/iree
+          tag: candidate-20240806.977
           extract: false
 
       - name: Extract IREE Host tools
@@ -79,17 +79,18 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE="${{ steps.android-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=${{ matrix.cmake_arch_keyword }} \
             -DIREE_ENABLE_WERROR_FLAG=OFF \
-            -DFLOAT_PRECISION=${{ matrix.float_precision }}
+            -DFLOAT_PRECISION=${{ matrix.float_precision }} \
+            -DIREE_BUILD_SAMPLES=OFF
 
       - name: Build project
         shell: bash
         run: ninja -C "${{ github.workspace }}/build"
-   
+
       - name: Show build files
         shell: bash
         working-directory: build
         run: ls -lR
-  
+
       - name: Export artifact
         uses: actions/upload-artifact@v2
         with:
