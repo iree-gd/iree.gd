@@ -50,7 +50,7 @@ jobs:
         with:
           filename: iree-dist-*-linux-x86_64.tar.xz
           repository: iree-org/iree
-          latest: true
+          tag: candidate-20240806.977
           extract: false
 
       - name: Extract IREE Host tools
@@ -79,7 +79,8 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE="${{ steps.android-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=${{ matrix.cmake_arch_keyword }} \
             -DIREE_ENABLE_WERROR_FLAG=OFF \
-            -DFLOAT_PRECISION=${{ matrix.float_precision }}
+            -DFLOAT_PRECISION=${{ matrix.float_precision }} \
+            -DIREE_BUILD_SAMPLES=OFF
 
       - name: Build project
         shell: bash
