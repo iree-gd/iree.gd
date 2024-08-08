@@ -23,7 +23,7 @@ This GDExtension provides:
 
 ### Preparation
 
-You'll need to compile your models following this [guide](https://openxla.github.io/iree/guides/).
+You'll need to compile your models following this [guide](https://iree.dev/guides/).
 Make sure the backends is supported by your compiled models, based on [supported platforms](#supported-platforms).
 
 You can use `iree-dump-module` from IREE's tools to inspect the byte code.
@@ -39,8 +39,8 @@ Exported Functions:
 Here we can know that:
 
 - The function name is `"main"`.
-- The function takes one `1x50x50x3` float 32 `IREETensor` (`input_0`) as input.
-- The function takes one `1x200x200x3` float 32 `IREETensor` (`Identity`) as output.
+- The function takes one `1x50x50x3` float 32 `IREETensor` (`%input0`) as input.
+- The function takes one `1x200x200x3` float 32 `IREETensor` (`%output0`) as output.
 
 ### Using `iree.gd`
 
@@ -54,10 +54,11 @@ There are 4 steps:
 4. Interpreting the output `IREETensor`s from `IREEModule`.
 
 ```swift
-var module := IREEModule.load("res://model.vmfb")
+
+var module := IREEModule.new()
+module.load("res://model.vmfb")
 var input := IREETensor.from_bytes(image.get_data(), [1, 50, 50, 3]) # Remember to consider the input type.
-# var outputs := module.bind("module.main", [input]).call_module() # Synchronous execution.
-var outputs := await module.bind("module.main", [input]).call_module_async().completed # Asynchronous execution.
+var outputs := await module.call_module("module.main", [input]).completed as Array
 for output in outputs:
     pass # Do something with the `output`.
 ```
@@ -87,7 +88,7 @@ cmake ..
 cmake --build . # Building the project, this will take a while, add `-j` flag to make it faster.
 ```
 
-If you would like to compile LLVM from source, you'll need to set `IREE_BUILD_BUNDLED_LLVM` to `ON` when generating build files with cmake.
+If you would like to compile LLVM from source, you'll need to set `IREE_BUILD_BUNDLED_LLVM` to `ON` when generating build files with cmake. You also need to initialize `llvm-project` submodule under `iree/third_party`.
 
 After compilation, the library will be in `build/lib` directory.
-It will also install the library into the sample.
+It will also install the library into the sample if `COPY_LIBS_TO_SAMPLE` is `ON`. `COPY_LIBS_TO_SAMPLE` is `ON` by default.

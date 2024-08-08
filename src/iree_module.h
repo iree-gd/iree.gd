@@ -25,14 +25,12 @@ private:
 	iree_vm_module_t *bytecode_module;
 	iree_vm_context_t *context;
 
-	String func_name;
-	Array args;
 	Ref<Thread> thread;
 
 	Error capture();
 	void release();
-	Array process();
-	void process_via_signal();
+	Array process(const String &p_func_name, const Array &p_args);
+	void process_return_via_signal(const String &p_func_name, const Array &p_args);
 	void on_process_completed(const Array &p_result);
 
 	bool is_captured() const;
@@ -47,9 +45,7 @@ public:
 
 	Error load(const String &p_path);
 	void unload();
-	Ref<IREEModule> bind(const String &p_func_name, const Array &p_args);
-	Ref<IREEModule> call_module_async();
-	Array call_module();
+	Ref<IREEModule> call_module(const String &p_func_name, const Array &p_args);
 };
 
 } // namespace godot

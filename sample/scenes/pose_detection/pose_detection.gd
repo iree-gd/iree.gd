@@ -24,7 +24,7 @@ func select_module() -> IREEModule:
 			assert(false, "Unsupported platform.")
 	return module
 
-static func rectify_image(p_image: Image) -> Image:
+func rectify_image(p_image: Image) -> Image:
 	# Because the input image must be a square (256 x 256).
 	# It scales down the image while keeping the aspect ratio.
 	
@@ -40,12 +40,6 @@ static func rectify_image(p_image: Image) -> Image:
 	padded_image.blit_rect(image, Rect2i(Vector2i.ZERO, image.get_size()), Vector2i.ZERO)
 	return padded_image
 
-static func bytes_to_float32s(p_data: PackedByteArray) -> PackedFloat32Array:
-	var result := PackedFloat32Array()
-	result.resize(p_data.size())
-	for i in result.size(): result[i] = float(p_data[i])
-	return result
-
 func _ready():
 	var image := texture.get_image()
 	var processed_image := rectify_image(image)
@@ -54,7 +48,7 @@ func _ready():
 		[1, 256, 256, 3]
 	)
 	var module := select_module()
-	var result := module.bind("module.main", [input_tensor]).call_module()
+	var result := await module.call_module("module.main", [input_tensor]).completed as Array
 	var output_tensor := result.front() as IREETensor
 	var output_data := output_tensor.get_data().to_float32_array()
 	var dimension := output_tensor.get_dimension()

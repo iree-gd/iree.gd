@@ -65,10 +65,7 @@ func upscale():
 					module = llvm_module
 				_:
 					assert(false, "Unsupported platform.")
-			# Synchronous execution
-			#var output_tensor := module.bind("module.main", [input_tensor]).call_module().front() as IREETensor
-			# Asynchronous execution
-			var output_tensor := (await module.bind("module.main", [input_tensor]).call_module_async().completed).front() as IREETensor
+			var output_tensor := (await module.call_module("module.main", [input_tensor]).completed as Array).front() as IREETensor
 			var raw_output_data := output_tensor.get_data().to_float32_array()
 			var clean_output_data := PackedByteArray()
 			clean_output_data.resize(raw_output_data.size())
