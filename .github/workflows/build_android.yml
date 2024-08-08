@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        float_precision: [single,double]
+        float_precision: [single, double]
         target: [android]
         arch: [x86_64, arm64]
         build_type: [release, debug]
@@ -49,7 +49,7 @@ jobs:
         uses: robinraju/release-downloader@v1.8
         with:
           filename: iree-dist-*-linux-x86_64.tar.xz
-          repository: openxla/iree
+          repository: iree-org/iree
           latest: true
           extract: false
 
@@ -84,12 +84,12 @@ jobs:
       - name: Build project
         shell: bash
         run: ninja -C "${{ github.workspace }}/build"
-   
+
       - name: Show build files
         shell: bash
         working-directory: build
         run: ls -lR
-  
+
       - name: Export artifact
         uses: actions/upload-artifact@v2
         with:
