@@ -1,0 +1,54 @@
+[configuration]
+
+entry_symbol = "iree_gd_library_init"
+compatibility_minimum = 4.2
+
+[libraries]
+
+linux.debug.x86_64 = "libiree-gd.linux.debug.single.x86_64.so"
+linux.debug.x86_32 = "libiree-gd.linux.debug.single.x86_32.so"
+linux.debug.arm64 = "libiree-gd.linux.debug.single.arm64.so"
+linux.debug.arm32 = "libiree-gd.linux.debug.single.arm.so"
+macos.debug = "libiree-gd.darwin.debug.single.framework"
+windows.debug.x86_64 = "iree-gd.windows.debug.single.x86_64.dll"
+windows.debug.x86_32 = "iree-gd.windows.debug.single.x86_32.dll"
+android.debug.arm64 = "libiree-gd.android.debug.single.arm64.so"
+android.debug.x86_64 = "libiree-gd.android.debug.single.x86_64.so"
+ios.debug.arm64 = "libiree-gd.ios.debug.single.arm64.dylib"
+ios.debug.x86_64 = "libiree-gd.ios.debug.single.x86_64.dylib"
+
+
+linux.debug.double.x86_64 = "libiree-gd.linux.debug.double.x86_64.so"
+linux.debug.double.x86_32 = "libiree-gd.linux.debug.double.x86_32.so"
+linux.debug.double.arm64 = "libiree-gd.linux.debug.double.arm64.so"
+linux.debug.double.arm32 = "libiree-gd.linux.debug.double.arm.so"
+macos.debug.double = "libiree-gd.darwin.debug.double.framework"
+windows.debug.double.x86_64 = "iree-gd.windows.debug.double.x86_64.dll"
+windows.debug.double.x86_32 = "iree-gd.windows.debug.double.x86_32.dll"
+android.debug.double.arm64 = "libiree-gd.android.debug.double.arm64.so"
+android.debug.double.x86_64 = "libiree-gd.android.debug.double.x86_64.so"
+ios.debug.double.arm64 = "libiree-gd.ios.debug.double.arm64.dylib"
+ios.debug.double.x86_64 = "libiree-gd.ios.debug.double.x86_64.dylib"
+
+linux.release.x86_64 = "libiree-gd.linux.release.single.x86_64.so"
+linux.release.x86_32 = "libiree-gd.linux.release.single.x86_32.so"
+linux.release.arm64 = "libiree-gd.linux.release.single.arm64.so"
+linux.release.arm32 = "libiree-gd.linux.release.single.arm.so"
+macos.release = "libiree-gd.darwin.release.single.framework"
+windows.release.x86_64 = "iree-gd.windows.release.single.x86_64.dll"
+windows.release.x86_32 = "iree-gd.windows.release.single.x86_32.dll"
+android.release.arm64 = "libiree-gd.android.release.single.arm64.so"
+android.release.x86_64 = "libiree-gd.android.release.single.x86_64.so"
+ios.release.arm64 = "libiree-gd.ios.release.single.arm64.dylib"
+ios.release.x86_64 = "libiree-gd.ios.release.single.x86_64.dylib"
+
+linux.release.double.x86_64 = "libiree-gd.linux.release.double.x86_64.so"
+linux.release.double.x86_32 = "libiree-gd.linux.release.double.x86_32.so"
+linux.release.double.arm64 = "libiree-gd.linux.release.double.arm64.so"
+macos.release.double = "libiree-gd.darwin.release.double.framework"
+windows.release.double.x86_64 = "iree-gd.windows.release.double.x86_64.dll"
+windows.release.double.x86_32 = "iree-gd.windows.release.double.x86_32.dll"
+android.release.double.arm64 = "libiree-gd.android.release.double.arm64.so"
+android.release.double.x86_64 = "libiree-gd.android.release.double.x86_64.so"
+ios.release.double.arm64 = "libiree-gd.ios.release.double.arm64.dylib"
+ios.release.double.x86_64 = "libiree-gd.ios.release.double.x86_64.dylib"

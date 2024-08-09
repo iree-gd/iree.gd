@@ -22,6 +22,7 @@ jobs:
         shell: bash
         run: |
           cp -rf ${{ github.workspace }}/iree.gd/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/miscellaneous/iree-gd.gdextension ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
           cp -rf ${{ github.workspace }}/CHANGELOG.md ${{ github.workspace }}/sample/addons/iree-gd
           cp -rf ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/addons/iree-gd
           cp -rf ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd
