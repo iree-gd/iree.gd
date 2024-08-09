@@ -163,6 +163,14 @@ elseif("${ARCH}" MATCHES amd64)
 	set(ARCH x86_64)
 endif()
 
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
+	if("${CMAKE_OSX_ARCHITECTURES}" MATCHES x86_64)
+		set(ARCH x86_64)
+	elseif("${CMAKE_OSX_ARCHITECTURES}" MATCHES arm64)
+		set(ARCH arm64)
+	endif()
+endif()
+
 
 #-------------------------------------------------------------------------------
 # Third-party dependencies
