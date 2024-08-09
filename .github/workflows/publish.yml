@@ -17,14 +17,14 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: runner.yml
-          path: ${{ github.workspace }}/sample
 
       - name: Copy Files
         shell: bash
         run: |
-          cp ${{ github.workspace }}/CHANGELOG.md ${{ github.workspace }}/sample/addons/iree-gd
-          cp ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/addons/iree-gd
-          cp ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree.gd/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/CHANGELOG.md ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd
 
       - name: Install zip utilities
         shell: bash
