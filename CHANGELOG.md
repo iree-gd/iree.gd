@@ -4,6 +4,12 @@
 
 This is the change log of `iree.gd`.
 
+## [v0.0.1-alpha6] Upgrade IREE
+
+- Upgrade IREE version.
+- Add pose detection example.
+- Remove synchronous execution.
+
 ## [v0.0.1-alpha5] Add asynchronous execution
 
 - Add asynchronous execution.
