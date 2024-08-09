@@ -35,10 +35,9 @@ jobs:
       - name: Pack
         shell: bash
         run: |
-          cd "${{ github.workspace }}/sample/extensions"
-          zip -r "${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip" iree-gd
-          cd "${{ github.workspace }}"
           zip -r "${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip" sample
+          cd "${{ github.workspace }}/sample/addons"
+          zip -r "${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip" iree-gd
 
       - name: Release
         uses: softprops/action-gh-release@v1
