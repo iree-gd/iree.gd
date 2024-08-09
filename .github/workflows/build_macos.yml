@@ -147,8 +147,8 @@ jobs:
         with:
           name: iree.gd
           path: |
-            "${{ github.workspace }}/sample/**/*.dylib"
-            "${{ github.workspace }}/sample/**/*.plist"
-            "${{ github.workspace }}/sample/**/*.gdextension"
-            "${{ github.workspace }}/sample/**/CodeResources"
+            ${{ github.workspace }}/sample/**/*.dylib
+            ${{ github.workspace }}/sample/**/*.plist
+            ${{ github.workspace }}/sample/**/*.gdextension
+            ${{ github.workspace }}/sample/**/CodeResources
           if-no-files-found: error
