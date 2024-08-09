@@ -12,61 +12,19 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Download artifacts from Linux workflow
+      - name: Download artifacts
         uses: dawidd6/action-download-artifact@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: build_linux.yml
-          path: ${{ github.workspace }}/sample/extensions/iree-gd
-
-      - name: Download artifacts from Windows workflow
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: build_windows.yml
-          path: ${{ github.workspace }}/sample/extensions/iree-gd
-
-      - name: Download artifacts from MacOS workflow
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: build_macos.yml
-          path: ${{ github.workspace }}/sample/extensions/iree-gd
-
-      - name: Download artifacts from Android workflow
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: build_android.yml
-          path: ${{ github.workspace }}/sample/extensions/iree-gd
-
-      - name: Download artifacts from Linux ARM workflow
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: build_linux_arm.yml
-          path: ${{ github.workspace }}/sample/extensions/iree-gd
-
-      - name: Download artifacts from iOS workflow
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow: build_ios.yml
-          path: ${{ github.workspace }}/sample/extensions/iree-gd
-
-      - name: Flatten directory
-        shell: sh
-        run: |
-          cd ${{ github.workspace }}/sample/extensions/iree-gd
-          find . -mindepth 2 -type f -exec sh -c 'exec mv "$@" .' sh {} +
-          find . -mindepth 1 -type d -exec sh -c 'exec rm -rf "$@"' sh {} +
+          workflow: runner.yml
+          path: ${{ github.workspace }}/sample
 
       - name: Copy Files
         shell: bash
         run: |
-          cp ${{ github.workspace }}/CHANGELOG.md ${{ github.workspace }}/sample/extensions/iree-gd
-          cp ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/extensions/iree-gd
-          cp ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/extensions/iree-gd
+          cp ${{ github.workspace }}/CHANGELOG.md ${{ github.workspace }}/sample/addons/iree-gd
+          cp ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/addons/iree-gd
+          cp ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd
 
       - name: Install zip utilities
         shell: bash
