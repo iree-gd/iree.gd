@@ -43,9 +43,7 @@ public:
 	IREEModule(IREEModule &&p_module);
 	~IREEModule();
 
-	Error load(const String &p_path);
-	void unload();
-	Ref<IREEModule> call_module(const String &p_func_name, const Array &p_args);
+	TypedArray<IREETensor> call_module(const String &p_func_name, const TypedArray<IREETensor> &p_args);
 };
 
 } // namespace godot
