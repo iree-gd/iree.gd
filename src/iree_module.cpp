@@ -68,7 +68,7 @@ void IREEModule::release() {
 	}
 }
 
-Array IREEModule::process(const String &p_func_name, const Array &p_args) {
+TypedArray<IREETensor> IREEModule::process(const String &p_func_name, const Array &p_args) {
 	if (!is_captured()) {
 		Error status = capture();
 		if (status != OK)
@@ -130,52 +130,26 @@ Array IREEModule::process(const String &p_func_name, const Array &p_args) {
 	return outputs.get_tensors();
 }
 
-void IREEModule::process_return_via_signal(const String &p_func_name, const Array &p_args) {
-	Array result = process(p_func_name, p_args);
-	call_deferred("emit_signal", "completed", result);
-}
-
-void IREEModule::on_process_completed(const Array &p_result) {
-	if (thread->is_started())
-		thread->wait_to_finish();
-}
-
 bool IREEModule::is_captured() const { return bytecode_module && context; }
 
 void IREEModule::_bind_methods() {
-	ClassDB::bind_method(D_METHOD("load", "path"), &IREEModule::load);
-	ClassDB::bind_method(D_METHOD("unload"), &IREEModule::unload);
 	ClassDB::bind_method(D_METHOD("call_module", "func_name", "args"), &IREEModule::call_module);
-
-	ADD_SIGNAL(MethodInfo("completed", PropertyInfo(Variant::ARRAY, "result", PROPERTY_HINT_ARRAY_TYPE)));
 }
 
 IREEModule::IREEModule() :
-		bytecode_data(), bytecode_module(nullptr), context(nullptr), thread() {
-	thread.instantiate();
-	call_deferred("connect", "completed",
-			callable_mp(this, &IREEModule::on_process_completed));
+		bytecode_data(), bytecode_module(nullptr), context(nullptr) {
 }
 
 IREEModule::IREEModule(IREEModule &&p_module) :
 		bytecode_data(p_module.bytecode_data),
 		bytecode_module(p_module.bytecode_module),
-		context(p_module.context),
-		thread(p_module.thread) {
+		context(p_module.context) {
 	p_module.bytecode_data.clear();
 	p_module.bytecode_module = nullptr;
 	p_module.context = nullptr;
-
-	p_module.call_deferred("disconnect", "completed",
-			callable_mp(this, &IREEModule::on_process_completed));
-
-	call_deferred("connect", "completed",
-			callable_mp(this, &IREEModule::on_process_completed));
 }
 
 IREEModule::~IREEModule() {
-	if (thread->is_started())
-		thread->wait_to_finish();
 	unload();
 }
 
@@ -200,11 +174,6 @@ void IREEModule::unload() {
 	bytecode_data.clear();
 }
 
-Ref<IREEModule> IREEModule::call_module(const String &p_func_name, const Array &p_args) {
-	ERR_FAIL_COND_V_MSG(
-			thread->is_alive(), this,
-			"IREE Module is running asynchronously in the background.");
-	Callable callable = callable_mp(this, &IREEModule::process_return_via_signal).bind(p_func_name, p_args);
-	thread->start(callable);
-	return this;
+TypedArray<IREETensor> IREEModule::call_module(const String &p_func_name, const TypedArray<IREETensor> &p_args) {
+	return process(p_func_name, p_args);
 }

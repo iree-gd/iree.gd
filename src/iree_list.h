@@ -3,7 +3,7 @@
 
 #include <godot_cpp/classes/global_constants.hpp>
 #include <godot_cpp/classes/ref.hpp>
-#include <godot_cpp/variant/array.hpp>
+#include <godot_cpp/variant/typed_array.hpp>
 
 #include <iree/hal/api.h>
 #include <iree/vm/api.h>
@@ -31,7 +31,7 @@ public:
 
 	iree_vm_list_t *borrow_vm_list() const;
 	bool is_captured() const;
-	Array get_tensors() const;
+	TypedArray<IREETensor> get_tensors() const;
 };
 
 } // namespace godot
