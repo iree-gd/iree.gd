@@ -22,6 +22,7 @@ class IREEModule : public Resource {
 	GDCLASS(IREEModule, Resource)
 
 private:
+	String path;
 	PackedByteArray bytecode_data;
 	iree_vm_module_t *bytecode_module;
 	iree_vm_context_t *context;
@@ -42,7 +43,7 @@ public:
 	IREEModule(IREEModule &&p_module);
 	~IREEModule();
 
-	Error load(const String &p_path);
+	Ref<IREEModule> load(const String &p_path);
 	void unload();
 	TypedArray<IREETensor> call_module(const String &p_func_name, const TypedArray<IREETensor> &p_args);
 };

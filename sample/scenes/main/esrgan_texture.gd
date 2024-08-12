@@ -1,8 +1,6 @@
 extends TextureRect
 
-@export var metal_module: IREEModule
-@export var vulkan_module: IREEModule
-@export var llvm_module: IREEModule
+@export var module: IREEModule_kaggle_esrgan_tf2_tfLite_esrgan_tf2
 
 signal on_upscaling_start()
 signal on_upscaling_step(percentage)
@@ -32,10 +30,10 @@ func upscale():
 	
 	on_upscaling_start.emit()
 	print("Start upscaling.")
+	var result_ids := []
 	for i in box_column_count: 
 		for j in box_row_count:
 			on_upscaling_step.emit(float(i * box_column_count + j) / (box_column_count * box_row_count) * 100)
-			print(float(i * box_column_count + j) / (box_column_count * box_row_count) * 100, "% is complete.")
 			var x_offset := i * 50
 			var y_offset := j * 50
 			var box_width := 50 if i != box_column_count - 1 else last_box_width
@@ -55,17 +53,10 @@ func upscale():
 				clean_input_data,
 				[1, 50, 50, 3]
 			)
-			var module : IREEModule = null
-			match OS.get_name():
-				"Windows", "Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD":
-					module = vulkan_module
-				"macOS", "iOS":
-					module = metal_module
-				"Android":
-					module = llvm_module
-				_:
-					assert(false, "Unsupported platform.")
-			var output_tensor := (await module.call_module("module.main", [input_tensor]).completed as Array).front() as IREETensor
+			var result_id := module.main([input_tensor])
+			result_ids.append(result_id)
+			
+			var output_tensor := module.result(result_id)[0]
 			var raw_output_data := output_tensor.get_data().to_float32_array()
 			var clean_output_data := PackedByteArray()
 			clean_output_data.resize(raw_output_data.size())
@@ -73,6 +64,31 @@ func upscale():
 			var output_image := Image.create_from_data(
 				200, 200, false, Image.FORMAT_RGB8, clean_output_data
 			)
+			new_image.blit_rect(
+				output_image,
+				Rect2i(0, 0, box_width * 4, box_height * 4),
+				Vector2i(x_offset * 4, y_offset * 4)
+			)
+	var idx = 0
+	print(result_ids.size())
+	on_upscaling_stop.emit()
+	return
+	for i in box_column_count: 
+		for j in box_row_count:
+			print(i, " ", j)
+			var output_tensor := module.result(result_ids[idx])[0]
+			idx += 1
+			var raw_output_data := output_tensor.get_data().to_float32_array()
+			var clean_output_data := PackedByteArray()
+			clean_output_data.resize(raw_output_data.size())
+			for k in raw_output_data.size(): clean_output_data[k] = clamp(raw_output_data[k], 0, 255)
+			var output_image := Image.create_from_data(
+				200, 200, false, Image.FORMAT_RGB8, clean_output_data
+			)
+			var x_offset := i * 50
+			var y_offset := j * 50
+			var box_width := 50 if i != box_column_count - 1 else last_box_width
+			var box_height := 50 if j != box_row_count - 1 else last_box_height
 			new_image.blit_rect(
 				output_image,
 				Rect2i(0, 0, box_width * 4, box_height * 4),

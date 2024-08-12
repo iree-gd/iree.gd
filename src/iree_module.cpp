@@ -133,6 +133,8 @@ TypedArray<IREETensor> IREEModule::process(const String &p_func_name, const Arra
 bool IREEModule::is_captured() const { return bytecode_module && context; }
 
 void IREEModule::_bind_methods() {
+	ClassDB::bind_method(D_METHOD("load", "path"), &IREEModule::load);
+	ClassDB::bind_method(D_METHOD("unload"), &IREEModule::unload);
 	ClassDB::bind_method(D_METHOD("call_module", "func_name", "args"), &IREEModule::call_module);
 }
 
@@ -153,20 +155,21 @@ IREEModule::~IREEModule() {
 	unload();
 }
 
-Error IREEModule::load(const String &p_path) {
+Ref<IREEModule> IREEModule::load(const String &p_path) {
+	path = p_path;
 	// Unload old data.
 	unload();
 
 	// Read file content.
 	PackedByteArray new_bytecode_data;
 	new_bytecode_data = FileAccess::get_file_as_bytes(p_path);
-	ERR_FAIL_COND_V_MSG(new_bytecode_data.size() == 0, ERR_INVALID_DATA,
+	ERR_FAIL_COND_V_MSG(new_bytecode_data.size() == 0, nullptr,
 			"Empty bytecode is forbidden.");
 	bytecode_data = new_bytecode_data;
 
 	notify_property_list_changed();
 	emit_changed();
-	return OK;
+	return this;
 }
 
 void IREEModule::unload() {

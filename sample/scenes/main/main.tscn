@@ -1,17 +1,16 @@
-[gd_scene load_steps=7 format=3 uid="uid://cb8sex5bn677y"]
+[gd_scene load_steps=6 format=3 uid="uid://cb8sex5bn677y"]
 
 [ext_resource type="Texture2D" uid="uid://caejptg3bfd7y" path="res://assets/example_images/baboon.png" id="1_ja3q5"]
 [ext_resource type="Theme" uid="uid://c4hif364nxikg" path="res://resources/themes/default_themes.tres" id="2_hskai"]
-[ext_resource type="IREEModule" path="res://bytecodes/esrgan/esrgan.metal.vmfb" id="3_dijj6"]
 [ext_resource type="Script" path="res://scenes/main/esrgan_texture.gd" id="3_ujyfa"]
-[ext_resource type="IREEModule" path="res://bytecodes/esrgan/esrgan.vulkan.vmfb" id="4_4eqss"]
+[ext_resource type="Script" path="res://addons/iree-zoo/kaggle_esrgan_tf2_tfLite_esrgan_tf2/kaggle_esrgan_tf2_tfLite_esrgan_tf2.gd" id="5_a8rs5"]
 [ext_resource type="Script" path="res://scenes/main/progress.gd" id="8_0ch1m"]
 
 [node name="Main" type="Node2D"]
 
 [node name="UI" type="CanvasLayer" parent="."]
 
-[node name="TextureRect" type="TextureRect" parent="UI"]
+[node name="TextureRect" type="TextureRect" parent="UI" node_paths=PackedStringArray("module")]
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -28,8 +27,7 @@ texture = ExtResource("1_ja3q5")
 expand_mode = 1
 stretch_mode = 5
 script = ExtResource("3_ujyfa")
-metal_module = ExtResource("3_dijj6")
-vulkan_module = ExtResource("4_4eqss")
+module = NodePath("../IREEModule_kaggle_esrgan_tf2_tfLite_esrgan_tf2")
 
 [node name="Container" type="HBoxContainer" parent="UI"]
 anchors_preset = 12
@@ -68,8 +66,9 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("8_0ch1m")
 
-[connection signal="on_upscaling_start" from="UI/TextureRect" to="UI/ProgressBar" method="_on_texture_rect_on_upscaling_start"]
-[connection signal="on_upscaling_step" from="UI/TextureRect" to="UI/ProgressBar" method="_on_texture_rect_on_upscaling_step"]
-[connection signal="on_upscaling_stop" from="UI/TextureRect" to="UI/ProgressBar" method="_on_texture_rect_on_upscaling_stop"]
+[node name="IREEModule_kaggle_esrgan_tf2_tfLite_esrgan_tf2" type="Node" parent="UI"]
+script = ExtResource("5_a8rs5")
+max_threads = 4
+
 [connection signal="button_up" from="UI/Container/UpscaleTrigger" to="UI/TextureRect" method="upscale" flags=3]
 [connection signal="button_up" from="UI/Container/DownscaleTrigger" to="UI/TextureRect" method="downscale"]
