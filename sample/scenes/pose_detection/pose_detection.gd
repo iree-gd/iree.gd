@@ -1,8 +1,6 @@
 extends Node2D
 
-@export var vulkan_module: IREEModule
-@export var metal_module: IREEModule
-@export var llvm_module: IREEModule
+@export var module: IREEModule_google_movenet_tfLite_singlepose_lightning_tflite_int8
 @export var texture: Texture2D
 
 var data := PackedFloat32Array() :
@@ -10,19 +8,6 @@ var data := PackedFloat32Array() :
 		if data == p_value: return
 		data = p_value
 		queue_redraw()
-
-func select_module() -> IREEModule:
-	var module : IREEModule = null
-	match OS.get_name():
-		"Windows", "Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD":
-			module = vulkan_module
-		"macOS", "iOS":
-			module = metal_module
-		"Android":
-			module = llvm_module
-		_:
-			assert(false, "Unsupported platform.")
-	return module
 
 func rectify_image(p_image: Image) -> Image:
 	# Because the input image must be a square (256 x 256).
@@ -47,8 +32,8 @@ func _ready():
 		processed_image.get_data(),
 		[1, 256, 256, 3]
 	)
-	var module := select_module()
-	var result := await module.call_module("module.main", [input_tensor]).completed as Array
+	
+	var result := await module.main([input_tensor]).result as Array[IREETensor]
 	var output_tensor := result.front() as IREETensor
 	var output_data := output_tensor.get_data().to_float32_array()
 	var dimension := output_tensor.get_dimension()

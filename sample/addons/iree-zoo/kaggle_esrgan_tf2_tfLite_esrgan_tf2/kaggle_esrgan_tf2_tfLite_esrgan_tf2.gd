@@ -13,7 +13,7 @@ func _load_module() -> IREEModule:
 		_:
 			assert(false, "Unsupported platform.")
 	return null
-	
+
 ## INPUTS
 ## input_0: PackedFloat32Array [ 1 50 50  3]
 ## ---
