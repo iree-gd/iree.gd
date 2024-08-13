@@ -30,10 +30,10 @@ func upscale():
 	
 	on_upscaling_start.emit()
 	print("Start upscaling.")
-	var result_ids := []
 	for i in box_column_count: 
 		for j in box_row_count:
 			on_upscaling_step.emit(float(i * box_column_count + j) / (box_column_count * box_row_count) * 100)
+			print(float(i * box_column_count + j) / (box_column_count * box_row_count) * 100)
 			var x_offset := i * 50
 			var y_offset := j * 50
 			var box_width := 50 if i != box_column_count - 1 else last_box_width
@@ -53,7 +53,7 @@ func upscale():
 				clean_input_data,
 				[1, 50, 50, 3]
 			)
-			var iree_result :IREEModuleRunner.IREEResult = module.main([input_tensor])
+			var iree_result :IREERunner.IREEResult = module.main([input_tensor])
 			var result = await iree_result.result
 			if !result:
 				push_error("No result")
@@ -72,6 +72,5 @@ func upscale():
 				Vector2i(x_offset * 4, y_offset * 4)
 			)
 	var idx = 0
-	print(result_ids.size())
 	on_upscaling_stop.emit()
 	texture = ImageTexture.create_from_image(new_image)

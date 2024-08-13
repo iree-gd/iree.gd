@@ -1,5 +1,5 @@
 @icon("res://addons/iree-gd/logo.svg")
-extends IREEModuleRunner
+extends IREERunner
 class_name IREEModule_kaggle_esrgan_tf2_tfLite_esrgan_tf2
 
 func _load_module() -> IREEModule:
