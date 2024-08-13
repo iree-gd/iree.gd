@@ -1,15 +1,16 @@
 @icon("res://addons/iree-gd/logo.svg")
 extends IREERunner
+## kaggle/esrgan-tf2/tfLite/esrgan-tf2
 class_name IREEModule_kaggle_esrgan_tf2_tfLite_esrgan_tf2
 
 func _load_module() -> IREEModule:
 	match OS.get_name():
 		"Windows", "Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD":
-			return IREEModule.new().load("res://addons/iree-zoo/kaggle_esrgan_tf2_tfLite_esrgan_tf2/iree.vulkan-spirv.vmfb")
+			return IREEModule.new().load("res://addons/iree-zoo/kaggle/esrgan-tf2/tfLite/esrgan-tf2/iree.vulkan-spirv.vmfb")
 		"macOS", "iOS":
-			return IREEModule.new().load("res://addons/iree-zoo/kaggle_esrgan_tf2_tfLite_esrgan_tf2/iree.metal-spirv.vmfb")
+			return IREEModule.new().load("res://addons/iree-zoo/kaggle/esrgan-tf2/tfLite/esrgan-tf2/iree.metal-spirv.vmfb")
 		"Android":
-			return IREEModule.new().load("res://addons/iree-zoo/kaggle_esrgan_tf2_tfLite_esrgan_tf2/iree.llvm-cpu.vmfb")
+			return IREEModule.new().load("res://addons/iree-zoo/kaggle/esrgan-tf2/tfLite/esrgan-tf2/iree.llvm-cpu.vmfb")
 		_:
 			assert(false, "Unsupported platform.")
 	return null
