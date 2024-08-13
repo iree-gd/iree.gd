@@ -19,5 +19,5 @@ func _load_module() -> IREEModule:
 ## ---
 ## OUTPUTS
 ## Identity: PackedFloat32Array [  1 200 200   3]
-func main(inputs: Array[IREETensor]) -> int:
+func main(inputs: Array[IREETensor]) -> IREEResult:
 	return run("module.main", inputs)

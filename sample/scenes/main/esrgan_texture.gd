@@ -53,10 +53,12 @@ func upscale():
 				clean_input_data,
 				[1, 50, 50, 3]
 			)
-			var result_id := module.main([input_tensor])
-			result_ids.append(result_id)
-			
-			var output_tensor := module.result(result_id)[0]
+			var iree_result :IREEModuleRunner.IREEResult = module.main([input_tensor])
+			var result = await iree_result.result
+			if !result:
+				push_error("No result")
+				return
+			var output_tensor :IREETensor= result[0]
 			var raw_output_data := output_tensor.get_data().to_float32_array()
 			var clean_output_data := PackedByteArray()
 			clean_output_data.resize(raw_output_data.size())
@@ -72,30 +74,4 @@ func upscale():
 	var idx = 0
 	print(result_ids.size())
 	on_upscaling_stop.emit()
-	return
-	for i in box_column_count: 
-		for j in box_row_count:
-			print(i, " ", j)
-			var output_tensor := module.result(result_ids[idx])[0]
-			idx += 1
-			var raw_output_data := output_tensor.get_data().to_float32_array()
-			var clean_output_data := PackedByteArray()
-			clean_output_data.resize(raw_output_data.size())
-			for k in raw_output_data.size(): clean_output_data[k] = clamp(raw_output_data[k], 0, 255)
-			var output_image := Image.create_from_data(
-				200, 200, false, Image.FORMAT_RGB8, clean_output_data
-			)
-			var x_offset := i * 50
-			var y_offset := j * 50
-			var box_width := 50 if i != box_column_count - 1 else last_box_width
-			var box_height := 50 if j != box_row_count - 1 else last_box_height
-			new_image.blit_rect(
-				output_image,
-				Rect2i(0, 0, box_width * 4, box_height * 4),
-				Vector2i(x_offset * 4, y_offset * 4)
-			)
-	on_upscaling_stop.emit()
-	print("Done upscaling.")
-	
-	
 	texture = ImageTexture.create_from_image(new_image)

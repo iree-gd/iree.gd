@@ -2,19 +2,14 @@ class_name IREEModuleRunner
 extends Node
 
 @export var max_threads := 2
-@export var max_results := 2
 var module_semaphore := Semaphore.new()
-var results_semaphore := Semaphore.new()
-
 var modules: Array[IREEModule]
-
-var results: Dictionary
-var tasks: Dictionary
 var mutex := Mutex.new()
 
+class IREEResult:
+	signal result(outputs: Array[IREETensor])
+
 func _init() -> void:
-	for idx in max_results:
-		results_semaphore.post()
 	for idx in max_threads:
 		module_semaphore.post()
 	modules.resize(max_threads)
@@ -25,11 +20,8 @@ func _load_module() -> IREEModule:
 	assert("This is abstract and needs to be implemented")
 	return null
 
-func _write_results(outputs: Array[IREETensor], id: int):
-	results_semaphore.wait()
-	mutex.lock()
-	results[id] = outputs
-	mutex.unlock()
+func _write_results(outputs: Array[IREETensor], iree_result: IREEResult):
+	iree_result.result.emit.call_deferred(outputs)
 
 func _get_module() -> IREEModule:
 	var module: IREEModule
@@ -45,31 +37,14 @@ func _return_module(module: IREEModule):
 	mutex.unlock()
 	module_semaphore.post()
 
-func _run(method: String, inputs: Array[IREETensor], id: int):
+func _run(method: String, inputs: Array[IREETensor], iree_result: IREEResult):
 	var thread_id := OS.get_thread_caller_id()
 	var module:= _get_module()
 	var outputs = module.call_module(method, inputs)
-	_write_results(outputs, id)
+	_write_results(outputs, iree_result)
 	_return_module(module)
 
-func run(method: String, inputs: Array[IREETensor]) -> int:
-	var thread_id = randi()
-	var task_id = WorkerThreadPool.add_task(_run.bind(method, inputs, thread_id))
-	tasks[task_id] = thread_id
-	return task_id
-
-func result(task: int) -> Array[IREETensor]:
-	if !WorkerThreadPool.is_task_completed(task):
-		if WorkerThreadPool.wait_for_task_completion(task) != OK:
-			push_error("Task error")
-		var object = results[tasks[task]]
-		results.erase(tasks[task])
-		results_semaphore.post()
-		return object
-	elif results.has(tasks[task]):
-		var object = results[tasks[task]]
-		results.erase(tasks[task])
-		results_semaphore.post()
-		return object
-	push_error("Task error")
-	return []
+func run(method: String, inputs: Array[IREETensor]) -> IREEResult:
+	var iree_result = IREEResult.new()
+	WorkerThreadPool.add_task(_run.bind(method, inputs, iree_result))
+	return iree_result
