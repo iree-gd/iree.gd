@@ -10,7 +10,7 @@ var data := PackedFloat32Array() :
 		queue_redraw()
 
 func rectify_image(p_image: Image) -> Image:
-	# Because the input image must be a square (256 x 256).
+	# Because the input image must be a square (192 x 192).
 	# It scales down the image while keeping the aspect ratio.
 	
 	var image := p_image.duplicate(true) as Image
@@ -18,10 +18,10 @@ func rectify_image(p_image: Image) -> Image:
 	var resolution := image.get_size()
 	var aspect_ratio := float(resolution.y) / resolution.x
 	var is_landscape := resolution.x > resolution.y
-	if is_landscape: image.resize(256, int(256.0 * aspect_ratio))
-	else: image.resize(int(256.0 / aspect_ratio), 256)
+	if is_landscape: image.resize(192, int(192.0 * aspect_ratio))
+	else: image.resize(int(192.0 / aspect_ratio), 192)
 	
-	var padded_image := Image.create(256, 256, false, Image.FORMAT_RGB8)
+	var padded_image := Image.create(192, 192, false, Image.FORMAT_RGB8)
 	padded_image.blit_rect(image, Rect2i(Vector2i.ZERO, image.get_size()), Vector2i.ZERO)
 	return padded_image
 
@@ -30,7 +30,7 @@ func _ready():
 	var processed_image := rectify_image(image)
 	var input_tensor := IREETensor.from_bytes(
 		processed_image.get_data(),
-		[1, 256, 256, 3]
+		[1, 192, 192, 3]
 	)
 	
 	var result := await module.main([input_tensor]).result as Array[IREETensor]
