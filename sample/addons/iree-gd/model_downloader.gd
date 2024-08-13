@@ -8,12 +8,7 @@ static func unzip(path_to_zip: String) -> void:
 	if zr.open(path_to_zip) == OK:		
 		for filepath in zr.get_files():
 			var zip_directory : String = path_to_zip.get_base_dir()
-			var da : DirAccess = DirAccess.open(zip_directory)
 			var trimmed_path : String = path_to_zip.trim_suffix(".zip")
-			da.make_dir(trimmed_path)
-			da = DirAccess.open(zip_directory)
-			da.make_dir_recursive(filepath.get_base_dir())
-			print(zip_directory + "/" + filepath)
 			var fa : FileAccess = FileAccess.open("%s/%s" % [zip_directory, filepath], FileAccess.WRITE)
 			fa.store_buffer(zr.read_file(filepath))
 			ResourceLoader.load(fa.get_path(), "", ResourceLoader.CacheMode.CACHE_MODE_REPLACE_DEEP)
