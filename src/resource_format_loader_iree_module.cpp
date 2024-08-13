@@ -9,8 +9,8 @@ Variant ResourceFormatLoaderIREEModule::_load(const String &p_path,
 		bool use_sub_threads,
 		int32_t cache_mode) const {
 	Ref<IREEModule> iree_model = memnew(IREEModule);
-	Error e = iree_model->load(p_path);
-	if (e != OK) {
+	iree_model = iree_model->load(p_path);
+	if (iree_model.is_null()) {
 		ERR_PRINT("Cannot load " + p_path);
 		return Ref<Resource>();
 	}

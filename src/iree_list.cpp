@@ -78,10 +78,10 @@ iree_vm_list_t *IREEList::borrow_vm_list() const { return vm_list; }
 
 bool IREEList::is_captured() const { return vm_list; }
 
-Array IREEList::get_tensors() const {
+TypedArray<IREETensor> IREEList::get_tensors() const {
 	if (!is_captured())
 		return Array();
-	Array tensors;
+	TypedArray<IREETensor> tensors;
 	iree_host_size_t size = iree_vm_list_size(vm_list);
 	for (iree_host_size_t i = 0; i < size; i++) {
 		iree_hal_buffer_view_t *buffer_view =

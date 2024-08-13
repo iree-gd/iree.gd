@@ -50,7 +50,7 @@ jobs:
         with:
           filename: iree-dist-*-linux-x86_64.tar.xz
           repository: iree-org/iree
-          tag: candidate-20240806.977
+          tag: candidate-20240812.983
           extract: false
 
       - name: Extract IREE Host tools

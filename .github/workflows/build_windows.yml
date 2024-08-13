@@ -69,4 +69,9 @@ jobs:
           path: |
             sample/**/*.dll
             sample/**/*.gdextension
+            sample/addons/**/*.svg
+            sample/addons/iree-gd/**/*.gd
+            sample/addons/iree-gd/**/*.cfg
+            sample/addons/iree-gd/**/*.tscn
+            sample/addons/**/*.svg.import
           if-no-files-found: error

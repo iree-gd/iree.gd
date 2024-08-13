@@ -1,8 +1,6 @@
 extends TextureRect
 
-@export var metal_module: IREEModule
-@export var vulkan_module: IREEModule
-@export var llvm_module: IREEModule
+@export var module: IREEModule_kaggle_esrgan_tf2_tfLite_esrgan_tf2
 
 signal on_upscaling_start()
 signal on_upscaling_step(percentage)
@@ -35,7 +33,7 @@ func upscale():
 	for i in box_column_count: 
 		for j in box_row_count:
 			on_upscaling_step.emit(float(i * box_column_count + j) / (box_column_count * box_row_count) * 100)
-			print(float(i * box_column_count + j) / (box_column_count * box_row_count) * 100, "% is complete.")
+			print(float(i * box_column_count + j) / (box_column_count * box_row_count) * 100)
 			var x_offset := i * 50
 			var y_offset := j * 50
 			var box_width := 50 if i != box_column_count - 1 else last_box_width
@@ -55,17 +53,12 @@ func upscale():
 				clean_input_data,
 				[1, 50, 50, 3]
 			)
-			var module : IREEModule = null
-			match OS.get_name():
-				"Windows", "Linux", "FreeBSD", "NetBSD", "OpenBSD", "BSD":
-					module = vulkan_module
-				"macOS", "iOS":
-					module = metal_module
-				"Android":
-					module = llvm_module
-				_:
-					assert(false, "Unsupported platform.")
-			var output_tensor := (await module.call_module("module.main", [input_tensor]).completed as Array).front() as IREETensor
+			var iree_result :IREERunner.IREEResult = module.main([input_tensor])
+			var result = await iree_result.result
+			if !result:
+				push_error("No result")
+				return
+			var output_tensor :IREETensor= result[0]
 			var raw_output_data := output_tensor.get_data().to_float32_array()
 			var clean_output_data := PackedByteArray()
 			clean_output_data.resize(raw_output_data.size())
@@ -78,8 +71,6 @@ func upscale():
 				Rect2i(0, 0, box_width * 4, box_height * 4),
 				Vector2i(x_offset * 4, y_offset * 4)
 			)
+	var idx = 0
 	on_upscaling_stop.emit()
-	print("Done upscaling.")
-	
-	
 	texture = ImageTexture.create_from_image(new_image)
