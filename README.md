@@ -57,8 +57,9 @@ There are 4 steps:
 
 var module := IREEModule.new()
 module.load("res://model.vmfb")
-var input := IREETensor.from_bytes(image.get_data(), [1, 50, 50, 3]) # Remember to consider the input type.
-var outputs := module.call_module("module.main", [input])
+var inputs : Array[IREETensor]
+inputs.assign([IREETensor.from_bytes(image.get_data(), [1, 50, 50, 3])]) # Remember to consider the input type.
+var outputs := module.call_module("module.main", inputs)
 for output in outputs:
     pass # Do something with the `output`.
 ```
