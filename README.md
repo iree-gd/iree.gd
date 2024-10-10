@@ -2,9 +2,9 @@
 
 ![iree.gd logo](./graphics/logo.svg)
 
-[IREE](https://github.com/openxla/iree) runtime in Godot through GDExtension, a mission to run machine learning model (e.g. Tensorflow lite) natively in Godot.
+[IREE](https://github.com/iree-org/iree) runtime in Godot through GDExtension, a mission to run machine learning model (e.g. Tensorflow lite) natively in Godot.
 
-Authored by [Richie Kho](https://github.com/RechieKho/iree.gd), published by [V-Sekai](https://github.com/V-Sekai/IREE.gd).
+Authored by [Richie Kho](https://github.com/RechieKho/iree.gd) and its contributors.
 
 ## Supported Platforms
 
@@ -58,7 +58,7 @@ There are 4 steps:
 var module := IREEModule.new()
 module.load("res://model.vmfb")
 var input := IREETensor.from_bytes(image.get_data(), [1, 50, 50, 3]) # Remember to consider the input type.
-var outputs := await module.call_module("module.main", [input]).completed as Array
+var outputs := module.call_module("module.main", [input])
 for output in outputs:
     pass # Do something with the `output`.
 ```
