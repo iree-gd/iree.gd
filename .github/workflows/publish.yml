@@ -25,7 +25,6 @@ jobs:
         run: |
           cp -rf ${{ github.workspace }}/iree.gd/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
           cp -rf ${{ github.workspace }}/miscellaneous/iree-gd.gdextension ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
-          cp -rf ${{ github.workspace }}/CHANGELOG.md ${{ github.workspace }}/sample/addons/iree-gd
           cp -rf ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/addons/iree-gd
           cp -rf ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd
 
@@ -45,7 +44,6 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          body_path: ${{ github.workspace }}/CHANGELOG.md
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             ${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip
