@@ -92,9 +92,9 @@ jobs:
         run: ls -lR
 
       - name: Export artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: iree.gd
+        uses: actions/upload-artifact@v4
+        with:        
+          name: iree-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
             sample/**/*.so
             sample/**/*.gdextension
