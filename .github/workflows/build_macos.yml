@@ -146,7 +146,7 @@ jobs:
       - name: Export artifact
         uses: actions/upload-artifact@v3
         with:
-          name: iree.gd
+          name: iree-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
             ${{ github.workspace }}/sample/**/*.dylib
             ${{ github.workspace }}/sample/**/*.plist
