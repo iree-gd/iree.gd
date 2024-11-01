@@ -1,10 +1,19 @@
 extends TextureRect
 
-@export var module: IREEModule_kaggle_esrgan_tf2_tfLite_esrgan_tf2
+@export var vulkan_module: IREEModule
+@export var metal_module: IREEModule
 
 signal on_upscaling_start()
 signal on_upscaling_step(percentage)
 signal on_upscaling_stop()
+
+
+func select_model() -> IREEModule:
+	match OS.get_name():
+		"Window", "Android", "Linux", "OpenBSD", "FreeBSD", "NetBSD", "BSD": return vulkan_module
+		"macOS", "iOS": return metal_module
+	assert(false)
+	return null
 
 func downscale():
 	var image := texture.get_image()
@@ -53,8 +62,7 @@ func upscale():
 				clean_input_data,
 				[1, 50, 50, 3]
 			)
-			var iree_result :IREERunner.IREEResult = module.main([input_tensor])
-			var result = await iree_result.result
+			var result := select_model().call_module("module.main", [input_tensor])
 			if !result:
 				push_error("No result")
 				return

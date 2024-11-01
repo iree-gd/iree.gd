@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        float_precision: [single,double]
+        float_precision: [single, double]
         target: [linux]
         arch: [x86_64]
         build_type: [release, debug]
@@ -59,7 +59,8 @@ jobs:
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
             -DCMAKE_CXX_FLAGS="${{ matrix.cxxflags }}" \
             -DIREE_ENABLE_WERROR_FLAG=OFF \
-            -DFLOAT_PRECISION=${{ matrix.float_precision }}
+            -DFLOAT_PRECISION=${{ matrix.float_precision }} \
+            -DIREE_BUILD_TESTS=OFF
 
       - name: Build project
         shell: bash

@@ -93,7 +93,8 @@ jobs:
             -DCMAKE_SYSTEM_PROCESSOR="${{ matrix.arch }}" \
             -DIREE_BUILD_SAMPLES=OFF \
             -DCMAKE_CXX_FLAGS="-Wno-psabi" \
-            -DFLOAT_PRECISION=${{ matrix.float_precision }}
+            -DFLOAT_PRECISION=${{ matrix.float_precision }} \
+            -DIREE_BUILD_TESTS=OFF
 
       - name: Build project
         shell: bash
