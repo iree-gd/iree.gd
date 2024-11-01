@@ -87,7 +87,7 @@ Error IREEDevice::capture(iree_vm_instance_t *p_instance) {
 	// Create HAL module.
 	if ((iree_status = iree_hal_module_create(
 				 p_instance, 1, &new_hal_device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
-				 iree_allocator_system(), &new_hal_module))) {
+				 iree_hal_module_debug_sink_null(), iree_allocator_system(), &new_hal_module))) {
 		ERR_PRINT("Unable to create HAL module of the Metal device.");
 		ERR_PRINT(vformat("IREE code: '%s'. IREE's error is logged to `stderr`.",
 				iree_status_code_string(iree_status_code(iree_status))));
