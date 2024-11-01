@@ -80,7 +80,8 @@ jobs:
             -DANDROID_ABI=${{ matrix.cmake_arch_keyword }} \
             -DIREE_ENABLE_WERROR_FLAG=OFF \
             -DFLOAT_PRECISION=${{ matrix.float_precision }} \
-            -DIREE_BUILD_SAMPLES=OFF
+            -DIREE_BUILD_SAMPLES=OFF \
+            -DIREE_BUILD_TESTS=OFF
 
       - name: Build project
         shell: bash
@@ -93,7 +94,7 @@ jobs:
 
       - name: Export artifact
         uses: actions/upload-artifact@v4
-        with:        
+        with:
           name: iree-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
             sample/**/*.so
