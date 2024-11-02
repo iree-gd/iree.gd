@@ -36,3 +36,14 @@ jobs:
   build_windows:
     needs: [lint]
     uses: ./.github/workflows/build_windows.yml
+  bundle:
+    needs:
+      [
+        build_android,
+        build_ios,
+        build_linux_arm,
+        build_linux,
+        build_macos,
+        build_windows,
+      ]
+    uses: ./.github/workflows/bundle.yml

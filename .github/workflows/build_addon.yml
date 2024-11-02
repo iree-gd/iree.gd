@@ -1,0 +1,35 @@
+name: Bundle
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Download artifacts
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: runner.yml
+          name: iree-.*
+          name_is_regexp: true
+
+      - name: Copy Files
+        shell: bash
+        run: |
+          cp -rf ${{ github.workspace }}/miscellaneous/iree-gd.gdextension ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
+          cp -rf ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd
+
+      - name: Export artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle
+          path: |
+            ${{ github.workspace }}/sample/addons/iree-gd
+          if-no-files-found: error

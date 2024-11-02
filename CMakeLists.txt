@@ -65,7 +65,7 @@ set(IREE_HAL_DRIVER_CUDA OFF)
 
 if(APPLE)
 	set(IREE_HAL_DRIVER_METAL ON)
-elseif(WIN32 OR LINUX OR BSD)
+elseif(WIN32 OR LINUX OR BSD OR ANDROID)
 	set(IREE_HAL_DRIVER_VULKAN ON)
 else()
 	set(IREE_HAL_DRIVER_LOCAL_SYNC ON)
@@ -210,7 +210,7 @@ if(APPLE)
 		${LIB_NAME}
 		iree::hal::drivers::metal::registration
 	)
-elseif(WIN32 OR LINUX OR BSD)
+elseif(WIN32 OR LINUX OR BSD OR ANDROID)
 	target_link_libraries(
 		${LIB_NAME}
 		iree::hal::drivers::vulkan::registration

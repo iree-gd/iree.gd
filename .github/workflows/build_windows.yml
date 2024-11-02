@@ -62,16 +62,22 @@ jobs:
         working-directory: build
         run: ls -lR
 
+      - name: Move files
+        run: |
+          mkdir -p ${{ github.workspace }}/sample/addons/iree-gd/
+          find ${{ github.workspace }}/sample -type f \( \
+            -name "*.dll" \
+            -o -name "*.gdextension" \
+            -o -name "*.svg" \
+            -o -name "*.gd" \
+            -o -name "*.cfg" \
+            -o -name "*.tscn" \
+            -o -name "*.svg.import" \) -exec mv {} ${{ github.workspace }}/sample/addons/iree-gd/ \;
+
       - name: Export artifact
         uses: actions/upload-artifact@v4
         with:
           name: iree-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
-            sample/**/*.dll
-            sample/**/*.gdextension
-            sample/addons/**/*.svg
-            sample/addons/iree-gd/**/*.gd
-            sample/addons/iree-gd/**/*.cfg
-            sample/addons/iree-gd/**/*.tscn
-            sample/addons/**/*.svg.import
+            sample/addons/iree-gd/
           if-no-files-found: error

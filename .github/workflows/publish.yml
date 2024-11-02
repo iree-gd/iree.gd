@@ -19,32 +19,18 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: runner.yml
+          name: bundle
 
-      - name: Copy Files
+      - name: Rename artifacts
         shell: bash
         run: |
-          cp -rf ${{ github.workspace }}/iree.gd/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/miscellaneous/iree-gd.gdextension ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
-          cp -rf ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd
-
-      - name: Install zip utilities
-        shell: bash
-        run: |
-          sudo apt update
-          sudo apt install zip
-
-      - name: Pack
-        shell: bash
-        run: |
-          zip -r "${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip" sample
-          cd "${{ github.workspace }}/sample/addons"
-          zip -r "${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip" iree-gd
+          mv ${{ github.workspace }}/bundle/iree-gd.zip ${{ github.workspace }}/bundle/iree-gd-${{ github.ref_name }}.zip
+          mv ${{ github.workspace }}/bundle/iree-gd-sample.zip ${{ github.workspace }}/bundle/iree-gd-sample-${{ github.ref_name }}.zip
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            ${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip
-            ${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip
+            ${{ github.workspace }}/bundle/iree-gd-${{ github.ref_name }}.zip
+            ${{ github.workspace }}/bundle/iree-gd-sample-${{ github.ref_name }}.zip

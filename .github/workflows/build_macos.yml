@@ -25,6 +25,7 @@ jobs:
       matrix:
         float_precision: [single, double]
         target: [macos]
+        arch: [universal]
         build_type: [release, debug]
         include:
           # Build type to cmake keyword.
@@ -147,10 +148,19 @@ jobs:
       - name: Export artifact
         uses: actions/upload-artifact@v3
         with:
+          name: sample/addons/iree-gd/iree-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          path: |
+          if-no-files-found: error
+
+      - name: Move files
+        run: |
+          mkdir -p ${{ github.workspace }}/sample/addons/iree-gd/
+          mv ${{ github.workspace }}/sample/**/*.dylib ${{ github.workspace }}/sample/**/*.plist ${{ github.workspace }}/sample/**/*.gdextension ${{ github.workspace }}/sample/**/CodeResources ${{ github.workspace }}/sample/addons/iree-gd/
+  
+      - name: Export artifact
+        uses: actions/upload-artifact@v4
+        with:
           name: iree-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
-            ${{ github.workspace }}/sample/**/*.dylib
-            ${{ github.workspace }}/sample/**/*.plist
-            ${{ github.workspace }}/sample/**/*.gdextension
-            ${{ github.workspace }}/sample/**/CodeResources
+            sample/addons/iree-gd/
           if-no-files-found: error

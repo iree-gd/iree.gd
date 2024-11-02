@@ -1,0 +1,15 @@
+name: Bundle
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: godot-iree-gd
+          delete-merged: true

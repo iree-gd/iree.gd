@@ -61,6 +61,13 @@ jobs:
           fi
           tar -xf "${{ fromJson(steps.iree-dist.outputs.downloaded_files)[0] }}" -C "${{ github.workspace }}/iree-dist"
 
+      - name: Prepare Vulkan SDK
+        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        with:
+          vulkan-query-version: latest
+          vulkan-components: Vulkan-Headers, Vulkan-Loader
+          vulkan-use-cache: true
+
       - name: Setup Android NDK
         id: android-ndk
         uses: nttld/setup-ndk@v1.4.2
@@ -75,6 +82,7 @@ jobs:
           fi
           cd "${{ github.workspace }}/build"
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DCMAKE_CXX_FLAGS="-I${VULKAN_SDK}/include" \
             -DIREE_HOST_BIN_DIR="${{ github.workspace }}/iree-dist/bin" \
             -DCMAKE_TOOLCHAIN_FILE="${{ steps.android-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=${{ matrix.cmake_arch_keyword }} \
@@ -92,11 +100,15 @@ jobs:
         working-directory: build
         run: ls -lR
 
+      - name: Move files
+        run: |
+          mkdir -p sample/addons/iree-gd/
+          mv sample/**/*.so sample/**/*.gdextension sample/addons/iree-gd/
+  
       - name: Export artifact
         uses: actions/upload-artifact@v4
         with:
           name: iree-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
-            sample/**/*.so
-            sample/**/*.gdextension
+            sample/addons/iree-gd/
           if-no-files-found: error

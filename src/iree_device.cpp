@@ -10,8 +10,7 @@
 #if defined(__APPLE__)
 #include <iree/hal/drivers/metal/api.h>
 #include <iree/hal/drivers/metal/registration/driver_module.h>
-#elif defined(_WIN32) || defined(BSD) || \
-		(defined(__linux__) && !defined(__ANDROID__))
+#elif defined(_WIN32) || defined(BSD) || (defined(__linux__) || defined(__ANDROID__))
 #include <iree/hal/drivers/vulkan/api.h>
 #include <iree/hal/drivers/vulkan/registration/driver_module.h>
 #else
@@ -112,8 +111,7 @@ clean_up_driver:
 	return error;
 
 // Vulkan (Windows, Linux, *BSD)
-#elif defined(_WIN32) || defined(BSD) || \
-		(defined(__linux__) && !defined(__ANDROID__))
+#elif defined(_WIN32) || defined(BSD) || (defined(__linux__) || defined(__ANDROID__))
 	Error error = OK;
 	iree_status_t iree_status = iree_ok_status();
 	iree_hal_device_t *new_hal_device = nullptr;
@@ -123,8 +121,7 @@ clean_up_driver:
 	RenderingDevice *rendering_device =
 			RenderingServer::get_singleton()->get_rendering_device();
 
-	// TODO: In future version of godot, we would need to check whether rendering
-	// device is vulkan or not, through `get_device_capabilities`.
+	// It would be better to check whether rendering device is vulkan or not.
 	if (rendering_device ==
 			nullptr) { // Not using vulkan, create vulkan device ourselves.
 		iree_hal_driver_t *driver = nullptr;
@@ -187,26 +184,24 @@ clean_up_driver:
 
 		const VkInstance vk_instance =
 				(VkInstance)rendering_device->get_driver_resource(
-						RenderingDevice::DriverResource::DRIVER_RESOURCE_VULKAN_INSTANCE,
+						RenderingDevice::DriverResource::DRIVER_RESOURCE_TOPMOST_OBJECT,
 						RID(), 0);
 		ERR_FAIL_COND_V_MSG(vk_instance == VK_NULL_HANDLE, ERR_QUERY_FAILED,
 				"Unable to retrieve Vulkan instance.");
 		const VkPhysicalDevice vk_physical_device =
 				(VkPhysicalDevice)rendering_device->get_driver_resource(
-						RenderingDevice::DriverResource::
-								DRIVER_RESOURCE_VULKAN_PHYSICAL_DEVICE,
+						RenderingDevice::DriverResource::DRIVER_RESOURCE_PHYSICAL_DEVICE,
 						RID(), 0);
 		ERR_FAIL_COND_V_MSG(vk_physical_device == VK_NULL_HANDLE, ERR_QUERY_FAILED,
 				"Unable to retrieve Vulkan physical device.");
 		const VkDevice vk_device = (VkDevice)rendering_device->get_driver_resource(
-				RenderingDevice::DriverResource::DRIVER_RESOURCE_VULKAN_DEVICE, RID(),
+				RenderingDevice::DriverResource::DRIVER_RESOURCE_LOGICAL_DEVICE, RID(),
 				0);
 		ERR_FAIL_COND_V_MSG(vk_device == VK_NULL_HANDLE, ERR_QUERY_FAILED,
 				"Unable to retrieve Vulkan device.");
 		compute_queue_set.queue_family_index =
 				rendering_device->get_driver_resource(
-						RenderingDevice::DriverResource::
-								DRIVER_RESOURCE_VULKAN_QUEUE_FAMILY_INDEX,
+						RenderingDevice::DriverResource::DRIVER_RESOURCE_QUEUE_FAMILY,
 						RID(), 0);
 		compute_queue_set.queue_indices = 1 << 0;
 		transfer_queue_set.queue_indices = 0;
