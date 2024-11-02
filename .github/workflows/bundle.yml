@@ -16,8 +16,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: runner.yml
-          name: iree-.*
-          name_is_regexp: true
 
       - name: Copy Files
         shell: bash

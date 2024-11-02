@@ -24,13 +24,13 @@ jobs:
       - name: Rename artifacts
         shell: bash
         run: |
-          mv ${{ github.workspace }}/iree.gd/iree-gd.zip ${{ github.workspace }}/iree.gd/iree-gd-${{ github.ref_name }}.zip
-          mv ${{ github.workspace }}/iree.gd/iree-gd-sample.zip ${{ github.workspace }}/iree.gd/iree-gd-sample-${{ github.ref_name }}.zip
+          mv ${{ github.workspace }}/bundle/iree-gd.zip ${{ github.workspace }}/bundle/iree-gd-${{ github.ref_name }}.zip
+          mv ${{ github.workspace }}/bundle/iree-gd-sample.zip ${{ github.workspace }}/bundle/iree-gd-sample-${{ github.ref_name }}.zip
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            ${{ github.workspace }}/iree.gd/iree-gd-${{ github.ref_name }}.zip
-            ${{ github.workspace }}/iree.gd/iree-gd-sample-${{ github.ref_name }}.zip
+            ${{ github.workspace }}/bundle/iree-gd-${{ github.ref_name }}.zip
+            ${{ github.workspace }}/bundle/iree-gd-sample-${{ github.ref_name }}.zip
