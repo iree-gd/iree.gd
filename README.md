@@ -8,11 +8,11 @@ Authored by [Richie Kho](https://github.com/RechieKho/iree.gd) and its contribut
 
 ## Supported Platforms
 
-| Platform                         | HAL Backend used |
-| -------------------------------- | ---------------- |
-| Apple products (macOS, IOS)      | `metal`          |
-| Desktops (Windows, Linux, \*BSD) | `vulkan`         |
-| The rest (Android)               | `vmvx`           |
+| Platform                                  | HAL Backend used |
+| ----------------------------------------- | ---------------- |
+| Apple products (macOS, IOS)               | `metal`          |
+| Desktops (Windows, Linux, \*BSD, Android) | `vulkan`         |
+| The rest                                  | `vmvx`           |
 
 ## Overview
 
