@@ -16,11 +16,48 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: runner.yml
+          name: iree-.*
+          name_is_regexp: true
 
       - name: Copy Files
         shell: bash
         run: |
-          cp -rf ${{ github.workspace }}/iree.gd/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-android-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-android-arm64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-android-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-android-arm64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-android-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-android-arm64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-android-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-android-arm64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-ios-arm64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-ios-arm64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-ios-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-ios-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-ios-arm64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-ios-arm64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-ios-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-ios-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-linux-arm32-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-linux-arm32-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-linux-arm64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-linux-arm64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-linux-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-linux-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-linux-arm32-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-linux-arm32-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-linux-arm64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-linux-arm64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-linux-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-linux-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-macos-universal-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-macos-universal-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-macos-universal-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-macos-universal-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-windows-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-single-windows-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-windows-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-double-windows-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
           cp -rf ${{ github.workspace }}/miscellaneous/iree-gd.gdextension ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
           cp -rf ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/addons/iree-gd
           cp -rf ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd
