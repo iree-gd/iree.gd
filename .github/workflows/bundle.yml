@@ -1,0 +1,52 @@
+name: Bundle
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Download artifacts
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: runner.yml
+          name: iree-.*
+          name_is_regexp: true
+
+      - name: Copy Files
+        shell: bash
+        run: |
+          cp -rf ${{ github.workspace }}/iree.gd/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/miscellaneous/iree-gd.gdextension ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
+          cp -rf ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd
+
+      - name: Install zip utilities
+        shell: bash
+        run: |
+          sudo apt update
+          sudo apt install zip
+
+      - name: Pack
+        shell: bash
+        run: |
+          zip -r "${{ github.workspace }}/iree-gd-sample.zip" sample
+          cd "${{ github.workspace }}/sample/addons"
+          zip -r "${{ github.workspace }}/iree-gd.zip" iree-gd
+
+      - name: Export artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle
+          path: |
+            ${{ github.workspace }}/iree-gd.zip
+            ${{ github.workspace }}/iree-gd-sample.zip
+          if-no-files-found: error
