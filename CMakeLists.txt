@@ -210,7 +210,7 @@ if(APPLE)
 		${LIB_NAME}
 		iree::hal::drivers::metal::registration
 	)
-elseif(WIN32 OR LINUX OR BSD)
+elseif(WIN32 OR LINUX OR BSD OR ANDROID)
 	target_link_libraries(
 		${LIB_NAME}
 		iree::hal::drivers::vulkan::registration
