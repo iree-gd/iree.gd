@@ -15,39 +15,10 @@ jobs:
         uses: actions/upload-artifact/merge@v4
         with:
           name: iree-gd
-          pattern: iree-*
+          pattern: iree-gd-*
 
-      - name: Download artifact
-        uses: dawidd6/action-download-artifact@v3
+      - name: Merge artifacts
+        uses: actions/upload-artifact/merge@v4
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          name: iree-gd
-
-      - name: Show downloaded file
-        shell: bash
-        working-directory: iree-gd
-        run: ls -lR
-
-      - name: Copy Files
-        shell: bash
-        run: |
-          cp -rf ${{ github.workspace }}/iree-gd/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-
-      - name: Install zip utilities
-        shell: bash
-        run: |
-          sudo apt update
-          sudo apt install zip
-
-      - name: Pack
-        shell: bash
-        run: |
-          zip -r ${{ github.workspace }}/iree-gd-sample.zip sample
-
-      - name: Export sample artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: iree-gd-sample
-          path: |
-            ${{ github.workspace }}/iree-gd-sample.zip
-          if-no-files-found: error
+          name: sample-iree-gd
+          pattern: sample-iree-gd-*

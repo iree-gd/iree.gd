@@ -69,13 +69,21 @@ jobs:
           cp -rf "${{ github.workspace }}\\LICENSE" "${{ github.workspace }}\\sample\\addons\\iree-gd\\LICENSE"
           cp -rf "${{ github.workspace }}\\README.md" "${{ github.workspace }}\\sample\\addons\\iree-gd\\README.md"
 
-      - name: Export artifact
+      - name: Export libraries
         uses: actions/upload-artifact@v4
         with:
-          name: iree-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          name: iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
             ${{ github.workspace }}\sample\addons\iree-gd\*.dll
             ${{ github.workspace }}\sample\addons\iree-gd\iree-gd.gdextension
             ${{ github.workspace }}\sample\addons\iree-gd\LICENSE
             ${{ github.workspace }}\sample\addons\iree-gd\README.md
+          if-no-files-found: error
+
+      - name: Export samples
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          path: |
+            ${{ github.workspace }}\sample
           if-no-files-found: error

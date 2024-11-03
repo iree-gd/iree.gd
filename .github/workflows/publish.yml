@@ -22,19 +22,19 @@ jobs:
           name: iree-gd
           skip_unpack: true
 
-      - name: Download iree-gd-sample
+      - name: Download sample-iree-gd
         uses: dawidd6/action-download-artifact@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: runner.yml
-          name: iree-gd-sample
+          name: sample-iree-gd
           skip_unpack: true
 
       - name: Rename artifacts
         shell: bash
         run: |
           mv ${{ github.workspace }}/iree-gd.zip ${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip
-          mv ${{ github.workspace }}/iree-gd-sample.zip ${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip
+          mv ${{ github.workspace }}/sample-iree-gd.zip ${{ github.workspace }}/sample-iree-gd-${{ github.ref_name }}.zip
 
       - name: Release
         uses: softprops/action-gh-release@v1
@@ -42,4 +42,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             ${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip
-            ${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip
+            ${{ github.workspace }}/sample-iree-gd-${{ github.ref_name }}.zip
