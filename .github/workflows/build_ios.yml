@@ -87,6 +87,7 @@ jobs:
             -DIREE_BUILD_COMPILER=OFF \
             -DIREE_BUILD_SAMPLES=OFF \
             -DIREE_BUILD_TESTS=OFF \
+            -DCOPY_LIBS_TO_SAMPLE=ON \
             -DCMAKE_SYSTEM_NAME="iOS" \
             -DFLOAT_PRECISION=${{ matrix.float_precision }}
 
@@ -99,11 +100,28 @@ jobs:
         working-directory: build
         run: ls -lR
 
-      - name: Export artifact
+      - name: Copy Files
+        shell: bash
+        run: |
+          cp -rf ${{ github.workspace }}/miscellaneous/iree-gd.gdextension ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
+          cp -rf ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/addons/iree-gd/LICENSE
+          cp -rf ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd/README.md
+
+      - name: Export libraries
         uses: actions/upload-artifact@v4
         with:
-          name: iree-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          name: iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
-            sample/**/*.dylib
-            sample/**/*.gdextension
+            ${{ github.workspace }}/sample/addons/iree-gd/*.dylib
+            ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
+            ${{ github.workspace }}/sample/addons/iree-gd/LICENSE
+            ${{ github.workspace }}/sample/addons/iree-gd/README.md
+          if-no-files-found: error
+
+      - name: Export samples
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          path: |
+            ${{ github.workspace }}/sample
           if-no-files-found: error

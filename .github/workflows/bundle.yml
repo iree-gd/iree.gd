@@ -1,0 +1,24 @@
+name: Bundle
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Merge artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: iree-gd
+          pattern: iree-gd-*
+
+      - name: Merge artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: sample-iree-gd
+          pattern: sample-iree-gd-*

@@ -51,27 +51,39 @@ jobs:
         run: |
           if not exist "${{ github.workspace }}\\build" mkdir "${{ github.workspace }}\\build"
           cd "${{ github.workspace }}\\build"
-          cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" -DIREE_ENABLE_WERROR_FLAG=OFF -DFLOAT_PRECISION=${{ matrix.float_precision }} -DIREE_BUILD_TESTS=OFF
+          cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" -DIREE_ENABLE_WERROR_FLAG=OFF -DFLOAT_PRECISION=${{ matrix.float_precision }} -DIREE_BUILD_TESTS=OFF -DCOPY_LIBS_TO_SAMPLE=ON
 
       - name: Build project
         shell: bash
-        run: cmake --build "${{ github.workspace }}/build"
+        run: cmake --build "${{ github.workspace }}\\build"
 
       - name: Show build files
         shell: bash
         working-directory: build
         run: ls -lR
 
-      - name: Export artifact
+      - name: Copy Files
+        shell: bash
+        run: |
+          cp -rf "${{ github.workspace }}\\miscellaneous\\iree-gd.gdextension" "${{ github.workspace }}\\sample\\addons\\iree-gd\\iree-gd.gdextension"
+          cp -rf "${{ github.workspace }}\\LICENSE" "${{ github.workspace }}\\sample\\addons\\iree-gd\\LICENSE"
+          cp -rf "${{ github.workspace }}\\README.md" "${{ github.workspace }}\\sample\\addons\\iree-gd\\README.md"
+
+      - name: Export libraries
         uses: actions/upload-artifact@v4
         with:
-          name: iree-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          name: iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
-            sample/**/*.dll
-            sample/**/*.gdextension
-            sample/addons/**/*.svg
-            sample/addons/iree-gd/**/*.gd
-            sample/addons/iree-gd/**/*.cfg
-            sample/addons/iree-gd/**/*.tscn
-            sample/addons/**/*.svg.import
+            ${{ github.workspace }}\sample\addons\iree-gd\*.dll
+            ${{ github.workspace }}\sample\addons\iree-gd\iree-gd.gdextension
+            ${{ github.workspace }}\sample\addons\iree-gd\LICENSE
+            ${{ github.workspace }}\sample\addons\iree-gd\README.md
+          if-no-files-found: error
+
+      - name: Export samples
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          path: |
+            ${{ github.workspace }}\sample
           if-no-files-found: error
