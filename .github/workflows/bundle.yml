@@ -20,7 +20,7 @@ jobs:
       - name: Download artifact
         uses: dawidd6/action-download-artifact@v3
         with:
-          workflow: runner.yml
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           name: iree-gd
 
       - name: Show downloaded file
