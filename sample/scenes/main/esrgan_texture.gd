@@ -10,7 +10,7 @@ signal on_upscaling_stop()
 
 func select_model() -> IREEModule:
 	match OS.get_name():
-		"Window", "Android", "Linux", "OpenBSD", "FreeBSD", "NetBSD", "BSD": return vulkan_module
+		"Windows", "Android", "Linux", "OpenBSD", "FreeBSD", "NetBSD", "BSD": return vulkan_module
 		"macOS", "iOS": return metal_module
 	assert(false)
 	return null
