@@ -14,23 +14,32 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Download artifacts
+      - name: Download iree-gd
         uses: dawidd6/action-download-artifact@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: runner.yml
-          name: bundle
+          name: iree-gd
+          skip_unpack: true
+
+      - name: Download iree-gd-sample
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: runner.yml
+          name: iree-gd-sample
+          skip_unpack: true
 
       - name: Rename artifacts
         shell: bash
         run: |
-          mv ${{ github.workspace }}/bundle/iree-gd.zip ${{ github.workspace }}/bundle/iree-gd-${{ github.ref_name }}.zip
-          mv ${{ github.workspace }}/bundle/iree-gd-sample.zip ${{ github.workspace }}/bundle/iree-gd-sample-${{ github.ref_name }}.zip
+          mv ${{ github.workspace }}/iree-gd.zip ${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip
+          mv ${{ github.workspace }}/iree-gd-sample.zip ${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            ${{ github.workspace }}/bundle/iree-gd-${{ github.ref_name }}.zip
-            ${{ github.workspace }}/bundle/iree-gd-sample-${{ github.ref_name }}.zip
+            ${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip
+            ${{ github.workspace }}/iree-gd-sample-${{ github.ref_name }}.zip

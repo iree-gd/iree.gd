@@ -11,56 +11,27 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      - name: Download artifacts
+      - name: Merge artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: iree-gd
+          pattern: iree-*
+
+      - name: Download artifact
         uses: dawidd6/action-download-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow: runner.yml
-          name: iree-.*
-          name_is_regexp: true
+          name: iree-gd
+
+      - name: Show downloaded file
+        shell: bash
+        working-directory: iree-gd
+        run: ls -lR
 
       - name: Copy Files
         shell: bash
         run: |
-          cp -rf ${{ github.workspace }}/iree-single-android-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-android-arm64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-android-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-android-arm64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-android-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-android-arm64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-android-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-android-arm64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-ios-arm64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-ios-arm64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-ios-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-ios-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-ios-arm64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-ios-arm64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-ios-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-ios-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-linux-arm32-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-linux-arm32-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-linux-arm64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-linux-arm64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-linux-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-linux-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-linux-arm32-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-linux-arm32-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-linux-arm64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-linux-arm64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-linux-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-linux-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-macos-universal-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-macos-universal-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-macos-universal-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-macos-universal-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-windows-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-single-windows-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-windows-x86_64-debug/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/iree-double-windows-x86_64-release/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/miscellaneous/iree-gd.gdextension ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
-          cp -rf ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/addons/iree-gd
-          cp -rf ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd
+          cp -rf ${{ github.workspace }}/iree-gd/addons/iree-gd/* ${{ github.workspace }}/sample/addons/iree-gd
 
       - name: Install zip utilities
         shell: bash
@@ -71,15 +42,12 @@ jobs:
       - name: Pack
         shell: bash
         run: |
-          zip -r "${{ github.workspace }}/iree-gd-sample.zip" sample
-          cd "${{ github.workspace }}/sample/addons"
-          zip -r "${{ github.workspace }}/iree-gd.zip" iree-gd
+          zip -r ${{ github.workspace }}/iree-gd-sample.zip sample
 
-      - name: Export artifact
+      - name: Export sample artifact
         uses: actions/upload-artifact@v4
         with:
-          name: bundle
+          name: iree-gd-sample
           path: |
-            ${{ github.workspace }}/iree-gd.zip
             ${{ github.workspace }}/iree-gd-sample.zip
           if-no-files-found: error

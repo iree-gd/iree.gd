@@ -52,7 +52,7 @@ jobs:
         id: iree-dist
         uses: robinraju/release-downloader@v1.8
         with:
-          filename: iree-dist-*-linux-x86_64.tar.xz
+          fileName: iree-dist-*-linux-x86_64.tar.xz
           repository: iree-org/iree
           tag: candidate-20240812.983
           extract: false
@@ -93,6 +93,7 @@ jobs:
             -DCMAKE_SYSTEM_PROCESSOR="${{ matrix.arch }}" \
             -DIREE_BUILD_SAMPLES=OFF \
             -DCMAKE_CXX_FLAGS="-Wno-psabi" \
+            -DCOPY_LIBS_TO_SAMPLE=ON \
             -DFLOAT_PRECISION=${{ matrix.float_precision }} \
             -DIREE_BUILD_TESTS=OFF
 
@@ -105,11 +106,20 @@ jobs:
         working-directory: build
         run: ls -lR
 
+      - name: Copy Files
+        shell: bash
+        run: |
+          cp -rf ${{ github.workspace }}/miscellaneous/iree-gd.gdextension ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
+          cp -rf ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/addons/iree-gd/LICENSE
+          cp -rf ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd/README.md
+
       - name: Export artifact
         uses: actions/upload-artifact@v4
         with:
           name: iree-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
-            sample/**/*.so
-            sample/**/*.gdextension
+            ${{ github.workspace }}/sample/addons/iree-gd/*.so
+            ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
+            ${{ github.workspace }}/sample/addons/iree-gd/LICENSE
+            ${{ github.workspace }}/sample/addons/iree-gd/README.md
           if-no-files-found: error
