@@ -40,7 +40,7 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
@@ -153,7 +153,7 @@ jobs:
           cp -rf ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd/README.md
 
       - name: Export libraries
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
