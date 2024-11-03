@@ -74,8 +74,8 @@ jobs:
         with:
           name: iree-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
-            "${{ github.workspace }}\\sample\\addons\\iree-gd\\*.dll"
-            "${{ github.workspace }}\\sample\\addons\\iree-gd\\iree-gd.gdextension"
-            "${{ github.workspace }}\\sample\\addons\\iree-gd\\LICENSE"
-            "${{ github.workspace }}\\sample\\addons\\iree-gd\\README.md"
+            ${{ github.workspace }}\sample\addons\iree-gd\*.dll
+            ${{ github.workspace }}\sample\addons\iree-gd\iree-gd.gdextension
+            ${{ github.workspace }}\sample\addons\iree-gd\LICENSE
+            ${{ github.workspace }}\sample\addons\iree-gd\README.md
           if-no-files-found: error
