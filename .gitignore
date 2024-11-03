@@ -13,6 +13,11 @@
 /.cache/
 /.ccls-cache/
 
+# IDEA
+/.idea
+/cmake-build-debug
+
+# macOS
 .DS_Store
 /**/.DS_Store
 
