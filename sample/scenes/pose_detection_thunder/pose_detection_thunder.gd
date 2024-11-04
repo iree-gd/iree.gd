@@ -74,8 +74,8 @@ func draw_keypoint(index, color_base, resolution):
 	var conf_index = index * 3 + 2
 	var coordinate = Vector2(data[x_index], data[y_index]) * resolution
 	var confidence = data[conf_index]
-	var lightness = confidence * 2
-	var hue = Color.from_hsv(color_base.h, color_base.s, lightness, 1.0)
+	var lightness = confidence
+	var hue = Color.from_ok_hsl(color_base.h, color_base.s, lightness, 1.0)
 	draw_circle(coordinate, 5.0, hue)
 
 
