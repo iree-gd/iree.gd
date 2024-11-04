@@ -66,44 +66,31 @@ func _ready() -> void:
 	# right knee, left ankle, right ankle]).
 	
 	# The third channel of the last dimension represents the prediction confidence scores of each keypoint, also in the range [0.0, 1.0].
-	
+
+
+func draw_keypoint(index, color_base, resolution):
+	var x_index = index * 3 + 1
+	var y_index = index * 3
+	var conf_index = index * 3 + 2
+	var coordinate = Vector2(data[x_index], data[y_index]) * resolution
+	var confidence = data[conf_index]
+	var lightness = confidence * 2
+	var hue = Color.from_hsv(color_base.h, color_base.s, lightness, 1.0)
+	draw_circle(coordinate, 5.0, hue)
 
 
 func _draw():
-	if not texture: return
+	if not texture:
+		return
 	draw_texture(texture, Vector2.ZERO)
-	
-	if data.size() != (17*3): return
-	
+	if data.size() != (17 * 3):
+		return
 	var width := texture.get_width()
 	var height := texture.get_height()
 	var resolution := Vector2(
 		max(width, height),
 		max(width, height)
 	)
-	
-	var nose_coordinate := Vector2(data[1], data[0])
-	draw_circle(nose_coordinate * resolution, 5.0, Color.RED)
-	
-	var left_eye := Vector2(data[4], data[3])
-	draw_circle(left_eye * resolution, 5.0, Color.RED)
-	
-	var right_eye := Vector2(data[7], data[6])
-	draw_circle(right_eye * resolution, 5.0, Color.RED)
-	
-	var left_ear := Vector2(data[10], data[9])
-	draw_circle(left_ear * resolution, 5.0, Color.RED)
-	
-	var right_ear := Vector2(data[13], data[12])
-	draw_circle(right_ear * resolution, 5.0, Color.RED)
-	
-	var left_shoulder := Vector2(data[16], data[15])
-	draw_circle(left_shoulder * resolution, 5.0, Color.RED)
-	
-	var rigth_shoulder := Vector2(data[19], data[18])
-	draw_circle(rigth_shoulder * resolution, 5.0, Color.RED)
-	
-	var left_elbow := Vector2(data[22], data[21])
-	draw_circle(left_elbow * resolution, 5.0, Color.RED)
-	
-	# I think I demonstrate enough points.
+	var base_color = Color.RED
+	for i in range(17):
+		draw_keypoint(i, base_color, resolution)
