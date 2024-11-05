@@ -2,8 +2,7 @@
 
 ![IREE.gd logo](./graphics/logo.svg)
 
-[IREE](https://github.com/iree-org/iree) runtime in Godot through GDExtension, a mission to run machine learning model (e.g. Tensorflow lite) natively in Godot.
-
+[IREE](https://github.com/iree-org/iree) runtime in Godot through GDExtension, a mission to run a machine learning model (e.g. Tensorflow lite) natively in Godot.
 
 Authored by [Richie Kho](https://github.com/RechieKho) and its contributors.
 
@@ -36,7 +35,8 @@ cmake ..
 cmake --build .
 ```
 
-If you would like to compile LLVM from source, you'll need to set `IREE_BUILD_BUNDLED_LLVM` CMake option to `ON` when generating build files with CMake. You also need to initialize `llvm-project` submodule under `thirdparty/iree/third_party/llvm-project`.
+If you would like to compile LLVM from the source, you'll need to set the `IREE_BUILD_BUNDLED_LLVM` CMake option to `ON` when generating build files with CMake and also initialize the `llvm-project` submodule under the `thirdparty/iree/third_party/llvm-project`.
 
 After compilation, the library will be in `build/lib` directory.
-It will also install the library into the sample if `COPY_LIBS_TO_SAMPLE` CMake option is `ON` which is enabled by default.
+
+If the `COPY_LIBS_TO_SAMPLE` CMake option is `ON`, the library will also be installed into the sample.
