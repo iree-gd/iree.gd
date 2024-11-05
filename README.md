@@ -1,10 +1,11 @@
-# `iree.gd`
+# IREE.gd
 
-![iree.gd logo](./graphics/logo.svg)
+![IREE.gd logo](./graphics/logo.svg)
 
 [IREE](https://github.com/iree-org/iree) runtime in Godot through GDExtension, a mission to run machine learning model (e.g. Tensorflow lite) natively in Godot.
 
-Authored by [Richie Kho](https://github.com/RechieKho/iree.gd) and its contributors.
+
+Authored by [Richie Kho](https://github.com/RechieKho) and its contributors.
 
 ## Supported Platforms
 
@@ -14,82 +15,28 @@ Authored by [Richie Kho](https://github.com/RechieKho/iree.gd) and its contribut
 | Desktops (Windows, Linux, \*BSD, Android) | `vulkan`         |
 | The rest                                  | `vmvx`           |
 
-## Overview
+## Documentation and samples
 
-This GDExtension provides:
-
-- `IREETensor` - Hold data to be fed into or output by the model.
-- `IREEModule` - Load model and run it.
-
-### Preparation
-
-You'll need to compile your models following this [guide](https://iree.dev/guides/).
-Make sure the backends is supported by your compiled models, based on [supported platforms](#supported-platforms).
-
-You can use `iree-dump-module` from IREE's tools to inspect the byte code.
-Here is an important section of the dump of esrgan:
-
-```
-Exported Functions:
-  [  0] main(!vm.ref<?>) -> (!vm.ref<?>)
-        iree.abi.declaration: sync func @main(%input0: tensor<1x50x50x3xf32> {ml_program.identifier = "input_0"}) -> (%output0: tensor<1x200x200x3xf32> {ml_program.identifier = "Identity"})
-  [  1] __init() -> ()
-```
-
-Here we can know that:
-
-- The function name is `"main"`.
-- The function takes one `1x50x50x3` float 32 `IREETensor` (`%input0`) as input.
-- The function takes one `1x200x200x3` float 32 `IREETensor` (`%output0`) as output.
-
-### Using `iree.gd`
-
-After having your `.vmfb` bytecode ready, you could start using `iree.gd`.
-
-There are 4 steps:
-
-1. Load model with `IREEModule.load`.
-2. Prepare input by feeding data into `IREETensor` through `IREETensor.from_*` variant or `IREETensor.capture_*` variant.
-3. Send `IREETensor`s into loaded `IREEModule`.
-4. Interpreting the output `IREETensor`s from `IREEModule`.
-
-```swift
-
-var module := IREEModule.new()
-module.load("res://model.vmfb")
-var inputs : Array[IREETensor]
-inputs.assign([IREETensor.from_bytes(image.get_data(), [1, 50, 50, 3])]) # Remember to consider the input type.
-var outputs := module.call_module("module.main", inputs)
-for output in outputs:
-    pass # Do something with the `output`.
-```
-
-> [!NOTE]
->
-> You need to prefix `module.` in front of the function you want to call when passing into `IREEModule`.
-> In this case, the function is `main` so you pass `module.main` as function name.
-
-## Sample project
-
-The sample project is in `sample` directory, it demonstrate running esrgan using `iree.gd`.
+The documentation is hosted using [Github page](https://iree-gd.github.io/iree.gd.docs/).
+The sample project is in `sample` directory.
 
 ## Build from source
 
-Run these commands:
+We'll use Git and CMake to build this project.
 
 ```sh
-git clone https://github.com/V-Sekai/iree.gd.git # clone this repo
+git clone https://github.com/iree-gd/iree.gd.git # clone this repo
 cd iree.gd
 git submodule init thirdparty # initialize all the thirdparty
-git submodule deinit thirdparty/iree/third_party/llvm-project # Deinitialize llvm, we are not compiling the compiler.
+git submodule deinit thirdparty/iree/third_party/llvm-project # Deinitialize LLVM, as we are not compiling the compiler.
 git submodule update --recursive # Pull submodule content, this will take a while.
 mkdir build
 cd build
 cmake ..
-cmake --build . # Building the project, this will take a while, add `-j` flag to make it faster.
+cmake --build .
 ```
 
-If you would like to compile LLVM from source, you'll need to set `IREE_BUILD_BUNDLED_LLVM` to `ON` when generating build files with cmake. You also need to initialize `llvm-project` submodule under `iree/third_party`.
+If you would like to compile LLVM from source, you'll need to set `IREE_BUILD_BUNDLED_LLVM` CMake option to `ON` when generating build files with CMake. You also need to initialize `llvm-project` submodule under `thirdparty/iree/third_party/llvm-project`.
 
 After compilation, the library will be in `build/lib` directory.
-It will also install the library into the sample if `COPY_LIBS_TO_SAMPLE` is `ON`. `COPY_LIBS_TO_SAMPLE` is `ON` by default.
+It will also install the library into the sample if `COPY_LIBS_TO_SAMPLE` CMake option is `ON` which is enabled by default.
