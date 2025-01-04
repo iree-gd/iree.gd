@@ -15,6 +15,7 @@ dest_files=["res://.godot/imported/Kenney Rocket Square.ttf-9fd4cba7350e3a35a377
 Rendering=null
 antialiasing=1
 generate_mipmaps=false
+disable_embedded_bitmaps=true
 multichannel_signed_distance_field=false
 msdf_pixel_range=8
 msdf_size=48

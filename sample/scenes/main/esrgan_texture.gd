@@ -79,6 +79,5 @@ func upscale():
 				Rect2i(0, 0, box_width * 4, box_height * 4),
 				Vector2i(x_offset * 4, y_offset * 4)
 			)
-	var idx = 0
 	on_upscaling_stop.emit()
 	texture = ImageTexture.create_from_image(new_image)
