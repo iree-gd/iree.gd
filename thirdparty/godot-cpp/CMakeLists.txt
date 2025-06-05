@@ -60,6 +60,17 @@ project(
     LANGUAGES CXX
 )
 
+# Force /MD for MSVC Release/RelWithDebInfo builds
+if(MSVC)
+    foreach(flag_var
+            CMAKE_CXX_FLAGS_RELEASE
+            CMAKE_C_FLAGS_RELEASE
+            CMAKE_CXX_FLAGS_RELWITHDEBINFO
+            CMAKE_C_FLAGS_RELWITHDEBINFO)
+        string(REPLACE "/MT" "/MD" ${flag_var} "${${flag_var}}")
+    endforeach()
+endif()
+
 compiler_detection()
 godotcpp_generate()
 
