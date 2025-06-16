@@ -62,7 +62,7 @@ jobs:
           tar -xf "${{ fromJson(steps.iree-dist.outputs.downloaded_files)[0] }}" -C "${{ github.workspace }}/iree-dist"
 
       - name: Prepare Vulkan SDK
-        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        uses: humbletim/setup-vulkan-sdk@v1.2.1
         with:
           vulkan-query-version: latest
           vulkan-components: Vulkan-Headers, Vulkan-Loader
