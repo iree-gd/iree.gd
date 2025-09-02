@@ -26,9 +26,12 @@ We'll use Git and CMake to build this project.
 ```sh
 git clone https://github.com/iree-gd/iree.gd.git # clone this repo
 cd iree.gd
-git submodule init thirdparty # initialize all the thirdparty
-git submodule deinit thirdparty/iree/third_party/llvm-project # Deinitialize LLVM, as we are not compiling the compiler.
-git submodule update --recursive # Pull submodule content, this will take a while.
+git submodule update --init
+cd ./thirdparty/iree
+git submodule init third_party/
+git submodule deinit third_party/llvm-project # Deinitialize `llvm-project` since we don't want to compile the compiler.
+cd ../../ # Go back the the project root
+git submodule update --recursive
 mkdir build
 cd build
 cmake ..
