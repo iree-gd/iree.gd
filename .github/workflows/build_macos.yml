@@ -68,16 +68,16 @@ jobs:
         shell: bash
         run: cmake --build ${{ github.workspace }}/host-tools-build --target install
 
-      - name: Set up CMake for MacOS x86_64
+      - name: Set up CMake for MacOS universal
         shell: bash
         run: |
-          if [ ! -d "${{ github.workspace }}/build_x86_64" ]; then
-            mkdir "${{ github.workspace }}/build_x86_64"
+          if [ ! -d "${{ github.workspace }}/build" ]; then
+            mkdir "${{ github.workspace }}/build"
           fi
           cd "${{ github.workspace }}/build_x86_64"
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
             -DIREE_HOST_BIN_DIR="${{ github.workspace }}/host-tools-build/install/bin" \
-            -DCMAKE_OSX_ARCHITECTURES="x86_64" \
+            -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
             -DCMAKE_OSX_SYSROOT=$(xcodebuild -version -sdk macosx Path) \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
             -DIREE_ENABLE_WERROR_FLAG=OFF \
@@ -86,45 +86,19 @@ jobs:
             -DIREE_BUILD_TESTS=OFF \
             -DHAVE_STD_REGEX=ON
 
-      - name: Build project x86_64
+      - name: Build project
         shell: bash
-        run: cmake --build "${{ github.workspace }}/build_x86_64"
-
-      - name: Set up CMake for MacOS arm64
-        shell: bash
-        run: |
-          if [ ! -d "${{ github.workspace }}/build_arm64" ]; then
-            mkdir "${{ github.workspace }}/build_arm64"
-          fi
-          cd "${{ github.workspace }}/build_arm64"
-          cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
-            -DIREE_HOST_BIN_DIR="${{ github.workspace }}/host-tools-build/install/bin" \
-            -DCMAKE_OSX_ARCHITECTURES="arm64" \
-            -DCMAKE_OSX_SYSROOT=$(xcodebuild -version -sdk macosx Path) \
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
-            -DIREE_ENABLE_WERROR_FLAG=OFF \
-            -DIREE_BUILD_COMPILER=OFF \
-            -DIREE_BUILD_SAMPLES=OFF \
-            -DIREE_BUILD_TESTS=OFF \
-            -DHAVE_STD_REGEX=ON
-
-      - name: Build project arm64
-        shell: bash
-        run: cmake --build "${{ github.workspace }}/build_arm64"
+        run: cmake --build "${{ github.workspace }}/build"
 
       - name: Show build files
         shell: bash
-        working-directory: "${{ github.workspace }}/build_arm64"
+        working-directory: "${{ github.workspace }}/build"
         run: ls -lR
 
-      - name: Show build files
+      - name: Show sample directory
         shell: bash
-        working-directory: "${{ github.workspace }}/build_x86_64"
+        working-directory: "${{ github.workspace }}/sample"
         run: ls -lR
-
-      - name: Make Universal lib
-        shell: bash
-        run: lipo -create -output "${{ github.workspace }}/sample/addons/iree-gd/libiree-gd.darwin.${{ matrix.godotcpp_type }}.framework/libiree-gd.darwin.${{ matrix.godotcpp_type }}.dylib" "${{ github.workspace }}/build_arm64/lib/libiree-gd.darwin.${{ matrix.godotcpp_type }}.arm64.dylib" "${{ github.workspace }}/build_x86_64/lib/libiree-gd.darwin.${{ matrix.godotcpp_type }}.x86_64.dylib"
 
       - name: Mac Sign
         uses: ughuuu/godot-cpp-template/.github/actions/sign@add-more-stuff/options-to-build
@@ -151,8 +125,7 @@ jobs:
         with:
           name: iree-gd-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
-            ${{ github.workspace }}/sample/addons/iree-gd/*.dylib
-            ${{ github.workspace }}/sample/addons/iree-gd/*.plist
+            ${{ github.workspace }}/sample/addons/iree-gd/libiree-gd.darwin.${{ matrix.godotcpp_type }}.framework
             ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
             ${{ github.workspace }}/sample/addons/iree-gd/LICENSE
             ${{ github.workspace }}/sample/addons/iree-gd/README.md

@@ -23,6 +23,11 @@ option(IREE_BUILD_BUNDLED_LLVM "Builds the bundled llvm-project (vs using instal
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
+	set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64") # Enforce universal binary.
+endif()
+
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src CACHE STRING "Path to sources files (and header files).")
 set(SAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sample)
 set(3RD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty CACHE STRING "Path to all the thirdparty libraries.")
@@ -60,19 +65,37 @@ add_subdirectory(${3RD_PARTY_DIR}/godot-cpp)
 file(GLOB_RECURSE SRCS ${SRC_DIR}/*.c**)
 file(GLOB_RECURSE HEADERS ${SRC_DIR}/*.h**)
 
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+if("${CMAKE_BUILD_TYPE}" MATCHES Debug OR "${CMAKE_BUILD_TYPE}" MATCHES RelWithDebInfo)
+	set(IREEGD_BUILD_TYPE "debug")
 	set(GODOTCPP_TYPE "template_debug")
 else()
+	set(IREEGD_BUILD_TYPE "release")
 	set(GODOTCPP_TYPE "template_release")
 endif()
 
 set(GODOTCPP "godot-cpp::${GODOTCPP_TYPE}")
 
-get_target_property(IREEGD_LIB_SUFFIX ${GODOTCPP} GODOTCPP_SUFFIX)
+string(TOLOWER ${CMAKE_SYSTEM_NAME} IREEGD_SYSTEM_NAME)
+string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} IREEGD_ARCH)
+
+if("${IREEGD_ARCH}" MATCHES aarch64)
+	set(IREEGD_ARCH arm64)
+elseif("${IREEGD_ARCH}" MATCHES arm)
+    set(IREEGD_ARCH arm64)
+elseif("${IREEGD_ARCH}" MATCHES amd64)
+	set(IREEGD_ARCH x86_64)
+endif()
+
+if("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
+	if("${CMAKE_OSX_ARCHITECTURES}" MATCHES "arm64;x86_64")
+		set(IREEGD_ARCH universal)
+	endif()
+endif()
+
 get_target_property(IREEGD_OSX_ARCH ${GODOTCPP} OSX_ARCHITECTURES)
 
 set(IREEGD_OUTPUT_DIR ${CMAKE_SOURCE_DIR}/sample/addons/iree-gd)
-set(IREEGD "${PROJECT_NAME}")
+set(IREEGD ${PROJECT_NAME}.${IREEGD_SYSTEM_NAME}.${IREEGD_BUILD_TYPE}.${IREEGD_ARCH})
 
 add_library(${IREEGD} SHARED)
 
@@ -107,7 +130,6 @@ set_target_properties(
 	LINK_SEARCH_END_STATIC ON
 
 	PREFIX "lib"
-	OUTPUT_NAME "${IREEGD}${GODOTCPP_SUFFIX}"
 
 	ARCHIVE_OUTPUT_DIRECTORY ${IREEGD_OUTPUT_DIR}
 	LIBRARY_OUTPUT_DIRECTORY ${IREEGD_OUTPUT_DIR}
@@ -118,7 +140,6 @@ if(APPLE)
 	set_target_properties(
 		${IREEGD}
 		PROPERTIES
-		SUFFIX ".${GODOTCPP_TYPE}.dylib"
 		ARCHIVE_OUTPUT_DIRECTORY "${IREEGD_OUTPUT_DIR}/libiree-gd.darwin.${GODOTCPP_TYPE}.framework"
 		LIBRARY_OUTPUT_DIRECTORY "${IREEGD_OUTPUT_DIR}/libiree-gd.darwin.${GODOTCPP_TYPE}.framework"
 		RUNTIME_OUTPUT_DIRECTORY "${IREEGD_OUTPUT_DIR}/libiree-gd.darwin.${GODOTCPP_TYPE}.framework"

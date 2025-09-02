@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleExecutable</key>
-	<string>libiree-gd.template_release.dylib</string>
+	<string>libiree-gd.darwin.release.universal.dylib</string>
 	<key>CFBundleIdentifier</key>
 	<string>org.iree_gd.iree_gd</string>
 	<key>CFBundleInfoDictionaryVersion</key>
