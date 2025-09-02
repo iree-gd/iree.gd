@@ -134,8 +134,8 @@ jobs:
             -library ./sample/addons/iree-gd/libiree-gd.ios.${{ matrix.build_type }}.x86_64.a \
             -output ./sample/addons/iree-gd/libiree-gd.ios.${{ matrix.build_type }}.xcframework
           xcodebuild -create-xcframework \
-            -library ./build_x86_64/bin/libgodot-cpp.ios.${{ matrix.godotcpp_type }}.arm64.a \
-            -library ./build_arm64/bin/libgodot-cpp.ios.${{ matrix.godotcpp_type }}.x86_64.a \
+            -library ./build_arm64/bin/libgodot-cpp.ios.${{ matrix.godotcpp_type }}.arm64.a \
+            -library ./build_x86_64/bin/libgodot-cpp.ios.${{ matrix.godotcpp_type }}.x86_64.a \
             -output ./sample/addons/iree-gd/libgodot-cpp.ios.${{ matrix.godotcpp_type }}.xcframework
 
       - name: Copy Files
