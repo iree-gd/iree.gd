@@ -28,6 +28,13 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
 	set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64") # Enforce universal binary only on Mac OS.
 endif()
 
+if(MSVC)
+	set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} "/MD")
+	set(CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE} "/MD")
+	set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} "/MDd")
+	set(CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG} "/MDd")
+endif()
+
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src CACHE STRING "Path to sources files (and header files).")
 set(SAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sample)
 set(3RD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty CACHE STRING "Path to all the thirdparty libraries.")
