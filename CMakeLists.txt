@@ -95,12 +95,14 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
 	endif()
 endif()
 
-get_target_property(IREEGD_OSX_ARCH godot-cpp OSX_ARCHITECTURES)
-
 set(IREEGD_OUTPUT_DIR ${CMAKE_SOURCE_DIR}/sample/addons/iree-gd)
 set(IREEGD ${PROJECT_NAME}.${IREEGD_SYSTEM_NAME}.${IREEGD_BUILD_TYPE}.${IREEGD_ARCH})
 
-add_library(${IREEGD} SHARED)
+if("${IREEGD_SYSTEM_NAME}" MATCHES "ios")
+	add_library(${IREEGD} STATIC)
+else()
+	add_library(${IREEGD} SHARED)
+endif()
 
 target_sources(
 	${IREEGD}
@@ -139,14 +141,13 @@ set_target_properties(
 	RUNTIME_OUTPUT_DIRECTORY ${IREEGD_OUTPUT_DIR}
 )
 
-if(APPLE)
+if("${IREEGD_SYSTEM_NAME}" MATCHES "darwin")
 	set_target_properties(
 		${IREEGD}
 		PROPERTIES
 		ARCHIVE_OUTPUT_DIRECTORY "${IREEGD_OUTPUT_DIR}/libiree-gd.darwin.${IREEGD_BUILD_TYPE}.framework"
 		LIBRARY_OUTPUT_DIRECTORY "${IREEGD_OUTPUT_DIR}/libiree-gd.darwin.${IREEGD_BUILD_TYPE}.framework"
 		RUNTIME_OUTPUT_DIRECTORY "${IREEGD_OUTPUT_DIR}/libiree-gd.darwin.${IREEGD_BUILD_TYPE}.framework"
-		OSX_ARCHITECTURES "${IREEGD_OSX_ARCH}"
 	)
 endif()
 
