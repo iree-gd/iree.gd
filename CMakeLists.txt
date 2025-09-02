@@ -25,10 +25,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
-	set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64") # Enforce universal binary.
-endif()
-
-if(WIN32)
+	set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64") # Enforce universal binary only on Mac OS.
 endif()
 
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src CACHE STRING "Path to sources files (and header files).")
