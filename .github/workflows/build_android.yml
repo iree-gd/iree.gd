@@ -82,7 +82,7 @@ jobs:
             -DIREE_HOST_BIN_DIR="${{ github.workspace }}/iree-dist/bin" \
             -DCMAKE_TOOLCHAIN_FILE="${{ steps.android-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=${{ matrix.cmake_arch_keyword }} \
-            -DIREE_ENABLE_WERROR_FLAG=OFF \
+            -DIREE_ENABLE_WERROR_FLAG=ON \
             -DIREE_BUILD_SAMPLES=OFF \
             -DIREE_BUILD_TESTS=OFF
 

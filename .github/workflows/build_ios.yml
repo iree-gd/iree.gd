@@ -51,7 +51,7 @@ jobs:
           cmake "${{ github.workspace }}/thirdparty/iree" -G Ninja -DCMAKE_BUILD_TYPE=RelWithDebInfo \
             -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/host-tools-build/install" \
             -DHAVE_STD_REGEX=ON -DRUN_HAVE_STD_REGEX=ON \
-            -DIREE_ENABLE_WERROR_FLAG=OFF \
+            -DIREE_ENABLE_WERROR_FLAG=ON \
             -DIREE_BUILD_COMPILER=OFF \
             -DIREE_BUILD_TESTS=OFF
 

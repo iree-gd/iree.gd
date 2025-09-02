@@ -54,7 +54,7 @@ jobs:
           cd "${{ github.workspace }}/build"
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
             -DCMAKE_CXX_FLAGS="${{ matrix.cxxflags }}" \
-            -DIREE_ENABLE_WERROR_FLAG=OFF \
+            -DIREE_ENABLE_WERROR_FLAG=ON \
             -DIREE_BUILD_TESTS=OFF
 
       - name: Build project
