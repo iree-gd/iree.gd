@@ -55,7 +55,6 @@ jobs:
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" \
             -DCMAKE_CXX_FLAGS="${{ matrix.cxxflags }}" \
             -DIREE_ENABLE_WERROR_FLAG=OFF \
-            -DCOPY_LIBS_TO_SAMPLE=ON \
             -DIREE_BUILD_TESTS=OFF
 
       - name: Build project

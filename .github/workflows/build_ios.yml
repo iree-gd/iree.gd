@@ -83,8 +83,7 @@ jobs:
             -DIREE_BUILD_COMPILER=OFF \
             -DIREE_BUILD_SAMPLES=OFF \
             -DIREE_BUILD_TESTS=OFF \
-            -DCOPY_LIBS_TO_SAMPLE=ON \
-            -DCMAKE_SYSTEM_NAME="iOS" \
+            -DCMAKE_SYSTEM_NAME="iOS"
 
       - name: Build project
         shell: bash

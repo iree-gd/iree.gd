@@ -89,7 +89,6 @@ jobs:
             -DCMAKE_SYSTEM_PROCESSOR="${{ matrix.arch }}" \
             -DIREE_BUILD_SAMPLES=OFF \
             -DCMAKE_CXX_FLAGS="-Wno-psabi" \
-            -DCOPY_LIBS_TO_SAMPLE=ON \
             -DIREE_BUILD_TESTS=OFF
 
       - name: Build project

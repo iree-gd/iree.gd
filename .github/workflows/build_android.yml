@@ -84,7 +84,6 @@ jobs:
             -DANDROID_ABI=${{ matrix.cmake_arch_keyword }} \
             -DIREE_ENABLE_WERROR_FLAG=OFF \
             -DIREE_BUILD_SAMPLES=OFF \
-            -DCOPY_LIBS_TO_SAMPLE=ON \
             -DIREE_BUILD_TESTS=OFF
 
       - name: Build project

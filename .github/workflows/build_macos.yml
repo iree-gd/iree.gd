@@ -82,8 +82,7 @@ jobs:
             -DIREE_BUILD_COMPILER=OFF \
             -DIREE_BUILD_SAMPLES=OFF \
             -DIREE_BUILD_TESTS=OFF \
-            -DHAVE_STD_REGEX=ON \
-            -DCOPY_LIBS_TO_SAMPLE=OFF
+            -DHAVE_STD_REGEX=ON
 
       - name: Build project x86_64
         shell: bash
@@ -105,8 +104,7 @@ jobs:
             -DIREE_BUILD_COMPILER=OFF \
             -DIREE_BUILD_SAMPLES=OFF \
             -DIREE_BUILD_TESTS=OFF \
-            -DHAVE_STD_REGEX=ON \
-            -DCOPY_LIBS_TO_SAMPLE=OFF
+            -DHAVE_STD_REGEX=ON
 
       - name: Build project arm64
         shell: bash
