@@ -5,32 +5,32 @@ compatibility_minimum = 4.2
 
 [libraries]
 
-linux.debug.x86_64 = "libiree-gd.linux.template_debug.x86_64.so"
-linux.debug.x86_32 = "libiree-gd.linux.template_debug.x86_32.so"
-linux.debug.arm64 = "libiree-gd.linux.template_debug.arm64.so"
-linux.debug.arm32 = "libiree-gd.linux.template_debug.arm.so"
-macos.debug = "libiree-gd.darwin.template_debug.framework"
-windows.debug.x86_64 = "iree-gd.windows.template_debug.x86_64.dll"
-windows.debug.x86_32 = "iree-gd.windows.template_debug.x86_32.dll"
-android.debug.arm64 = "libiree-gd.android.template_debug.arm64.so"
-android.debug.x86_64 = "libiree-gd.android.template_debug.x86_64.so"
-ios.debug = "libiree-gd.ios.template_debug.xcframework"
+linux.debug.x86_64 = "libiree-gd.linux.debug.x86_64.so"
+linux.debug.x86_32 = "libiree-gd.linux.debug.x86_32.so"
+linux.debug.arm64 = "libiree-gd.linux.debug.arm64.so"
+linux.debug.arm32 = "libiree-gd.linux.debug.arm.so"
+macos.debug = "libiree-gd.darwin.debug.framework"
+windows.debug.x86_64 = "iree-gd.windows.debug.x86_64.dll"
+windows.debug.x86_32 = "iree-gd.windows.debug.x86_32.dll"
+android.debug.arm64 = "libiree-gd.android.debug.arm64.so"
+android.debug.x86_64 = "libiree-gd.android.debug.x86_64.so"
+ios.debug = "libiree-gd.ios.debug.xcframework"
 
-linux.release.x86_64 = "libiree-gd.linux.template_release.x86_64.so"
-linux.release.x86_32 = "libiree-gd.linux.template_release.x86_32.so"
-linux.release.arm64 = "libiree-gd.linux.template_release.arm64.so"
-linux.release.arm32 = "libiree-gd.linux.template_release.arm.so"
-macos.release = "libiree-gd.darwin.template_release.framework"
-windows.release.x86_64 = "iree-gd.windows.template_release.x86_64.dll"
-windows.release.x86_32 = "iree-gd.windows.template_release.x86_32.dll"
-android.release.arm64 = "libiree-gd.android.template_release.arm64.so"
-android.release.x86_64 = "libiree-gd.android.template_release.x86_64.so"
-ios.release = "libiree-gd.ios.template_release.xcframework"
+linux.release.x86_64 = "libiree-gd.linux.release.x86_64.so"
+linux.release.x86_32 = "libiree-gd.linux.release.x86_32.so"
+linux.release.arm64 = "libiree-gd.linux.release.arm64.so"
+linux.release.arm32 = "libiree-gd.linux.release.arm.so"
+macos.release = "libiree-gd.darwin.release.framework"
+windows.release.x86_64 = "iree-gd.windows.release.x86_64.dll"
+windows.release.x86_32 = "iree-gd.windows.release.x86_32.dll"
+android.release.arm64 = "libiree-gd.android.release.arm64.so"
+android.release.x86_64 = "libiree-gd.android.release.x86_64.so"
+ios.release = "libiree-gd.ios.release.xcframework"
 
 [dependencies]
 ios.debug = {
-  "libiree-gd.ios.template_debug.xcframework": ""
+  "libiree-gd.ios.debug.xcframework": ""
 }
 ios.release = {
-  "libiree-gd.ios.template_release.xcframework": ""
+  "libiree-gd.ios.release.xcframework": ""
 }

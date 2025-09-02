@@ -30,11 +30,9 @@ jobs:
           # Build type to cmake keyword.
           - build_type: release
             cmake_build_type_keyword: Release
-            godotcpp_type: template_release
 
           - build_type: debug
             cmake_build_type_keyword: RelWithDebInfo
-            godotcpp_type: template_debug
 
           - os: macos-latest
             target: macos
@@ -103,7 +101,7 @@ jobs:
       - name: Mac Sign
         uses: ughuuu/godot-cpp-template/.github/actions/sign@add-more-stuff/options-to-build
         with:
-          FRAMEWORK_PATH: "${{ github.workspace }}/sample/addons/iree-gd/libiree-gd.darwin.${{ matrix.godotcpp_type }}.framework"
+          FRAMEWORK_PATH: "${{ github.workspace }}/sample/addons/iree-gd/libiree-gd.darwin.${{ matrix.build_type }}.framework"
           SIGN_FLAGS: "--deep"
           APPLE_CERT_BASE64: ${{ secrets.APPLE_CERT_BASE64 }}
           APPLE_CERT_PASSWORD: ${{ secrets.APPLE_CERT_PASSWORD }}
@@ -124,7 +122,7 @@ jobs:
         with:
           name: iree-gd-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
-            ${{ github.workspace }}/sample/addons/iree-gd/libiree-gd.darwin.${{ matrix.godotcpp_type }}.framework
+            ${{ github.workspace }}/sample/addons/iree-gd/libiree-gd.darwin.${{ matrix.build_type }}.framework
             ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
             ${{ github.workspace }}/sample/addons/iree-gd/LICENSE
             ${{ github.workspace }}/sample/addons/iree-gd/README.md

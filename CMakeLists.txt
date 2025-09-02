@@ -67,13 +67,11 @@ file(GLOB_RECURSE HEADERS ${SRC_DIR}/*.h**)
 
 if("${CMAKE_BUILD_TYPE}" MATCHES Debug OR "${CMAKE_BUILD_TYPE}" MATCHES RelWithDebInfo)
 	set(IREEGD_BUILD_TYPE "debug")
-	set(GODOTCPP_TYPE "template_debug")
 else()
 	set(IREEGD_BUILD_TYPE "release")
-	set(GODOTCPP_TYPE "template_release")
 endif()
 
-set(GODOTCPP "godot-cpp::${GODOTCPP_TYPE}")
+set(GODOTCPP "godot-cpp")
 
 string(TOLOWER ${CMAKE_SYSTEM_NAME} IREEGD_SYSTEM_NAME)
 string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} IREEGD_ARCH)
@@ -140,9 +138,9 @@ if(APPLE)
 	set_target_properties(
 		${IREEGD}
 		PROPERTIES
-		ARCHIVE_OUTPUT_DIRECTORY "${IREEGD_OUTPUT_DIR}/libiree-gd.darwin.${GODOTCPP_TYPE}.framework"
-		LIBRARY_OUTPUT_DIRECTORY "${IREEGD_OUTPUT_DIR}/libiree-gd.darwin.${GODOTCPP_TYPE}.framework"
-		RUNTIME_OUTPUT_DIRECTORY "${IREEGD_OUTPUT_DIR}/libiree-gd.darwin.${GODOTCPP_TYPE}.framework"
+		ARCHIVE_OUTPUT_DIRECTORY "${IREEGD_OUTPUT_DIR}/libiree-gd.darwin.${IREEGD_BUILD_TYPE}.framework"
+		LIBRARY_OUTPUT_DIRECTORY "${IREEGD_OUTPUT_DIR}/libiree-gd.darwin.${IREEGD_BUILD_TYPE}.framework"
+		RUNTIME_OUTPUT_DIRECTORY "${IREEGD_OUTPUT_DIR}/libiree-gd.darwin.${IREEGD_BUILD_TYPE}.framework"
 		OSX_ARCHITECTURES "${IREEGD_OSX_ARCH}"
 	)
 endif()
