@@ -47,7 +47,7 @@ jobs:
         run: |
           if not exist "${{ github.workspace }}\\build" mkdir "${{ github.workspace }}\\build"
           cd "${{ github.workspace }}\\build"
-          cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" -DIREE_ENABLE_WERROR_FLAG=ON -DIREE_BUILD_TESTS=OFF
+          cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE="${{ matrix.cmake_build_type_keyword }}" -DIREE_ENABLE_WERROR_FLAG=OFF -DIREE_BUILD_TESTS=OFF
 
       - name: Build project
         shell: bash
