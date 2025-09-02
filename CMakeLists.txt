@@ -59,17 +59,19 @@ else()
 	set(IREE_HAL_EXECUTABLE_LOADER_VMVX_MODULE ON)
 endif()
 
+if("${CMAKE_BUILD_TYPE}" MATCHES Debug OR "${CMAKE_BUILD_TYPE}" MATCHES RelWithDebInfo)
+	set(IREEGD_BUILD_TYPE "debug")
+	set(GODOTCPP_TARGET "template_debug")
+else()
+	set(IREEGD_BUILD_TYPE "release")
+	set(GODOTCPP_TARGET "template_release")
+endif()
+
 add_subdirectory(${3RD_PARTY_DIR}/godot-cpp)
 add_subdirectory(${3RD_PARTY_DIR}/iree)
 
 file(GLOB_RECURSE SRCS ${SRC_DIR}/*.c**)
 file(GLOB_RECURSE HEADERS ${SRC_DIR}/*.h**)
-
-if("${CMAKE_BUILD_TYPE}" MATCHES Debug OR "${CMAKE_BUILD_TYPE}" MATCHES RelWithDebInfo)
-	set(IREEGD_BUILD_TYPE "debug")
-else()
-	set(IREEGD_BUILD_TYPE "release")
-endif()
 
 string(TOLOWER ${CMAKE_SYSTEM_NAME} IREEGD_SYSTEM_NAME)
 string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} IREEGD_ARCH)

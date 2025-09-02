@@ -26,17 +26,6 @@ jobs:
           - os: macos-latest
             target: ios
 
-          # Define toolchain data.
-          - target: ios
-            arch: arm64
-            cmake_arch_keyword: arm64
-            cmake_sdk_keyword: iphoneos
-
-          - target: ios
-            arch: x86_64
-            cmake_arch_keyword: x86_64
-            cmake_sdk_keyword: iphonesimulator
-
     steps:
       - name: Check out code
         uses: actions/checkout@v4
