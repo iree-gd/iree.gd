@@ -74,7 +74,7 @@ jobs:
           if [ ! -d "${{ github.workspace }}/build" ]; then
             mkdir "${{ github.workspace }}/build"
           fi
-          cd "${{ github.workspace }}/build_x86_64"
+          cd "${{ github.workspace }}/build"
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
             -DIREE_HOST_BIN_DIR="${{ github.workspace }}/host-tools-build/install/bin" \
             -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
