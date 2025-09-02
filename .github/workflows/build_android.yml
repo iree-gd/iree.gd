@@ -10,7 +10,6 @@ jobs:
 
     strategy:
       matrix:
-        float_precision: [single, double]
         target: [android]
         arch: [x86_64, arm64]
         build_type: [release, debug]
@@ -84,7 +83,6 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE="${{ steps.android-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=${{ matrix.cmake_arch_keyword }} \
             -DIREE_ENABLE_WERROR_FLAG=OFF \
-            -DFLOAT_PRECISION=${{ matrix.float_precision }} \
             -DIREE_BUILD_SAMPLES=OFF \
             -DCOPY_LIBS_TO_SAMPLE=ON \
             -DIREE_BUILD_TESTS=OFF
@@ -108,7 +106,7 @@ jobs:
       - name: Export libraries
         uses: actions/upload-artifact@v4
         with:
-          name: iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          name: iree-gd-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
             ${{ github.workspace }}/sample/addons/iree-gd/*.so
             ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
@@ -119,7 +117,7 @@ jobs:
       - name: Export samples
         uses: actions/upload-artifact@v4
         with:
-          name: sample-iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          name: sample-iree-gd-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
             ${{ github.workspace }}/sample
           if-no-files-found: error

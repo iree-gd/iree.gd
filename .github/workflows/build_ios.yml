@@ -10,7 +10,6 @@ jobs:
 
     strategy:
       matrix:
-        float_precision: [single, double]
         target: [ios]
         arch: [arm64, x86_64]
         build_type: [release, debug]
@@ -86,7 +85,6 @@ jobs:
             -DIREE_BUILD_TESTS=OFF \
             -DCOPY_LIBS_TO_SAMPLE=ON \
             -DCMAKE_SYSTEM_NAME="iOS" \
-            -DFLOAT_PRECISION=${{ matrix.float_precision }}
 
       - name: Build project
         shell: bash
@@ -107,7 +105,7 @@ jobs:
       - name: Export libraries
         uses: actions/upload-artifact@v4
         with:
-          name: iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          name: iree-gd-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
             ${{ github.workspace }}/sample/addons/iree-gd/*.dylib
             ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
@@ -118,7 +116,7 @@ jobs:
       - name: Export samples
         uses: actions/upload-artifact@v4
         with:
-          name: sample-iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          name: sample-iree-gd-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
             ${{ github.workspace }}/sample
           if-no-files-found: error
