@@ -37,9 +37,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@master
-
       - name: Set up MSVC Dev Cmd
         uses: ilammy/msvc-dev-cmd@7315a94840631165970262a99c72cfb48a65d25d # v1.12.0
         with:

@@ -47,9 +47,6 @@ jobs:
         with:
           xcode-version: latest
 
-      - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@master
-
       - name: Set up CMake for Host tools
         shell: bash
         run: |

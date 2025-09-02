@@ -49,9 +49,6 @@ jobs:
         with:
           xcode-version: latest
 
-      - name: Setup CMake and Ninja
-        uses: lukka/get-cmake@latest
-
       - name: Set up CMake for Host tools
         shell: bash
         run: |
