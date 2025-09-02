@@ -28,6 +28,9 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
 	set(CMAKE_OSX_ARCHITECTURES "arm64;x86_64") # Enforce universal binary.
 endif()
 
+if(WIN32)
+endif()
+
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src CACHE STRING "Path to sources files (and header files).")
 set(SAMPLE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sample)
 set(3RD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty CACHE STRING "Path to all the thirdparty libraries.")
@@ -71,8 +74,6 @@ else()
 	set(IREEGD_BUILD_TYPE "release")
 endif()
 
-set(GODOTCPP "godot-cpp")
-
 string(TOLOWER ${CMAKE_SYSTEM_NAME} IREEGD_SYSTEM_NAME)
 string(TOLOWER ${CMAKE_SYSTEM_PROCESSOR} IREEGD_ARCH)
 
@@ -90,7 +91,7 @@ if("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin")
 	endif()
 endif()
 
-get_target_property(IREEGD_OSX_ARCH ${GODOTCPP} OSX_ARCHITECTURES)
+get_target_property(IREEGD_OSX_ARCH godot-cpp OSX_ARCHITECTURES)
 
 set(IREEGD_OUTPUT_DIR ${CMAKE_SOURCE_DIR}/sample/addons/iree-gd)
 set(IREEGD ${PROJECT_NAME}.${IREEGD_SYSTEM_NAME}.${IREEGD_BUILD_TYPE}.${IREEGD_ARCH})
@@ -106,7 +107,7 @@ target_sources(
 
 target_link_libraries(
 	${IREEGD}
-	${GODOTCPP}
+	godot-cpp
 	iree::base
 	iree::hal
 	iree::hal::local
@@ -149,6 +150,7 @@ target_compile_options(
 	${IREEGD}
 	PRIVATE
 	"$<IF:$<BOOL:${WIN32}>,/GR,-frtti>" # Enable RTTI.
+	"$<$<BOOL:${WIN32}>:/wd4576>" # Disable C4576.
 )
 
 if(APPLE)
