@@ -2,10 +2,10 @@
 
 [ext_resource type="Texture2D" uid="uid://caejptg3bfd7y" path="res://assets/example_images/baboon.png" id="1_ja3q5"]
 [ext_resource type="Theme" uid="uid://c4hif364nxikg" path="res://resources/themes/default_themes.tres" id="2_hskai"]
-[ext_resource type="IREEModule" path="res://bytecodes/esrgan/esrgan.vulkan.vmfb" id="3_30xsh"]
-[ext_resource type="IREEModule" path="res://bytecodes/esrgan/esrgan.metal.vmfb" id="3_u62tb"]
-[ext_resource type="Script" path="res://scenes/main/esrgan_texture.gd" id="3_ujyfa"]
-[ext_resource type="Script" path="res://scenes/main/progress.gd" id="8_0ch1m"]
+[ext_resource type="IREEModule" uid="uid://b5yl86nqsj3iq" path="res://bytecodes/esrgan/esrgan.vulkan.vmfb" id="3_30xsh"]
+[ext_resource type="IREEModule" uid="uid://vvf65e7ulc10" path="res://bytecodes/esrgan/esrgan.metal.vmfb" id="3_u62tb"]
+[ext_resource type="Script" uid="uid://cejf2hbs56oej" path="res://scenes/main/esrgan_texture.gd" id="3_ujyfa"]
+[ext_resource type="Script" uid="uid://cou30ove2h6su" path="res://scenes/main/progress.gd" id="8_0ch1m"]
 
 [node name="Main" type="Node2D"]
 

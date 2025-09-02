@@ -1,8 +1,8 @@
 [gd_scene load_steps=5 format=3 uid="uid://c6yjgoqlpn2xq"]
 
-[ext_resource type="Script" path="res://scenes/pose_detection_thunder/pose_detection_thunder.gd" id="1_o6u27"]
-[ext_resource type="IREEModule" path="res://bytecodes/singlepose_thunder/singlepose_thunder.vulkan.vmfb" id="2_h7gs2"]
-[ext_resource type="IREEModule" path="res://bytecodes/singlepose_thunder/singlepose_thunder.metal.vmfb" id="3_3js8w"]
+[ext_resource type="Script" uid="uid://c52ygllx13fon" path="res://scenes/pose_detection_thunder/pose_detection_thunder.gd" id="1_o6u27"]
+[ext_resource type="IREEModule" uid="uid://dephybchsm8uo" path="res://bytecodes/singlepose_thunder/singlepose_thunder.vulkan.vmfb" id="2_h7gs2"]
+[ext_resource type="IREEModule" uid="uid://dv4cj74dqmbp4" path="res://bytecodes/singlepose_thunder/singlepose_thunder.metal.vmfb" id="3_3js8w"]
 [ext_resource type="Texture2D" uid="uid://cnlokftq3gcr6" path="res://assets/example_images/pose.png" id="4_qg0cv"]
 
 [node name="PoseDetectionThunder" type="Node2D"]
