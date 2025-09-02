@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         target: [ios]
-        arch: [arm64, x86_64]
+        arch: [arm64]
         build_type: [release, debug]
         include:
           # Build type to cmake keyword.
@@ -29,11 +29,6 @@ jobs:
             arch: arm64
             cmake_arch_keyword: arm64
             cmake_sdk_keyword: iphoneos
-
-          - target: ios
-            arch: x86_64
-            cmake_arch_keyword: x86_64
-            cmake_sdk_keyword: iphonesimulator
 
     steps:
       - name: Check out code
