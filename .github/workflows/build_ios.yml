@@ -10,7 +10,6 @@ jobs:
 
     strategy:
       matrix:
-        float_precision: [single, double]
         target: [ios]
         arch: [arm64, x86_64]
         build_type: [release, debug]
@@ -18,23 +17,14 @@ jobs:
           # Build type to cmake keyword.
           - build_type: release
             cmake_build_type_keyword: Release
+            godotcpp_type: template_release
 
           - build_type: debug
             cmake_build_type_keyword: RelWithDebInfo
+            godotcpp_type: template_debug
 
           - os: macos-latest
             target: ios
-
-          # Define toolchain data.
-          - target: ios
-            arch: arm64
-            cmake_arch_keyword: arm64
-            cmake_sdk_keyword: iphoneos
-
-          - target: ios
-            arch: x86_64
-            cmake_arch_keyword: x86_64
-            cmake_sdk_keyword: iphonesimulator
 
     steps:
       - name: Check out code
@@ -46,9 +36,6 @@ jobs:
         uses: maxim-lobanov/setup-xcode@v1.6.0
         with:
           xcode-version: latest
-
-      - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@master
 
       - name: Set up CMake for Host tools
         shell: bash
@@ -68,18 +55,18 @@ jobs:
         shell: bash
         run: cmake --build ${{ github.workspace }}/host-tools-build --target install
 
-      - name: Set up CMake for iOS
+      - name: Set up CMake for iOS (x86_64)
         shell: bash
         run: |
-          if [ ! -d "${{ github.workspace }}/build" ]; then
-            mkdir "${{ github.workspace }}/build"
+          if [ ! -d "${{ github.workspace }}/build_x86_64" ]; then
+            mkdir "${{ github.workspace }}/build_x86_64"
           fi
-          cd "${{ github.workspace }}/build"
+          cd "${{ github.workspace }}/build_x86_64"
           cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
             -DIREE_HOST_BIN_DIR="${{ github.workspace }}/host-tools-build/install/bin" \
-            -DCMAKE_OSX_SYSROOT=$(xcodebuild -version -sdk ${{ matrix.cmake_sdk_keyword }} Path) \
-            -DCMAKE_OSX_ARCHITECTURES="${{ matrix.cmake_arch_keyword }}" \
-            -DCMAKE_SYSTEM_PROCESSOR="${{ matrix.cmake_arch_keyword }}" \
+            -DCMAKE_OSX_SYSROOT=$(xcodebuild -version -sdk iphonesimulator Path) \
+            -DCMAKE_OSX_ARCHITECTURES="x86_64" \
+            -DCMAKE_SYSTEM_PROCESSOR="x86_64" \
             -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
             -DCMAKE_IOS_INSTALLED_COMBINED=YES \
             -DHAVE_STD_REGEX=ON -DRUN_HAVE_STD_REGEX=ON \
@@ -87,32 +74,71 @@ jobs:
             -DIREE_BUILD_COMPILER=OFF \
             -DIREE_BUILD_SAMPLES=OFF \
             -DIREE_BUILD_TESTS=OFF \
-            -DCOPY_LIBS_TO_SAMPLE=ON \
-            -DCMAKE_SYSTEM_NAME="iOS" \
-            -DFLOAT_PRECISION=${{ matrix.float_precision }}
+            -DCMAKE_SYSTEM_NAME="iOS"
 
-      - name: Build project
+      - name: Build project (x86_64)
         shell: bash
-        run: cmake --build "${{ github.workspace }}/build"
+        run: cmake --build "${{ github.workspace }}/build_x86_64"
 
-      - name: Show build files
+      - name: Set up CMake for iOS (arm64)
         shell: bash
-        working-directory: build
+        run: |
+          if [ ! -d "${{ github.workspace }}/build_arm64" ]; then
+            mkdir "${{ github.workspace }}/build_arm64"
+          fi
+          cd "${{ github.workspace }}/build_arm64"
+          cmake "${{ github.workspace }}" -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type_keyword }} \
+            -DIREE_HOST_BIN_DIR="${{ github.workspace }}/host-tools-build/install/bin" \
+            -DCMAKE_OSX_SYSROOT=$(xcodebuild -version -sdk iphoneos Path) \
+            -DCMAKE_OSX_ARCHITECTURES="arm64" \
+            -DCMAKE_SYSTEM_PROCESSOR="arm64" \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+            -DCMAKE_IOS_INSTALLED_COMBINED=YES \
+            -DHAVE_STD_REGEX=ON -DRUN_HAVE_STD_REGEX=ON \
+            -DIREE_ENABLE_WERROR_FLAG=OFF \
+            -DIREE_BUILD_COMPILER=OFF \
+            -DIREE_BUILD_SAMPLES=OFF \
+            -DIREE_BUILD_TESTS=OFF \
+            -DCMAKE_SYSTEM_NAME="iOS"
+
+      - name: Build project (arm64)
+        shell: bash
+        run: cmake --build "${{ github.workspace }}/build_arm64"
+
+      - name: Show build files (x86_64)
+        shell: bash
+        working-directory: build_x86_64
         run: ls -lR
+
+      - name: Show build files (arm64)
+        shell: bash
+        working-directory: build_arm64
+        run: ls -lR
+
+      - name: Build framework file.
+        shell: bash
+        run: |
+          xcodebuild -create-xcframework \
+            -library ./sample/addons/iree-gd/libiree-gd.ios.${{ matrix.build_type }}.arm64.a \
+            -library ./sample/addons/iree-gd/libiree-gd.ios.${{ matrix.build_type }}.x86_64.a \
+            -output ./sample/addons/iree-gd/libiree-gd.ios.${{ matrix.build_type }}.xcframework
+          xcodebuild -create-xcframework \
+            -library ./build_arm64/bin/libgodot-cpp.ios.${{ matrix.godotcpp_type }}.arm64.a \
+            -library ./build_x86_64/bin/libgodot-cpp.ios.${{ matrix.godotcpp_type }}.x86_64.a \
+            -output ./sample/addons/iree-gd/libgodot-cpp.ios.${{ matrix.godotcpp_type }}.xcframework
 
       - name: Copy Files
         shell: bash
         run: |
-          cp -rf ${{ github.workspace }}/miscellaneous/iree-gd.gdextension ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
           cp -rf ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/addons/iree-gd/LICENSE
           cp -rf ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd/README.md
 
       - name: Export libraries
         uses: actions/upload-artifact@v4
         with:
-          name: iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          name: iree-gd-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
-            ${{ github.workspace }}/sample/addons/iree-gd/*.dylib
+            ${{ github.workspace }}/sample/addons/iree-gd/*.xcframework
             ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
             ${{ github.workspace }}/sample/addons/iree-gd/LICENSE
             ${{ github.workspace }}/sample/addons/iree-gd/README.md
@@ -121,7 +147,7 @@ jobs:
       - name: Export samples
         uses: actions/upload-artifact@v4
         with:
-          name: sample-iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          name: sample-iree-gd-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
             ${{ github.workspace }}/sample
           if-no-files-found: error

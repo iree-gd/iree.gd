@@ -24,13 +24,11 @@ The sample project is in `sample` directory.
 We'll use Git and CMake to build this project.
 
 ```sh
-git clone https://github.com/iree-gd/iree.gd.git # clone this repo
+git clone https://github.com/iree-gd/iree.gd.git # Clone this repository.
 cd iree.gd
 git submodule update --init
-cd ./thirdparty/iree
-git submodule init third_party/
-git submodule deinit third_party/llvm-project # Deinitialize `llvm-project` since we don't want to compile the compiler.
-cd ../../ # Go back the the project root
+git submodule init ./thirdparty/iree/third_party/*
+git submodule deinit ./thirdparty/iree/third_party/llvm-project # Deinitialize `llvm-project` since we don't want to compile the compiler.
 git submodule update --recursive
 mkdir build
 cd build
@@ -40,6 +38,4 @@ cmake --build .
 
 If you would like to compile LLVM from the source, you'll need to set the `IREE_BUILD_BUNDLED_LLVM` CMake option to `ON` when generating build files with CMake and also initialize the `llvm-project` submodule under the `thirdparty/iree/third_party/llvm-project`.
 
-After compilation, the library will be in `build/lib` directory.
-
-If the `COPY_LIBS_TO_SAMPLE` CMake option is `ON`, the library will also be installed into the sample.
+After compilation, the library will be outputted directly in the sample (`sample/addons/iree-gd/`) directory.

@@ -10,7 +10,6 @@ jobs:
 
     strategy:
       matrix:
-        float_precision: [single, double]
         target: [android]
         arch: [x86_64, arm64]
         build_type: [release, debug]
@@ -41,9 +40,6 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Setup ninja
-        uses: seanmiddleditch/gha-setup-ninja@master
-
       - name: Download IREE Host tools
         id: iree-dist
         uses: robinraju/release-downloader@v1.8
@@ -62,7 +58,7 @@ jobs:
           tar -xf "${{ fromJson(steps.iree-dist.outputs.downloaded_files)[0] }}" -C "${{ github.workspace }}/iree-dist"
 
       - name: Prepare Vulkan SDK
-        uses: humbletim/setup-vulkan-sdk@v1.2.0
+        uses: humbletim/setup-vulkan-sdk@v1.2.1
         with:
           vulkan-query-version: latest
           vulkan-components: Vulkan-Headers, Vulkan-Loader
@@ -87,9 +83,7 @@ jobs:
             -DCMAKE_TOOLCHAIN_FILE="${{ steps.android-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=${{ matrix.cmake_arch_keyword }} \
             -DIREE_ENABLE_WERROR_FLAG=OFF \
-            -DFLOAT_PRECISION=${{ matrix.float_precision }} \
             -DIREE_BUILD_SAMPLES=OFF \
-            -DCOPY_LIBS_TO_SAMPLE=ON \
             -DIREE_BUILD_TESTS=OFF
 
       - name: Build project
@@ -104,14 +98,13 @@ jobs:
       - name: Copy Files
         shell: bash
         run: |
-          cp -rf ${{ github.workspace }}/miscellaneous/iree-gd.gdextension ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
           cp -rf ${{ github.workspace }}/LICENSE ${{ github.workspace }}/sample/addons/iree-gd/LICENSE
           cp -rf ${{ github.workspace }}/README.md ${{ github.workspace }}/sample/addons/iree-gd/README.md
 
       - name: Export libraries
         uses: actions/upload-artifact@v4
         with:
-          name: iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          name: iree-gd-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
             ${{ github.workspace }}/sample/addons/iree-gd/*.so
             ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
@@ -122,7 +115,7 @@ jobs:
       - name: Export samples
         uses: actions/upload-artifact@v4
         with:
-          name: sample-iree-gd-${{ matrix.float_precision }}-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
+          name: sample-iree-gd-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
             ${{ github.workspace }}/sample
           if-no-files-found: error
