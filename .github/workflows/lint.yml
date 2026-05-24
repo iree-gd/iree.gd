@@ -14,8 +14,8 @@ jobs:
       - name: Setup clang-format
         shell: bash
         run: |
-          python -m pip install clang-format==22.1.0
+          python -m pip install clang-format
       - name: Run clang-format
         shell: bash
         run: |
-          clang-format --style=file:.clang-format src/** --dry-run --Werror
+          pipx run clang-format --style=file:.clang-format src/** --dry-run --Werror
