@@ -39,10 +39,10 @@ extern "C" {
 // Initialization.
 GDExtensionBool GDE_EXPORT
 iree_gd_library_init(GDExtensionInterfaceGetProcAddress p_get_proc_address,
-		GDExtensionClassLibraryPtr p_library,
-		GDExtensionInitialization *r_initialization) {
+					 GDExtensionClassLibraryPtr p_library,
+					 GDExtensionInitialization *r_initialization) {
 	godot::GDExtensionBinding::InitObject init_obj(p_get_proc_address, p_library,
-			r_initialization);
+												   r_initialization);
 
 	init_obj.register_initializer(initialize_iree_gd_module);
 	init_obj.register_terminator(uninitialize_iree_gd_module);

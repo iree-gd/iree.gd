@@ -33,11 +33,11 @@ public:
 
 	template <iree_hal_element_type_t T>
 	static Ref<IREETensor> from(typename StorageType<T>::type p_data,
-			PackedInt64Array p_dimension);
+								PackedInt64Array p_dimension);
 
 	template <iree_hal_element_type_t T>
 	Error capture(typename StorageType<T>::type p_data,
-			PackedInt64Array p_dimension);
+				  PackedInt64Array p_dimension);
 
 	IREETensor();
 	IREETensor(IREETensor &p_tensor);

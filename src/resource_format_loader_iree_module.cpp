@@ -5,9 +5,9 @@
 using namespace godot;
 
 Variant ResourceFormatLoaderIREEModule::_load(const String &p_path,
-		const String &original_path,
-		bool use_sub_threads,
-		int32_t cache_mode) const {
+											  const String &original_path,
+											  bool use_sub_threads,
+											  int32_t cache_mode) const {
 	Ref<IREEModule> iree_model = memnew(IREEModule);
 	iree_model = iree_model->load(p_path);
 	if (iree_model.is_null()) {

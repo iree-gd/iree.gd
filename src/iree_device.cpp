@@ -69,14 +69,14 @@ Error IREEDevice::capture(iree_vm_instance_t *p_instance) {
 	IREE_ERR_V_MSG(iree_hal_driver_registry_try_create(
 						   iree_hal_driver_registry_default(), identifier,
 						   iree_allocator_system(), &driver),
-			ERR_CANT_CREATE, "Unable to create Metal HAL driver.");
+				   ERR_CANT_CREATE, "Unable to create Metal HAL driver.");
 
 	// Create device.
 	if ((iree_status = iree_hal_driver_create_default_device(
 				 driver, iree_allocator_system(), &new_hal_device))) {
 		ERR_PRINT("Unable to create Metal HAL device.");
 		ERR_PRINT(vformat("IREE code: '%s'. IREE's error is logged to `stderr`.",
-				iree_status_code_string(iree_status_code(iree_status))));
+						  iree_status_code_string(iree_status_code(iree_status))));
 		iree_status_fprint(stderr, iree_status);
 		iree_status_free(iree_status);
 		error = ERR_CANT_CREATE;
@@ -89,7 +89,7 @@ Error IREEDevice::capture(iree_vm_instance_t *p_instance) {
 				 iree_allocator_system(), &new_hal_module))) {
 		ERR_PRINT("Unable to create HAL module of the Metal device.");
 		ERR_PRINT(vformat("IREE code: '%s'. IREE's error is logged to `stderr`.",
-				iree_status_code_string(iree_status_code(iree_status))));
+						  iree_status_code_string(iree_status_code(iree_status))));
 		iree_status_fprint(stderr, iree_status);
 		iree_status_free(iree_status);
 		error = ERR_CANT_CREATE;
@@ -123,18 +123,18 @@ clean_up_driver:
 
 	// It would be better to check whether rendering device is vulkan or not.
 	if (rendering_device ==
-			nullptr) { // Not using vulkan, create vulkan device ourselves.
+		nullptr) { // Not using vulkan, create vulkan device ourselves.
 		iree_hal_driver_t *driver = nullptr;
 
 		IREE_ERR_V_MSG(iree_hal_vulkan_driver_module_register(
 							   iree_hal_driver_registry_default()),
-				FAILED, "Unable to register Vulkan HAL driver.");
+					   FAILED, "Unable to register Vulkan HAL driver.");
 
 		// Create driver.
 		IREE_ERR_V_MSG(iree_hal_driver_registry_try_create(
 							   iree_hal_driver_registry_default(), identifier,
 							   iree_allocator_system(), &driver),
-				ERR_CANT_CREATE, "Unable to create Vulkan device.");
+					   ERR_CANT_CREATE, "Unable to create Vulkan device.");
 
 		// Create device.
 		if ((iree_status = iree_hal_driver_create_default_device(
@@ -187,18 +187,18 @@ clean_up_driver:
 						RenderingDevice::DriverResource::DRIVER_RESOURCE_TOPMOST_OBJECT,
 						RID(), 0);
 		ERR_FAIL_COND_V_MSG(vk_instance == VK_NULL_HANDLE, ERR_QUERY_FAILED,
-				"Unable to retrieve Vulkan instance.");
+							"Unable to retrieve Vulkan instance.");
 		const VkPhysicalDevice vk_physical_device =
 				(VkPhysicalDevice)rendering_device->get_driver_resource(
 						RenderingDevice::DriverResource::DRIVER_RESOURCE_PHYSICAL_DEVICE,
 						RID(), 0);
 		ERR_FAIL_COND_V_MSG(vk_physical_device == VK_NULL_HANDLE, ERR_QUERY_FAILED,
-				"Unable to retrieve Vulkan physical device.");
+							"Unable to retrieve Vulkan physical device.");
 		const VkDevice vk_device = (VkDevice)rendering_device->get_driver_resource(
 				RenderingDevice::DriverResource::DRIVER_RESOURCE_LOGICAL_DEVICE, RID(),
 				0);
 		ERR_FAIL_COND_V_MSG(vk_device == VK_NULL_HANDLE, ERR_QUERY_FAILED,
-				"Unable to retrieve Vulkan device.");
+							"Unable to retrieve Vulkan device.");
 		compute_queue_set.queue_family_index =
 				rendering_device->get_driver_resource(
 						RenderingDevice::DriverResource::DRIVER_RESOURCE_QUEUE_FAMILY,
@@ -211,7 +211,7 @@ clean_up_driver:
 
 		IREE_ERR_V_MSG(iree_hal_vulkan_syms_create_from_system_loader(
 							   iree_allocator_system(), &syms),
-				ERR_CANT_CREATE, "Unable to create Vulkan syms.");
+					   ERR_CANT_CREATE, "Unable to create Vulkan syms.");
 
 		if ((iree_status = iree_hal_vulkan_wrap_device(
 					 identifier, &driver_options.device_options, syms, vk_instance,
@@ -270,16 +270,16 @@ clean_up_driver:
 	IREE_ERR_V_MSG(iree_hal_vmvx_module_loader_create(
 						   p_instance, /*user_module_count=*/0, /*user_module=*/NULL,
 						   iree_allocator_system(), &loader),
-			ERR_CANT_CREATE, "Unable to create loader for CPU task.");
+				   ERR_CANT_CREATE, "Unable to create loader for CPU task.");
 
 	// Create device allocator.
 	if ((status = iree_hal_allocator_create_heap(id, iree_allocator_system(),
-				 iree_allocator_system(),
-				 &device_allocator))) {
+												 iree_allocator_system(),
+												 &device_allocator))) {
 		error = ERR_CANT_CREATE;
 		ERR_PRINT("Unable to create VMVX device allocator.");
 		ERR_PRINT(vformat("IREE code: '%s'. IREE's error is logged to `stderr`.",
-				iree_status_code_string(iree_status_code(status))));
+						  iree_status_code_string(iree_status_code(status))));
 		iree_status_fprint(stderr, status);
 		iree_status_free(status);
 		goto clean_up_loader;
@@ -292,7 +292,7 @@ clean_up_driver:
 		error = ERR_CANT_CREATE;
 		ERR_PRINT("Unable to create VMVX device.");
 		ERR_PRINT(vformat("IREE code: '%s'. IREE's error is logged to `stderr`.",
-				iree_status_code_string(iree_status_code(status))));
+						  iree_status_code_string(iree_status_code(status))));
 		iree_status_fprint(stderr, status);
 		iree_status_free(status);
 		goto clean_up_device_allocator;
@@ -305,7 +305,7 @@ clean_up_driver:
 		error = ERR_CANT_CREATE;
 		ERR_PRINT("Unable to create HAL module of the device.");
 		ERR_PRINT(vformat("IREE code: '%s'. IREE's error is logged to `stderr`.",
-				iree_status_code_string(iree_status_code(status))));
+						  iree_status_code_string(iree_status_code(status))));
 		iree_status_fprint(stderr, status);
 		iree_status_free(status);
 		goto clean_up_device;

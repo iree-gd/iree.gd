@@ -33,6 +33,7 @@ jobs:
       - name: Rename artifacts
         shell: bash
         run: |
+          cp ${{ github.workspace }}/iree-gd.zip ${{ github.workspace }}/brisklance_module.zip
           mv ${{ github.workspace }}/iree-gd.zip ${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip
           mv ${{ github.workspace }}/sample-iree-gd.zip ${{ github.workspace }}/sample-iree-gd-${{ github.ref_name }}.zip
 
