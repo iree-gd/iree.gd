@@ -14,11 +14,11 @@ using namespace godot;
 
 template <iree_hal_element_type_t T>
 Error IREETensor::capture(typename StorageType<T>::type p_data,
-		PackedInt64Array p_dimension) {
+						  PackedInt64Array p_dimension) {
 	release();
 	const int64_t shape_rank = p_dimension.size();
 	ERR_FAIL_COND_V_MSG(shape_rank == 0, ERR_PARAMETER_RANGE_ERROR,
-			"Dimensionless tensor is forbidden.");
+						"Dimensionless tensor is forbidden.");
 	ERR_FAIL_COND_V_MSG(
 			shape_rank > MAX_SHAPE_RANK, ERR_PARAMETER_RANGE_ERROR,
 			"Dimension exceed maximum rank (" STRINGIFY_MACROS(MAX_SHAPE_RANK) ").");
@@ -27,7 +27,7 @@ Error IREETensor::capture(typename StorageType<T>::type p_data,
 	for (int64_t i = 0; i < shape_rank; i++)
 		expected_size *= p_dimension[i];
 	ERR_FAIL_COND_V_MSG(expected_size != p_data.size(), ERR_INVALID_PARAMETER,
-			"Dimension doesn't match with the data.");
+						"Dimension doesn't match with the data.");
 
 	iree_hal_dim_t shape[MAX_SHAPE_RANK] = { 0 };
 	for (int i = 0; i < shape_rank; i++)
@@ -54,7 +54,7 @@ Error IREETensor::capture(typename StorageType<T>::type p_data,
 
 template <iree_hal_element_type_t T>
 Ref<IREETensor> IREETensor::from(typename StorageType<T>::type p_data,
-		PackedInt64Array p_dimension) {
+								 PackedInt64Array p_dimension) {
 	Ref<IREETensor> tensor_ref;
 	tensor_ref.instantiate();
 	tensor_ref->capture<T>(p_data, p_dimension);
@@ -63,8 +63,8 @@ Ref<IREETensor> IREETensor::from(typename StorageType<T>::type p_data,
 
 void IREETensor::_bind_methods() {
 	ClassDB::bind_static_method("IREETensor",
-			D_METHOD("from_bytes", "bytes", "dimension"),
-			&IREETensor::from<IREE_HAL_ELEMENT_TYPE_UINT_8>);
+								D_METHOD("from_bytes", "bytes", "dimension"),
+								&IREETensor::from<IREE_HAL_ELEMENT_TYPE_UINT_8>);
 	ClassDB::bind_static_method(
 			"IREETensor", D_METHOD("from_float32s", "float32s", "dimension"),
 			&IREETensor::from<IREE_HAL_ELEMENT_TYPE_FLOAT_32>);
@@ -72,22 +72,22 @@ void IREETensor::_bind_methods() {
 			"IREETensor", D_METHOD("from_float64s", "float64s", "dimension"),
 			&IREETensor::from<IREE_HAL_ELEMENT_TYPE_FLOAT_64>);
 	ClassDB::bind_static_method("IREETensor",
-			D_METHOD("from_int32s", "int32s", "dimension"),
-			&IREETensor::from<IREE_HAL_ELEMENT_TYPE_SINT_32>);
+								D_METHOD("from_int32s", "int32s", "dimension"),
+								&IREETensor::from<IREE_HAL_ELEMENT_TYPE_SINT_32>);
 	ClassDB::bind_static_method("IREETensor",
-			D_METHOD("from_int64s", "int64s", "dimension"),
-			&IREETensor::from<IREE_HAL_ELEMENT_TYPE_SINT_64>);
+								D_METHOD("from_int64s", "int64s", "dimension"),
+								&IREETensor::from<IREE_HAL_ELEMENT_TYPE_SINT_64>);
 
 	ClassDB::bind_method(D_METHOD("capture_bytes", "bytes", "dimension"),
-			&IREETensor::capture<IREE_HAL_ELEMENT_TYPE_UINT_8>);
+						 &IREETensor::capture<IREE_HAL_ELEMENT_TYPE_UINT_8>);
 	ClassDB::bind_method(D_METHOD("capture_float32s", "float32s", "dimension"),
-			&IREETensor::capture<IREE_HAL_ELEMENT_TYPE_FLOAT_32>);
+						 &IREETensor::capture<IREE_HAL_ELEMENT_TYPE_FLOAT_32>);
 	ClassDB::bind_method(D_METHOD("capture_float64s", "float64s", "dimension"),
-			&IREETensor::capture<IREE_HAL_ELEMENT_TYPE_FLOAT_64>);
+						 &IREETensor::capture<IREE_HAL_ELEMENT_TYPE_FLOAT_64>);
 	ClassDB::bind_method(D_METHOD("capture_int32s", "int32s", "dimension"),
-			&IREETensor::capture<IREE_HAL_ELEMENT_TYPE_SINT_32>);
+						 &IREETensor::capture<IREE_HAL_ELEMENT_TYPE_SINT_32>);
 	ClassDB::bind_method(D_METHOD("capture_int64s", "int64s", "dimension"),
-			&IREETensor::capture<IREE_HAL_ELEMENT_TYPE_SINT_64>);
+						 &IREETensor::capture<IREE_HAL_ELEMENT_TYPE_SINT_64>);
 	ClassDB::bind_method(D_METHOD("release"), &IREETensor::release);
 	ClassDB::bind_method(D_METHOD("is_captured"), &IREETensor::is_captured);
 	ClassDB::bind_method(D_METHOD("get_data"), &IREETensor::get_data);
@@ -163,7 +163,7 @@ Array IREETensor::get_dimension() const {
 	iree_hal_dim_t shape[MAX_SHAPE_RANK] = { 0 };
 	IREE_ERR_V_MSG(
 			iree_hal_buffer_view_shape(buffer_view, MAX_SHAPE_RANK, shape,
-					&shape_rank),
+									   &shape_rank),
 			Array(),
 			"Dimension of IREETensor exceed maximum rank (" STRINGIFY_MACROS(
 					MAX_SHAPE_RANK) ") to be acquired.");

@@ -60,9 +60,9 @@ Error IREEList::capture(iree_host_size_t p_initial_capacity) {
 	release();
 	iree_vm_list_t *new_vm_list = nullptr;
 	IREE_ERR_V_MSG(iree_vm_list_create(iree_vm_make_undefined_type_def(),
-						   p_initial_capacity,
-						   iree_allocator_system(), &new_vm_list),
-			ERR_CANT_CREATE, "Unable to create an IREE list.");
+									   p_initial_capacity,
+									   iree_allocator_system(), &new_vm_list),
+				   ERR_CANT_CREATE, "Unable to create an IREE list.");
 	vm_list = new_vm_list;
 	return OK;
 }

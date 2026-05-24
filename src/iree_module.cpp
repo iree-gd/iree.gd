@@ -18,7 +18,7 @@ using namespace godot;
 
 Error IREEModule::capture() {
 	ERR_FAIL_COND_V_MSG(bytecode_data.size() == 0, ERR_INVALID_DATA,
-			"Empty bytecode is forbidden.");
+						"Empty bytecode is forbidden.");
 
 	// Get instance.
 	iree_vm_instance_t *const instance =
@@ -40,7 +40,7 @@ Error IREEModule::capture() {
 	IREE_ERR_V_MSG(iree_vm_bytecode_module_create(
 						   instance, byte_span, iree_allocator_null(),
 						   iree_allocator_system(), &new_bytecode_module),
-			ERR_CANT_CREATE, "Unable to load IREE module.");
+				   ERR_CANT_CREATE, "Unable to load IREE module.");
 	bytecode_module = new_bytecode_module;
 
 	// Create a context.
@@ -51,7 +51,7 @@ Error IREEModule::capture() {
 						   instance, IREE_VM_CONTEXT_FLAG_NONE,
 						   IREE_ARRAYSIZE(modules), modules, iree_allocator_system(),
 						   &new_context),
-			ERR_CANT_CREATE, "Unable to create IREE context.");
+				   ERR_CANT_CREATE, "Unable to create IREE context.");
 	context = new_context;
 
 	return OK;
@@ -76,7 +76,7 @@ TypedArray<IREETensor> IREEModule::process(const String &p_func_name, const Arra
 	}
 
 	ERR_FAIL_COND_V_MSG(!(bytecode_module && context), Array(),
-			"IREE Module is not loaded.");
+						"IREE Module is not loaded.");
 
 	PackedByteArray raw_func_name = p_func_name.to_utf8_buffer();
 	iree_vm_function_t func = { 0 };
@@ -86,7 +86,7 @@ TypedArray<IREETensor> IREEModule::process(const String &p_func_name, const Arra
 			iree_vm_context_resolve_function(
 					context,
 					iree_string_view_t{ .data = (const char *)raw_func_name.ptr(),
-							.size = (unsigned long)raw_func_name.size() },
+										.size = (unsigned long)raw_func_name.size() },
 					&func),
 			Array(),
 			vformat("Unable to find function '%s' in module bytecode.", p_func_name));
@@ -109,9 +109,9 @@ TypedArray<IREETensor> IREEModule::process(const String &p_func_name, const Arra
 		}
 		Ref<IREETensor> tensor = (Ref<IREETensor>)obj;
 		ERR_FAIL_COND_V_MSG(tensor.is_null(), Array(),
-				"Given IREE tensor is null.");
+							"Given IREE tensor is null.");
 		ERR_FAIL_COND_V_MSG(!tensor->is_captured(), Array(),
-				"Given IREE tensor is null.");
+							"Given IREE tensor is null.");
 		inputs.append(*tensor.ptr());
 	}
 
@@ -123,8 +123,8 @@ TypedArray<IREETensor> IREEModule::process(const String &p_func_name, const Arra
 	// Call.
 	IREE_ERR_V_MSG(
 			iree_vm_invoke(context, func, IREE_VM_INVOCATION_FLAG_NONE,
-					/*policy=*/NULL, inputs.borrow_vm_list(),
-					outputs.borrow_vm_list(), iree_allocator_system()),
+						   /*policy=*/NULL, inputs.borrow_vm_list(),
+						   outputs.borrow_vm_list(), iree_allocator_system()),
 			Array(), vformat("Unable to call IREE function '%s'.", p_func_name));
 
 	return outputs.get_tensors();
@@ -164,7 +164,7 @@ Ref<IREEModule> IREEModule::load(const String &p_path) {
 	PackedByteArray new_bytecode_data;
 	new_bytecode_data = FileAccess::get_file_as_bytes(p_path);
 	ERR_FAIL_COND_V_MSG(new_bytecode_data.size() == 0, nullptr,
-			"Empty bytecode is forbidden.");
+						"Empty bytecode is forbidden.");
 	bytecode_data = new_bytecode_data;
 
 	notify_property_list_changed();

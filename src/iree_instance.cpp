@@ -21,11 +21,11 @@ Error IREEInstance::assure_vm_instance_captured() {
 		return OK;
 
 	IREE_ERR_V_MSG(iree_vm_instance_create(IREE_VM_TYPE_CAPACITY_DEFAULT,
-						   iree_allocator_system(), &vm_instance),
-			ERR_CANT_CREATE, "Unable create a VM instance.");
+										   iree_allocator_system(), &vm_instance),
+				   ERR_CANT_CREATE, "Unable create a VM instance.");
 
 	IREE_ERR_V_MSG(iree_hal_module_register_all_types(vm_instance),
-			ERR_CANT_CREATE, "Unable register HAL modules.");
+				   ERR_CANT_CREATE, "Unable register HAL modules.");
 	return OK;
 }
 

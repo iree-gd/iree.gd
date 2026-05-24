@@ -14,8 +14,8 @@ protected:
 
 public:
 	virtual Variant _load(const String &path, const String &original_path,
-			bool use_sub_threads,
-			int32_t cache_mode) const override;
+						  bool use_sub_threads,
+						  int32_t cache_mode) const override;
 	virtual PackedStringArray _get_recognized_extensions() const override;
 	virtual bool _handles_type(const StringName &type) const override;
 	virtual String _get_resource_type(const String &p_path) const override;
