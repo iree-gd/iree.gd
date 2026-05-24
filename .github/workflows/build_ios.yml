@@ -139,6 +139,7 @@ jobs:
           name: iree-gd-${{ matrix.target }}-${{ matrix.arch }}-${{ matrix.build_type }}
           path: |
             ${{ github.workspace }}/sample/addons/iree-gd/*.xcframework
+            ${{ github.workspace }}/sample/addons/iree-gd/plugin.cfg
             ${{ github.workspace }}/sample/addons/iree-gd/iree-gd.gdextension
             ${{ github.workspace }}/sample/addons/iree-gd/LICENSE
             ${{ github.workspace }}/sample/addons/iree-gd/README.md
