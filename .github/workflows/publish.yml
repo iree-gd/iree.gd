@@ -42,5 +42,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
+            ${{ github.workspace }}/brisklance_module.zip
             ${{ github.workspace }}/iree-gd-${{ github.ref_name }}.zip
             ${{ github.workspace }}/sample-iree-gd-${{ github.ref_name }}.zip
