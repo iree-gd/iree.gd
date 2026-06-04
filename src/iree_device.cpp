@@ -83,9 +83,26 @@ Error IREEDevice::capture(iree_vm_instance_t *p_instance) {
 		goto clean_up_driver;
 	}
 
+	// Create device group.
+	if ((iree_status = iree_hal_device_group_create_from_device(
+				 new_hal_device, iree_allocator_system(), &new_hal_device_group))) {
+		ERR_PRINT("Unable to create Vulkan HAL device group.");
+		ERR_PRINT(
+				vformat("IREE code: '%s'. IREE's error is logged to `stderr`.",
+						iree_status_code_string(iree_status_code(iree_status))));
+		iree_status_fprint(stderr, iree_status);
+		iree_status_free(iree_status);
+		error = ERR_CANT_CREATE;
+		goto clean_up_device;
+	}
+
 	// Create HAL module.
 	if ((iree_status = iree_hal_module_create(
-				 p_instance, 1, &new_hal_device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
+				 p_instance,
+				 iree_hal_module_device_policy_default(),
+				 new_hal_device_group,
+				 IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
+				 iree_hal_module_debug_sink_null(),
 				 iree_allocator_system(), &new_hal_module))) {
 		ERR_PRINT("Unable to create HAL module of the Metal device.");
 		ERR_PRINT(vformat("IREE code: '%s'. IREE's error is logged to `stderr`.",
@@ -93,14 +110,18 @@ Error IREEDevice::capture(iree_vm_instance_t *p_instance) {
 		iree_status_fprint(stderr, iree_status);
 		iree_status_free(iree_status);
 		error = ERR_CANT_CREATE;
-		goto clean_up_device;
+		goto clean_up_device_group;
 	}
 
 	// Setup value.
 	hal_device = new_hal_device;
 	hal_module = new_hal_module;
 
+	iree_hal_device_group_release(new_hal_device_group);
 	goto clean_up_driver;
+
+clean_up_device_group:
+	iree_hal_device_group_release(new_hal_device_group);
 
 clean_up_device:
 	iree_hal_device_release(new_hal_device);
@@ -115,6 +136,7 @@ clean_up_driver:
 	Error error = OK;
 	iree_status_t iree_status = iree_ok_status();
 	iree_hal_device_t *new_hal_device = nullptr;
+	iree_hal_device_group_t *new_hal_device_group = nullptr;
 	iree_vm_module_t *new_hal_module = nullptr;
 	iree_string_view_t identifier = iree_make_cstring_view("vulkan");
 
@@ -149,11 +171,10 @@ clean_up_driver:
 			goto create_clean_up_driver;
 		}
 
-		// Create hal module.
-		if ((iree_status = iree_hal_module_create(
-					 p_instance, 1, &new_hal_device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
-					 iree_allocator_system(), &new_hal_module))) {
-			ERR_PRINT("Unable to create HAL module of the Vulkan device.");
+		// Create device group.
+		if ((iree_status = iree_hal_device_group_create_from_device(
+					 new_hal_device, iree_allocator_system(), &new_hal_device_group))) {
+			ERR_PRINT("Unable to create Vulkan HAL device group.");
 			ERR_PRINT(
 					vformat("IREE code: '%s'. IREE's error is logged to `stderr`.",
 							iree_status_code_string(iree_status_code(iree_status))));
@@ -163,11 +184,33 @@ clean_up_driver:
 			goto create_clean_up_device;
 		}
 
+		// Create hal module.
+		if ((iree_status = iree_hal_module_create(
+					 p_instance,
+					 iree_hal_module_device_policy_default(),
+					 new_hal_device_group,
+					 IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
+					 iree_hal_module_debug_sink_null(),
+					 iree_allocator_system(), &new_hal_module))) {
+			ERR_PRINT("Unable to create HAL module of the Vulkan device.");
+			ERR_PRINT(
+					vformat("IREE code: '%s'. IREE's error is logged to `stderr`.",
+							iree_status_code_string(iree_status_code(iree_status))));
+			iree_status_fprint(stderr, iree_status);
+			iree_status_free(iree_status);
+			error = ERR_CANT_CREATE;
+			goto create_clean_up_device_group;
+		}
+
 		// Setup value.
 		hal_device = new_hal_device;
 		hal_module = new_hal_module;
 
+		iree_hal_device_group_release(new_hal_device_group);
 		goto create_clean_up_driver;
+
+	create_clean_up_device_group:
+		iree_hal_device_group_release(new_hal_device_group);
 
 	create_clean_up_device:
 		iree_hal_device_release(new_hal_device);
@@ -218,7 +261,7 @@ clean_up_driver:
 					 vk_physical_device, vk_device, &compute_queue_set,
 					 &transfer_queue_set, iree_allocator_system(), &new_hal_device))) {
 			error = ERR_CANT_CREATE;
-			ERR_PRINT("Unable to wrap Vualkan device.");
+			ERR_PRINT("Unable to wrap Vulkan device.");
 			ERR_PRINT(
 					vformat("IREE code: '%s'. IREE's error is logged to `stderr`.",
 							iree_status_code_string(iree_status_code(iree_status))));
@@ -227,11 +270,10 @@ clean_up_driver:
 			goto wrap_clean_up_syms;
 		}
 
-		// Create hal module.
-		if ((iree_status = iree_hal_module_create(
-					 p_instance, 1, &new_hal_device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
-					 iree_allocator_system(), &new_hal_module))) {
-			ERR_PRINT("Unable to create HAL module of the Vulkan device.");
+		// Create device group.
+		if ((iree_status = iree_hal_device_group_create_from_device(
+					 new_hal_device, iree_allocator_system(), &new_hal_device_group))) {
+			ERR_PRINT("Unable to create Vulkan HAL device group.");
 			ERR_PRINT(
 					vformat("IREE code: '%s'. IREE's error is logged to `stderr`.",
 							iree_status_code_string(iree_status_code(iree_status))));
@@ -241,9 +283,33 @@ clean_up_driver:
 			goto wrap_clean_up_device;
 		}
 
+		// Create hal module.
+		if ((iree_status = iree_hal_module_create(
+					 p_instance,
+					 iree_hal_module_device_policy_default(),
+					 new_hal_device_group,
+					 IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
+					 iree_hal_module_debug_sink_null(),
+					 iree_allocator_system(), &new_hal_module))) {
+			ERR_PRINT("Unable to create HAL module of the Vulkan device.");
+			ERR_PRINT(
+					vformat("IREE code: '%s'. IREE's error is logged to `stderr`.",
+							iree_status_code_string(iree_status_code(iree_status))));
+			iree_status_fprint(stderr, iree_status);
+			iree_status_free(iree_status);
+			error = ERR_CANT_CREATE;
+			goto wrap_clean_up_device_group;
+		}
+
 		// Setup value.
 		hal_device = new_hal_device;
 		hal_module = new_hal_module;
+
+		iree_hal_device_group_release(new_hal_device_group);
+		goto wrap_clean_up_syms;
+
+	wrap_clean_up_device_group:
+		iree_hal_device_group_release(new_hal_device_group);
 
 	wrap_clean_up_device:
 		iree_hal_device_release(new_hal_device);
@@ -298,9 +364,26 @@ clean_up_driver:
 		goto clean_up_device_allocator;
 	}
 
+	// Create device group.
+	if ((iree_status = iree_hal_device_group_create_from_device(
+				 new_hal_device, iree_allocator_system(), &new_hal_device_group))) {
+		ERR_PRINT("Unable to create Vulkan HAL device group.");
+		ERR_PRINT(
+				vformat("IREE code: '%s'. IREE's error is logged to `stderr`.",
+						iree_status_code_string(iree_status_code(iree_status))));
+		iree_status_fprint(stderr, iree_status);
+		iree_status_free(iree_status);
+		error = ERR_CANT_CREATE;
+		goto clean_up_device;
+	}
+
 	// Create hal module.
-	if ((status = iree_hal_module_create(
-				 p_instance, 1, &new_hal_device, IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
+	if ((iree_status = iree_hal_module_create(
+				 p_instance,
+				 iree_hal_module_device_policy_default(),
+				 new_hal_device_group,
+				 IREE_HAL_MODULE_FLAG_SYNCHRONOUS,
+				 iree_hal_module_debug_sink_null(),
 				 iree_allocator_system(), &new_hal_module))) {
 		error = ERR_CANT_CREATE;
 		ERR_PRINT("Unable to create HAL module of the device.");
@@ -315,7 +398,11 @@ clean_up_driver:
 	hal_device = new_hal_device;
 	hal_module = new_hal_module;
 
+	iree_hal_device_group_release(new_hal_device_group);
 	goto clean_up_device_allocator;
+
+clean_up_device_group:
+	iree_hal_device_group_release(new_hal_device_group);
 
 clean_up_device:
 	iree_hal_device_release(new_hal_device);

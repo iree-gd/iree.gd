@@ -37,9 +37,10 @@ Error IREEModule::capture() {
 	byte_span.data = bytecode_data.ptr();
 	byte_span.data_length = (iree_host_size_t)bytecode_data.size();
 	iree_vm_module_t *new_bytecode_module = nullptr;
-	IREE_ERR_V_MSG(iree_vm_bytecode_module_create(
-						   instance, byte_span, iree_allocator_null(),
-						   iree_allocator_system(), &new_bytecode_module),
+	IREE_ERR_V_MSG(iree_vm_bytecode_module_create(instance,
+												  IREE_VM_BYTECODE_MODULE_FLAG_NONE,
+												  byte_span, iree_allocator_null(),
+												  iree_allocator_system(), &new_bytecode_module),
 				   ERR_CANT_CREATE, "Unable to load IREE module.");
 	bytecode_module = new_bytecode_module;
 
