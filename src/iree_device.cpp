@@ -56,6 +56,7 @@ Error IREEDevice::capture(iree_vm_instance_t *p_instance) {
 	Error error = OK;
 	iree_status_t iree_status = iree_ok_status();
 	iree_hal_device_t *new_hal_device = nullptr;
+	iree_hal_device_group_t *new_hal_device_group = nullptr;
 	iree_vm_module_t *new_hal_module = nullptr;
 	iree_hal_driver_t *driver = nullptr;
 	iree_string_view_t identifier = iree_make_cstring_view("metal");
@@ -329,6 +330,7 @@ clean_up_driver:
 	iree_hal_executable_loader_t *loader = nullptr;
 	iree_hal_allocator_t *device_allocator = nullptr;
 	iree_hal_device_t *new_hal_device = nullptr;
+	iree_hal_device_group_t *new_hal_device_group = nullptr;
 	iree_vm_module_t *new_hal_module = nullptr;
 	iree_hal_sync_device_params_initialize(&params);
 
