@@ -1,0 +1,75 @@
+[gd_scene format=3 uid="uid://cb8sex5bn677y"]
+
+[ext_resource type="Texture2D" uid="uid://caejptg3bfd7y" path="res://assets/example_images/baboon.png" id="1_hhi7s"]
+[ext_resource type="Script" uid="uid://cejf2hbs56oej" path="res://scenes/tflite/esrgan/esrgan_texture.gd" id="2_hrbem"]
+[ext_resource type="IREEModule" uid="uid://b5yl86nqsj3iq" path="res://bytecodes/tflite/esrgan/esrgan.vulkan.vmfb" id="3_e4jkn"]
+[ext_resource type="IREEModule" uid="uid://vvf65e7ulc10" path="res://bytecodes/tflite/esrgan/esrgan.metal.vmfb" id="4_ic0vk"]
+[ext_resource type="Theme" uid="uid://c4hif364nxikg" path="res://resources/themes/default_themes.tres" id="5_1h53q"]
+[ext_resource type="Script" uid="uid://cou30ove2h6su" path="res://scenes/tflite/esrgan/progress.gd" id="6_crmp3"]
+
+[node name="Esrgan" type="Node2D" unique_id=1107670201]
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=1313780104]
+
+[node name="TextureRect" type="TextureRect" parent="UI" unique_id=1597221314]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -380.0
+offset_top = -205.0
+offset_right = 380.0
+offset_bottom = 205.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+texture = ExtResource("1_hhi7s")
+expand_mode = 1
+stretch_mode = 5
+script = ExtResource("2_hrbem")
+vulkan_module = ExtResource("3_e4jkn")
+metal_module = ExtResource("4_ic0vk")
+
+[node name="Container" type="HBoxContainer" parent="UI" unique_id=2045408443]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -101.0
+grow_horizontal = 2
+grow_vertical = 0
+theme = ExtResource("5_1h53q")
+alignment = 1
+
+[node name="UpscaleTrigger" type="Button" parent="UI/Container" unique_id=1029714689]
+layout_mode = 2
+size_flags_vertical = 6
+text = "Upscale"
+
+[node name="DownscaleTrigger" type="Button" parent="UI/Container" unique_id=1543126446]
+layout_mode = 2
+size_flags_vertical = 6
+text = "Downscale
+"
+
+[node name="ProgressBar" type="ProgressBar" parent="UI" unique_id=1244146417]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -374.0
+offset_top = -13.0
+offset_right = 374.0
+offset_bottom = 14.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("6_crmp3")
+
+[connection signal="on_upscaling_start" from="UI/TextureRect" to="UI/ProgressBar" method="_on_texture_rect_on_upscaling_start"]
+[connection signal="on_upscaling_step" from="UI/TextureRect" to="UI/ProgressBar" method="_on_texture_rect_on_upscaling_step"]
+[connection signal="on_upscaling_stop" from="UI/TextureRect" to="UI/ProgressBar" method="_on_texture_rect_on_upscaling_stop"]
+[connection signal="button_up" from="UI/Container/UpscaleTrigger" to="UI/TextureRect" method="upscale" flags=3]
+[connection signal="button_up" from="UI/Container/DownscaleTrigger" to="UI/TextureRect" method="downscale"]

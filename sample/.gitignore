@@ -4,3 +4,7 @@
 addons/iree-gd/**/*.so
 addons/iree-gd/**/*.dylib
 addons/iree-gd/**/*.dll
+addons/iree-gd/**/*.exp
+addons/iree-gd/**/*.lib
+addons/iree-gd/**/*.ilk
+addons/iree-gd/**/*.pdb

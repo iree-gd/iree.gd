@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://beearxy86amlq"]
+
+[ext_resource type="Script" uid="uid://q5h0k0y7wmr6" path="res://scenes/torch/resnet18/resnet_18.gd" id="1_q7jhr"]
+[ext_resource type="IREEModule" uid="uid://dg1561hto4efu" path="res://bytecodes/torch/resnet18/resnet18.vulkan.vmfb" id="2_jrr1m"]
+[ext_resource type="IREEModule" uid="uid://g6sa351uaa1q" path="res://bytecodes/torch/resnet18/resnet18.metal.vmfb" id="3_5p45c"]
+[ext_resource type="Texture2D" uid="uid://caejptg3bfd7y" path="res://assets/example_images/baboon.png" id="4_6580w"]
+
+[node name="Resnet18" type="Node2D" unique_id=260714126]
+script = ExtResource("1_q7jhr")
+vulkan_module = ExtResource("2_jrr1m")
+metal_module = ExtResource("3_5p45c")
+texture = ExtResource("4_6580w")
