@@ -2,7 +2,7 @@
 
 ![IREE.gd logo](./graphics/logo.svg)
 
-[IREE](https://github.com/iree-org/iree) runtime in Godot through GDExtension, a mission to run a machine learning model (e.g. Tensorflow lite) natively in Godot.
+[IREE](https://github.com/iree-org/iree) runtime in Godot through GDExtension, a mission to run a machine learning model (e.g. PyTorch) natively in Godot.
 
 Authored by [Richie Kho](https://github.com/RechieKho) and its contributors.
 

@@ -81,6 +81,7 @@ jobs:
             -DCMAKE_CXX_FLAGS="-I${VULKAN_SDK}/include" \
             -DIREE_HOST_BIN_DIR="${{ github.workspace }}/iree-dist/bin" \
             -DCMAKE_TOOLCHAIN_FILE="${{ steps.android-ndk.outputs.ndk-path }}/build/cmake/android.toolchain.cmake" \
+            -DANDROID_PLATFORM=android-28 \
             -DANDROID_ABI=${{ matrix.cmake_arch_keyword }} \
             -DIREE_ENABLE_WERROR_FLAG=OFF \
             -DIREE_BUILD_SAMPLES=OFF \
